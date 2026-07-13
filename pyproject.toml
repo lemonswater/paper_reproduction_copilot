@@ -1,0 +1,24 @@
+[project]
+name = "paper-reproduction-copilot"
+version = "0.1.0"
+description = "A LangGraph-based copilot for paper reproduction tasks."
+requires-python = ">=3.10"
+dependencies = [
+    "langchain>=0.3",
+    "langchain-openai>=0.2",
+    "langgraph>=0.2",
+    "pydantic>=2",
+    "typer>=0.12",
+    "rich>=13",
+    "pymupdf>=1.24",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "ruff>=0.6",
+]
+
+[tool.ruff]
+line-length = 100

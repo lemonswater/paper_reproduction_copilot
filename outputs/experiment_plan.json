@@ -1,0 +1,215 @@
+{
+  "goal": "复现论文《Point 4D Transformer Networks for Spatio-Temporal Modeling in Point Cloud Videos》的主要实验结果，包括在MSR-Action3D、NTU RGB+D 60、NTU RGB+D 120和Synthia 4D数据集上的3D动作识别和4D语义分割任务性能。",
+  "environment_steps": [
+    {
+      "order": 1,
+      "name": "克隆代码仓库",
+      "action": "使用git克隆P4Transformer代码仓库到本地目录。",
+      "source": "readme",
+      "evidence": [
+        {
+          "source_type": "readme",
+          "source_path": "README.md",
+          "location": "line 10",
+          "quote_or_summary": "克隆仓库的命令（假设在README中存在）",
+          "confidence": "low"
+        }
+      ],
+      "risk": "low",
+      "done": false
+    },
+    {
+      "order": 2,
+      "name": "创建Python环境并安装依赖",
+      "action": "创建一个Python 3.8的conda环境，并安装PyTorch、CUDA工具包以及其他依赖项。",
+      "source": "readme",
+      "evidence": [
+        {
+          "source_type": "readme",
+          "source_path": "README.md",
+          "location": "line 20",
+          "quote_or_summary": "安装环境和依赖的命令（假设在README中存在）",
+          "confidence": "low"
+        }
+      ],
+      "risk": "high",
+      "done": false
+    },
+    {
+      "order": 3,
+      "name": "编译PointNet2扩展模块",
+      "action": "进入modules目录，编译并安装pointnet2库的自定义CUDA扩展。",
+      "source": "readme",
+      "evidence": [
+        {
+          "source_type": "readme",
+          "source_path": "README.md",
+          "location": "line 30",
+          "quote_or_summary": "编译PointNet2扩展的命令（假设在README中存在）",
+          "confidence": "low"
+        }
+      ],
+      "risk": "high",
+      "done": false
+    }
+  ],
+  "data_steps": [
+    {
+      "order": 1,
+      "name": "下载数据集",
+      "action": "下载论文中提到的四个数据集（MSR-Action3D，NTU RGB+D 60，NTU RGB+D 120，Synthia 4D）的原始数据。",
+      "source": "need_confirm",
+      "evidence": [],
+      "risk": "medium",
+      "done": false
+    },
+    {
+      "order": 2,
+      "name": "数据预处理",
+      "action": "运行数据预处理脚本，将原始数据转换为模型训练所需的格式（例如，提取点云序列、生成标签文件等）。",
+      "source": "script",
+      "evidence": [
+        {
+          "source_type": "code",
+          "source_path": "datasets/preprocess_file.py",
+          "location": "全文",
+          "quote_or_summary": "数据预处理脚本文件",
+          "confidence": "high"
+        }
+      ],
+      "risk": "medium",
+      "done": false
+    }
+  ],
+  "train_steps": [
+    {
+      "order": 1,
+      "name": "MSR-Action3D动作识别训练",
+      "action": "使用train-msr-small.py脚本在MSR-Action3D数据集上训练P4Transformer模型进行3D动作识别。",
+      "source": "script",
+      "evidence": [
+        {
+          "source_type": "code",
+          "source_path": "train-msr-small.py",
+          "location": "全文",
+          "quote_or_summary": "MSR-Action3D数据集的训练脚本",
+          "confidence": "high"
+        }
+      ],
+      "risk": "high",
+      "done": false
+    },
+    {
+      "order": 2,
+      "name": "NTU RGB+D 60动作识别训练",
+      "action": "使用train-ntu60.py脚本在NTU RGB+D 60数据集上训练P4Transformer模型进行3D动作识别。",
+      "source": "script",
+      "evidence": [
+        {
+          "source_type": "code",
+          "source_path": "train-ntu60.py",
+          "location": "全文",
+          "quote_or_summary": "NTU RGB+D 60数据集的训练脚本",
+          "confidence": "high"
+        }
+      ],
+      "risk": "high",
+      "done": false
+    },
+    {
+      "order": 3,
+      "name": "NTU RGB+D 120动作识别训练",
+      "action": "参考train-ntu60.py脚本，为NTU RGB+D 120数据集准备和运行训练。具体配置需确认。",
+      "source": "inferred",
+      "evidence": [],
+      "risk": "high",
+      "done": false
+    },
+    {
+      "order": 4,
+      "name": "Synthia 4D语义分割训练",
+      "action": "准备并运行Synthia 4D数据集上的4D语义分割训练。目前代码库中未找到明确的分割训练脚本，需确认或自行实现。",
+      "source": "need_confirm",
+      "evidence": [],
+      "risk": "high",
+      "done": false
+    }
+  ],
+  "eval_steps": [
+    {
+      "order": 1,
+      "name": "动作识别模型评估",
+      "action": "使用训练好的模型检查点，在MSR-Action3D、NTU RGB+D 60和NTU RGB+D 120测试集上评估动作识别准确率。",
+      "source": "inferred",
+      "evidence": [
+        {
+          "source_type": "code",
+          "source_path": "modules/pointnet2_test.py",
+          "location": "全文",
+          "quote_or_summary": "包含测试和评估功能的脚本，可能用于模型评估",
+          "confidence": "low"
+        }
+      ],
+      "risk": "medium",
+      "done": false
+    },
+    {
+      "order": 2,
+      "name": "语义分割模型评估",
+      "action": "使用训练好的模型检查点，在Synthia 4D测试集上评估4D语义分割性能（如mIoU）。",
+      "source": "need_confirm",
+      "evidence": [],
+      "risk": "medium",
+      "done": false
+    }
+  ],
+  "run_commands": [
+    {
+      "command": "git clone https://github.com/Zhang-VISLab/P4Transformer.git",
+      "cwd": "/data/tianshaoqi24",
+      "source": "need_confirm",
+      "risk_level": "low",
+      "reason": "克隆代码仓库，命令假设来自README，实际命令需确认"
+    },
+    {
+      "command": "cd /data/tianshaoqi24/P4Transformer/modules && python setup.py install",
+      "cwd": "/data/tianshaoqi24/P4Transformer/modules",
+      "source": "inferred",
+      "risk_level": "high",
+      "reason": "编译并安装PointNet2自定义CUDA扩展，这是训练和评估的前提"
+    },
+    {
+      "command": "cd /data/tianshaoqi24/P4Transformer && python train-msr-small.py",
+      "cwd": "/data/tianshaoqi24/P4Transformer",
+      "source": "script",
+      "risk_level": "high",
+      "reason": "运行MSR-Action3D数据集的训练脚本"
+    },
+    {
+      "command": "cd /data/tianshaoqi24/P4Transformer && python train-ntu60.py",
+      "cwd": "/data/tianshaoqi24/P4Transformer",
+      "source": "script",
+      "risk_level": "high",
+      "reason": "运行NTU RGB+D 60数据集的训练脚本"
+    }
+  ],
+  "risks": [
+    "论文核心模块'Point 4D Convolution'在代码仓库中未找到明确实现，可能无法完整复现论文方法。",
+    "训练超参数（如学习率、batch size、epoch数）在提供的摘要和映射中均未指定，完全依赖代码中的默认值或需自行搜索。",
+    "数据集获取和预处理流程不明确，代码库中可能缺少详细说明，存在数据准备失败的风险。",
+    "NTU RGB+D 120和Synthia 4D数据集的训练脚本缺失或不明确，需要自行开发或适配。",
+    "论文中提到的语义分割任务的'特征传播层'在代码映射中未找到清晰对应，可能实现不完整。",
+    "PointNet2自定义CUDA扩展的编译依赖于特定版本的CUDA、PyTorch和C编译器，环境配置复杂且易出错。",
+    "整个视频的自注意力计算可能非常消耗内存，对于长视频可能面临显存不足的问题。"
+  ],
+  "unresolved_questions": [
+    "论文核心模块'Point 4D Convolution'的具体代码实现在仓库的哪个文件中？其参数化函数ζ如何实现？",
+    "训练P4Transformer模型所需的完整超参数配置（学习率、优化器、batch size、epoch、权重衰减等）是什么？",
+    "如何下载和准备MSR-Action3D，NTU RGB+D 60，NTU RGB+D 120，Synthia 4D这四个数据集？预处理流程的详细步骤是什么？",
+    "NTU RGB+D 120数据集的训练脚本或配置应该如何准备？",
+    "Synthia 4D数据集上进行4D语义分割任务的训练和评估脚本在哪里？",
+    "语义分割任务中，从子采样点恢复到原始点的'特征传播层'在代码中具体如何实现？",
+    "论文中提到的MLP（用于动作识别）和Transformer的具体架构细节（层数、维度、激活函数）在代码中如何体现？",
+    "评估动作识别和语义分割性能的具体指标（准确率、mIoU等）的计算脚本或方法是什么？"
+  ]
+}

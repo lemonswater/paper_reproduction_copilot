@@ -1,0 +1,21 @@
+{
+  "case_id": "case_003_mapping",
+  "type": "paper_code_mapping",
+  "input": {
+    "paper_path": "pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf",
+    "repo_path": "/data/tianshaoqi24/P4Transformer/"
+  },
+  "expected": {
+    "must_find_files": [
+      "models/model.py",
+      "train.py"
+    ],
+    "must_include_modules": [
+      "Temporal Attention",
+      "Graph Encoder"
+    ],
+    "must_not_claim": [
+      "batch size is 64"
+    ]
+  }
+}
