@@ -1,0 +1,60 @@
+usage: train-msr-small.py [-h] [--data-path DATA_PATH] [--seed SEED]
+                          [--model MODEL] [--clip-len N] [--num-points N]
+                          [--radius RADIUS] [--nsamples NSAMPLES]
+                          [--spatial-stride SPATIAL_STRIDE]
+                          [--temporal-kernel-size TEMPORAL_KERNEL_SIZE]
+                          [--temporal-stride TEMPORAL_STRIDE] [--dim DIM]
+                          [--depth DEPTH] [--heads HEADS]
+                          [--dim-head DIM_HEAD] [--mlp-dim MLP_DIM]
+                          [--dropout1 DROPOUT1] [--dropout2 DROPOUT2]
+                          [-b BATCH_SIZE] [--epochs N] [-j N] [--lr LR]
+                          [--momentum M] [--wd W]
+                          [--lr-milestones LR_MILESTONES [LR_MILESTONES ...]]
+                          [--lr-gamma LR_GAMMA]
+                          [--lr-warmup-epochs LR_WARMUP_EPOCHS]
+                          [--print-freq PRINT_FREQ] [--output-dir OUTPUT_DIR]
+                          [--resume RESUME] [--start-epoch N]
+
+P4Transformer Model Training
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --data-path DATA_PATH
+                        dataset
+  --seed SEED           random seed
+  --model MODEL         model
+  --clip-len N          number of frames per clip
+  --num-points N        number of points per frame
+  --radius RADIUS       radius for the ball query
+  --nsamples NSAMPLES   number of neighbors for the ball query
+  --spatial-stride SPATIAL_STRIDE
+                        spatial subsampling rate
+  --temporal-kernel-size TEMPORAL_KERNEL_SIZE
+                        temporal kernel size
+  --temporal-stride TEMPORAL_STRIDE
+                        temporal stride
+  --dim DIM             transformer dim
+  --depth DEPTH         transformer depth
+  --heads HEADS         transformer head
+  --dim-head DIM_HEAD   transformer dim for each head
+  --mlp-dim MLP_DIM     transformer mlp dim
+  --dropout1 DROPOUT1   transformer dropout
+  --dropout2 DROPOUT2   classifier dropout
+  -b BATCH_SIZE, --batch-size BATCH_SIZE
+  --epochs N            number of total epochs to run
+  -j N, --workers N     number of data loading workers (default: 16)
+  --lr LR               initial learning rate
+  --momentum M          momentum
+  --wd W, --weight-decay W
+                        weight decay (default: 1e-4)
+  --lr-milestones LR_MILESTONES [LR_MILESTONES ...]
+                        decrease lr on milestones
+  --lr-gamma LR_GAMMA   decrease lr by a factor of lr-gamma
+  --lr-warmup-epochs LR_WARMUP_EPOCHS
+                        number of warmup epochs
+  --print-freq PRINT_FREQ
+                        print frequency
+  --output-dir OUTPUT_DIR
+                        path where to save
+  --resume RESUME       resume from checkpoint
+  --start-epoch N       start epoch

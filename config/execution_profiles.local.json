@@ -1,0 +1,22 @@
+{
+  "profiles": [
+    {
+      "profile_id": "local",
+      "backend": "local",
+      "workspace_root": "/data/tianshaoqi24/agent/paper_reproduction_copilot",
+      "artifact_root": "/data/tianshaoqi24/agent/paper_reproduction_copilot/outputs",
+      "env": {}
+    },
+    {
+      "profile_id": "p4transformer-conda",
+      "backend": "conda",
+      "workspace_root": "/data/tianshaoqi24/P4Transformer",
+      "artifact_root": "/data/tianshaoqi24/agent/paper_reproduction_copilot/outputs",
+      "conda_executable": "/home/tianshaoqi24/miniconda3/bin/conda",
+      "conda_prefix": "/home/tianshaoqi24/miniconda3/envs/3d",
+      "env": {
+        "CUDA_VISIBLE_DEVICES": "0"
+      }
+    }
+  ]
+}

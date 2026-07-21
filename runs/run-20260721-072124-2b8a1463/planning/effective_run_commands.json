@@ -1,0 +1,16 @@
+[
+  {
+    "command": "python train-msr-small.py --help",
+    "cwd": "/data/tianshaoqi24/P4Transformer",
+    "source": "inferred",
+    "risk_level": "medium",
+    "reason": "基于训练脚本文件名推断的训练命令。具体参数（如数据集路径、超参数）需要从脚本内部或配置中确认。"
+  },
+  {
+    "command": "python train-ntu60.py",
+    "cwd": "/data/tianshaoqi24/P4Transformer",
+    "source": "inferred",
+    "risk_level": "medium",
+    "reason": "基于训练脚本文件名推断的训练命令。具体参数（如数据集路径、超参数）需要从脚本内部或配置中确认。"
+  }
+]

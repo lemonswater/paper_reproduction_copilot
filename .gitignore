@@ -1,2 +1,4 @@
 .env
+checkpoints/
+outputs/
 a_implementation_guides/
