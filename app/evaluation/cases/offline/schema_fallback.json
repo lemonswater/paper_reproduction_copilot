@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "case_id": "schema_retry_then_success_without_fallback",
+  "description": "第一次 Schema 校验失败后允许一次格式修正，但不能使用 fallback",
+  "suite": "offline",
+  "runner": "fixture",
+  "categories": ["schema", "efficiency"],
+  "tags": ["structured-output", "retry"],
+  "problem_ids": [2, 8],
+  "input": {
+    "fixture_path": "fixtures/schema_retry_observation.json"
+  },
+  "expected": {
+    "required_schemas": ["PaperSummary"],
+    "min_schema_success_rate": 1.0,
+    "max_schema_fallbacks": 0,
+    "max_schema_retries": 1,
+    "max_llm_calls": 2,
+    "max_human_interventions": 0
+  },
+  "thresholds": {
+    "min_overall_score": 1.0
+  }
+}

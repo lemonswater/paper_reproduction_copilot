@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "case_id": "mapping_quality_pstnet",
+  "description": "PSTNet mapping 必须覆盖 PST 卷积和动作分类网络的关键代码文件",
+  "suite": "offline",
+  "runner": "fixture",
+  "categories": ["evidence", "quality"],
+  "tags": ["mapping", "pstnet"],
+  "problem_ids": [2, 7, 8],
+  "input": {
+    "fixture_path": "fixtures/mapping_quality_pstnet.json"
+  },
+  "expected": {
+    "required_modules": [
+      "PSTConv",
+      "MSRAction"
+    ],
+    "required_files": [
+      "modules/pst_convolutions.py",
+      "models/sequence_classification.py"
+    ],
+    "forbidden_claims": [
+      "batch size is 64"
+    ],
+    "required_evidence_paths": [
+      "modules/pst_convolutions.py",
+      "models/sequence_classification.py"
+    ],
+    "require_evidence_location": true,
+    "require_evidence_hash": true
+  },
+  "thresholds": {
+    "min_overall_score": 1.0
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "case_id": "route_stale_patch_hash_to_final",
+  "description": "patch hash 失效产生 terminal error 后必须停止",
+  "suite": "offline",
+  "runner": "route_function",
+  "categories": ["route"],
+  "tags": ["graph", "patch", "hash", "stale"],
+  "problem_ids": [6, 8],
+  "input": {
+    "route_name": "route_after_patch_verifier",
+    "source_node": "patch_verifier",
+    "state": {
+      "patch_verification_passed": true,
+      "stage_errors": [
+        {
+          "error_id": "error_stale_patch_fixture",
+          "code": "STALE_PATCH_HASH",
+          "category": "user",
+          "stage": "patch_verifier",
+          "message": "patch hash changed after approval",
+          "retryable": false,
+          "terminal": true,
+          "context": {},
+          "occurred_at": "2026-07-27T00:00:00+00:00"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "exact_route": ["patch_verifier", "final_report"],
+    "forbidden_nodes": ["patch_promotion_review"]
+  }
+}

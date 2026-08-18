@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "case_id": "route_high_risk_to_human_review",
+  "description": "需要审批的高风险 Action 必须进入 human_review",
+  "suite": "offline",
+  "runner": "route_function",
+  "categories": ["route"],
+  "tags": ["graph", "risk", "approval"],
+  "problem_ids": [6, 8],
+  "input": {
+    "route_name": "route_after_risk_check",
+    "source_node": "risk_check",
+    "state": {
+      "requires_approval": true
+    }
+  },
+  "expected": {
+    "exact_route": ["risk_check", "human_review"]
+  }
+}

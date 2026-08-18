@@ -1,0 +1,33 @@
+{
+  "case_id": "stale_action_approval_blocked",
+  "runner": "fixture",
+  "route": ["human_review", "executor", "final_report"],
+  "final_status": "stale_approval",
+  "structured_calls": [],
+  "tool_calls": [],
+  "evidence": [],
+  "artifacts": [],
+  "output_payloads": {},
+  "stage_errors": [
+    {
+      "code": "STALE_ACTION_APPROVAL",
+      "category": "user",
+      "stage": "executor",
+      "terminal": true
+    }
+  ],
+  "approval_required": true,
+  "approval_present": true,
+  "approval_hash_match": false,
+  "execution_started": false,
+  "policy_denied": false,
+  "secret_leaks": [],
+  "path_escapes": [],
+  "duplicate_side_effect_count": 0,
+  "metrics": {
+    "duration_ms": 2,
+    "llm_calls": 0,
+    "human_interventions": 1,
+    "tool_calls": 0
+  }
+}

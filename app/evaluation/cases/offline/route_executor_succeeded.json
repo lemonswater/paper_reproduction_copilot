@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "case_id": "route_executor_succeeded_to_final",
+  "description": "正式执行成功后必须进入 final_report",
+  "suite": "offline",
+  "runner": "route_function",
+  "categories": ["route"],
+  "tags": ["graph", "executor", "success"],
+  "problem_ids": [6, 8],
+  "input": {
+    "route_name": "route_after_executor",
+    "source_node": "executor",
+    "state": {
+      "final_status": "succeeded"
+    }
+  },
+  "expected": {
+    "exact_route": ["executor", "final_report"]
+  }
+}

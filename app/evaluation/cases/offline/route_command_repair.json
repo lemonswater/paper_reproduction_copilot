@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "case_id": "route_command_repair_to_action_builder",
+  "description": "有界命令修复 proposal 必须进入 repair_action_builder",
+  "suite": "offline",
+  "runner": "route_function",
+  "categories": ["route"],
+  "tags": ["graph", "repair", "command"],
+  "problem_ids": [6, 8],
+  "input": {
+    "route_name": "route_after_repair_planner",
+    "source_node": "repair_planner",
+    "state": {
+      "repair_attempt_count": 0,
+      "repair_proposal": {
+        "kind": "edit_command",
+        "repaired_command": "python train.py --batch-size 4"
+      }
+    }
+  },
+  "expected": {
+    "exact_route": ["repair_planner", "repair_action_builder"]
+  }
+}

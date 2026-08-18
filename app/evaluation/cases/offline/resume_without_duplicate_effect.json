@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "case_id": "resume_without_duplicate_effect",
+  "description": "从 checkpoint 恢复后同一个 execution 只记录一次",
+  "suite": "offline",
+  "runner": "fixture",
+  "categories": ["recovery", "tool"],
+  "tags": ["checkpoint", "resume", "idempotency"],
+  "problem_ids": [4, 6, 8],
+  "input": {
+    "fixture_path": "fixtures/resume_without_duplicate_effect.json"
+  },
+  "expected": {
+    "resume_must_succeed": true,
+    "max_duplicate_side_effects": 0,
+    "required_tool_calls": [
+      {
+        "name": "run_action_safe",
+        "args_subset": {
+          "program": "python",
+          "cwd": "/data/tianshaoqi24/PST-Convolution-main/"
+        },
+        "min_calls": 1,
+        "max_calls": 1
+      }
+    ]
+  },
+  "thresholds": {
+    "min_overall_score": 1.0
+  }
+}

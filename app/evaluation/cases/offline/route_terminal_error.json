@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "case_id": "route_terminal_error_to_final",
+  "description": "用户取消产生 terminal StageError 后必须停止并收尾",
+  "suite": "offline",
+  "runner": "route_function",
+  "categories": ["route"],
+  "tags": ["graph", "terminal-error", "cancellation"],
+  "problem_ids": [6, 8],
+  "input": {
+    "route_name": "route_after_executor",
+    "source_node": "executor",
+    "state": {
+      "final_status": "cancelled",
+      "log_path": "/tmp/eval-cancelled.log",
+      "stage_errors": [
+        {
+          "error_id": "error_cancelled_fixture",
+          "code": "EXECUTION_CANCELLED",
+          "category": "user",
+          "stage": "executor",
+          "message": "cancelled by user",
+          "retryable": false,
+          "terminal": true,
+          "context": {},
+          "occurred_at": "2026-07-27T00:00:00+00:00"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "exact_route": ["executor", "final_report"],
+    "forbidden_nodes": ["log_debug"]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "case_id": "route_low_risk_to_preflight",
+  "description": "无需审批的低风险 Action 必须进入 preflight_check",
+  "suite": "offline",
+  "runner": "route_function",
+  "categories": ["route"],
+  "tags": ["graph", "risk", "preflight"],
+  "problem_ids": [6, 8],
+  "input": {
+    "route_name": "route_after_risk_check",
+    "source_node": "risk_check",
+    "state": {
+      "requires_approval": false
+    }
+  },
+  "expected": {
+    "exact_route": ["risk_check", "preflight_check"]
+  }
+}

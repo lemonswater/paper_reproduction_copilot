@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "case_id": "route_input_validation_failed_to_final",
+  "description": "输入校验失败后必须直接进入 final_report",
+  "suite": "offline",
+  "runner": "route_function",
+  "categories": ["route"],
+  "tags": ["graph", "input-validation"],
+  "problem_ids": [6, 8],
+  "input": {
+    "route_name": "route_after_input_validation",
+    "source_node": "input_validation",
+    "state": {
+      "inputs_validated": false
+    }
+  },
+  "expected": {
+    "exact_route": ["input_validation", "final_report"]
+  }
+}

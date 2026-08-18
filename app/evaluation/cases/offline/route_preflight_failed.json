@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "case_id": "route_preflight_failed_to_final",
+  "description": "预检失败后不得进入 smoke 或 executor",
+  "suite": "offline",
+  "runner": "route_function",
+  "categories": ["route"],
+  "tags": ["graph", "preflight", "blocked"],
+  "problem_ids": [6, 8],
+  "input": {
+    "route_name": "route_after_preflight",
+    "source_node": "preflight_check",
+    "state": {
+      "preflight_passed": false
+    }
+  },
+  "expected": {
+    "exact_route": ["preflight_check", "final_report"]
+  }
+}

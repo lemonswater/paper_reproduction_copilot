@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "case_id": "route_patch_applied_to_risk_check",
+  "description": "patch 应用成功后必须重新经过 risk_check",
+  "suite": "offline",
+  "runner": "route_function",
+  "categories": ["route"],
+  "tags": ["graph", "patch", "risk"],
+  "problem_ids": [6, 8],
+  "input": {
+    "route_name": "route_after_patch_apply",
+    "source_node": "patch_apply",
+    "state": {
+      "patch_application_record": {
+        "status": "applied"
+      },
+      "pending_action": {
+        "action_id": "action_fixture"
+      }
+    }
+  },
+  "expected": {
+    "exact_route": ["patch_apply", "risk_check"]
+  }
+}

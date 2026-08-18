@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "case_id": "route_executor_failure_to_debug",
+  "description": "论文程序非零退出且存在日志时必须进入 log_debug",
+  "suite": "offline",
+  "runner": "route_function",
+  "categories": ["route"],
+  "tags": ["graph", "executor", "failure"],
+  "problem_ids": [6, 8],
+  "input": {
+    "route_name": "route_after_executor",
+    "source_node": "executor",
+    "state": {
+      "final_status": "failed",
+      "log_path": "/tmp/eval-paper-program.log",
+      "stage_errors": [
+        {
+          "error_id": "error_fixture",
+          "code": "PAPER_PROGRAM_NONZERO_EXIT",
+          "category": "paper_program",
+          "stage": "executor",
+          "message": "return code 1",
+          "retryable": false,
+          "terminal": false,
+          "context": {},
+          "occurred_at": "2026-07-27T00:00:00+00:00"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "exact_route": ["executor", "log_debug"],
+    "required_nodes": ["log_debug"],
+    "forbidden_nodes": ["human_review"]
+  },
+  "thresholds": {
+    "min_overall_score": 1.0,
+    "max_score_regression": 0.0
+  }
+}

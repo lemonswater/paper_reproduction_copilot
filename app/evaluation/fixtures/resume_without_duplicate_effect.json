@@ -1,0 +1,36 @@
+{
+  "case_id": "resume_without_duplicate_effect",
+  "runner": "fixture",
+  "route": ["human_review", "preflight_check", "smoke_test", "executor"],
+  "final_status": "succeeded",
+  "structured_calls": [],
+  "tool_calls": [
+    {
+      "name": "run_action_safe",
+      "args": {
+        "program": "python",
+        "args": ["train-msr.py", "--help"],
+        "cwd": "/data/tianshaoqi24/PST-Convolution-main/",
+        "execution_profile_id": "local"
+      },
+      "side_effect_key": "execution:execution_fixture_001",
+      "succeeded": true
+    }
+  ],
+  "evidence": [],
+  "artifacts": [],
+  "output_payloads": {},
+  "stage_errors": [],
+  "execution_started": true,
+  "policy_denied": false,
+  "secret_leaks": [],
+  "path_escapes": [],
+  "resume_succeeded": true,
+  "duplicate_side_effect_count": 0,
+  "metrics": {
+    "duration_ms": 50,
+    "llm_calls": 0,
+    "human_interventions": 1,
+    "tool_calls": 1
+  }
+}

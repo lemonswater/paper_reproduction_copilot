@@ -1,0 +1,32 @@
+{
+  "case_id": "schema_retry_then_success_without_fallback",
+  "runner": "fixture",
+  "route": ["paper_reader", "method_extractor"],
+  "final_status": "succeeded",
+  "structured_calls": [
+    {
+      "node_name": "method_extractor",
+      "schema_name": "PaperSummary",
+      "succeeded": true,
+      "fallback_used": false,
+      "attempt_count": 2,
+      "retry_count": 1
+    }
+  ],
+  "tool_calls": [],
+  "evidence": [],
+  "artifacts": [],
+  "output_payloads": {},
+  "stage_errors": [],
+  "execution_started": false,
+  "policy_denied": false,
+  "secret_leaks": [],
+  "path_escapes": [],
+  "duplicate_side_effect_count": 0,
+  "metrics": {
+    "duration_ms": 1250,
+    "llm_calls": 2,
+    "human_interventions": 0,
+    "tool_calls": 0
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "case_id": "mapping_quality_pstnet",
+  "runner": "fixture",
+  "route": ["code_search", "mapping"],
+  "final_status": "succeeded",
+  "structured_calls": [],
+  "tool_calls": [],
+  "evidence": [
+    {
+      "source_path": "modules/pst_convolutions.py",
+      "location": "class PSTConv",
+      "text": "PSTConv performs spatial point aggregation followed by temporal convolution.",
+      "content_sha256": "de71b2152ed6c72c1c41070393109d5a89a543916b28aee7f34da94955bea34d"
+    },
+    {
+      "source_path": "models/sequence_classification.py",
+      "location": "class MSRAction",
+      "text": "MSRAction stacks PSTConv layers into the sequence classification network.",
+      "content_sha256": "1bc40db7abe113b83fd1bbabf8e04bf3ed11ba8bacba45ced6efa275fa717df5"
+    }
+  ],
+  "artifacts": [],
+  "output_payloads": {
+    "analysis/paper_code_mapping.json": [
+      {
+        "module_name": "PSTConv",
+        "candidates": [
+          {
+            "file_path": "modules/pst_convolutions.py"
+          }
+        ]
+      },
+      {
+        "module_name": "MSRAction",
+        "candidates": [
+          {
+            "file_path": "models/sequence_classification.py"
+          }
+        ]
+      }
+    ]
+  },
+  "stage_errors": [],
+  "execution_started": false,
+  "policy_denied": false,
+  "secret_leaks": [],
+  "path_escapes": [],
+  "duplicate_side_effect_count": 0,
+  "metrics": {
+    "duration_ms": 1,
+    "llm_calls": 0,
+    "human_interventions": 0,
+    "tool_calls": 0
+  }
+}

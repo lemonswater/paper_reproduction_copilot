@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "case_id": "route_patch_verified_to_promotion_review",
+  "description": "行为验证通过的 patch 必须进入二次 promotion review",
+  "suite": "offline",
+  "runner": "route_function",
+  "categories": ["route"],
+  "tags": ["graph", "patch", "verification"],
+  "problem_ids": [6, 8],
+  "input": {
+    "route_name": "route_after_patch_verifier",
+    "source_node": "patch_verifier",
+    "state": {
+      "patch_verification_passed": true,
+      "patch_verification_report": {
+        "status": "behaviorally_verified",
+        "promotion_allowed": true
+      }
+    }
+  },
+  "expected": {
+    "exact_route": [
+      "patch_verifier",
+      "patch_promotion_review"
+    ]
+  }
+}
