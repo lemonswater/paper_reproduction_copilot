@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest.mock import patch
 
 from app.execution.profile_store import compute_execution_profile_fingerprint

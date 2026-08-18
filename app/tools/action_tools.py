@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import hashlib
 import json
 import shlex
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
+
 from app.schemas import ApprovalRecord, ExecutableAction
 
 UNSUPPORTED_SHELL_MARKERS = [
@@ -91,10 +94,10 @@ def build_run_action_from_command(
     try:
         tokens = shlex.split(normalized_command)
     except ValueError as exc:
-        raise ValueError(f"invalid shell quoting: {exc}") from exc
+        raise ValueError(f"无效的 shell 引号：{exc}") from exc
 
     if not tokens:
-        raise ValueError("empty run command")
+        raise ValueError("运行命令不能为空")
 
     action = ExecutableAction(
         action_id=f"action_{uuid4().hex[:12]}",
@@ -105,31 +108,54 @@ def build_run_action_from_command(
         source=source,
         reason=reason,
         timeout_seconds=timeout_seconds,
+        env_overrides={},
         writable_paths=[str(Path(normalized_cwd))],
+        network_access="none",
+        resource_budget=None,
         execution_profile_id=execution_profile_id,
-        execution_profile_fingerprint=execution_profile_fingerprint,
+        execution_profile_fingerprint=(
+            execution_profile_fingerprint
+        ),
     )
 
     return action.model_dump()
 
 def compute_action_hash(action: dict) -> str:
+    """
+    审批绑定“执行什么 + 在哪里执行 + 能使用什么能力”。
+    """
+
     material = {
         "action_type": action.get("action_type"),
         "program": action.get("program"),
         "args": action.get("args", []),
         "cwd": action.get("cwd"),
-        "env_allowlist": action.get("env_allowlist", {}),
+        "env_overrides": action.get(
+            "env_overrides",
+            action.get("env_allowlist", {}),
+        ),
         "timeout_seconds": action.get("timeout_seconds"),
         "writable_paths": action.get("writable_paths", []),
-
-        # 审批必须同时绑定执行环境。
-        "execution_profile_id": action.get("execution_profile_id"),
+        "network_access": action.get(
+            "network_access",
+            "none",
+        ),
+        "resource_budget": action.get("resource_budget"),
+        "execution_profile_id": action.get(
+            "execution_profile_id"
+        ),
         "execution_profile_fingerprint": action.get(
             "execution_profile_fingerprint"
         ),
+        "repo_patch_hash": action.get("repo_patch_hash"),
     }
 
-    payload = json.dumps(material, ensure_ascii=False, sort_keys=True)
+    payload = json.dumps(
+        material,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 def build_approval_record(

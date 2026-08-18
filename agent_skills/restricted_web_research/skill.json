@@ -1,0 +1,26 @@
+{
+  "manifest_version": "phase48-v1",
+  "skill_id": "restricted_web_research",
+  "skill_version": "1.0.0",
+  "display_name": "Restricted Web Research",
+  "summary": "Search and extract bounded public evidence under local URL and network policy.",
+  "implementation_id": "builtin.restricted_web_research.v1",
+  "input_schema_id": "skill.restricted_web_research.input.v1",
+  "output_schema_id": "skill.restricted_web_research.output.v1",
+  "required_tools": [
+    {
+      "name": "browser.collect_research_evidence",
+      "version": "phase40-v1"
+    }
+  ],
+  "required_capabilities": [
+    "network.read.research"
+  ],
+  "side_effect_level": "proposal_only",
+  "prompt_or_policy_version": "restricted-web-research-v1",
+  "eval_suite": "restricted_web_research_offline_v1",
+  "feature_flag": "skill.restricted_web_research",
+  "max_tool_calls": 1,
+  "max_duration_ms": 120000,
+  "resources": []
+}

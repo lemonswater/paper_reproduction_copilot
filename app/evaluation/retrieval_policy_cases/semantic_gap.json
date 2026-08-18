@@ -1,0 +1,30 @@
+{
+  "case_id": "phase47_semantic_gap",
+  "description": "命名不一致时 dense fixture 应提升目标局部算子的排名",
+  "repo_path": "fixtures/retrieval_repo",
+  "query": "Locate the implementation that forms neighborhoods of three dimensional points over consecutive frames, models motion between adjacent frames, and jointly aggregates spatial and temporal point features without relying on matching class names.",
+  "keywords": [],
+  "preferred_paths": [],
+  "paper_evidence_count": 2,
+  "expected_query_kind": "semantic_alignment",
+  "required_paths": [
+    "obfuscated/operator_core.py"
+  ],
+  "forbidden_paths": [
+    "obfuscated/image_filter.py"
+  ],
+  "baseline_profile_id": "balanced_sparse_v1",
+  "challenger_profile_ids": [
+    "semantic_hybrid_v1"
+  ],
+  "simulated_dense_hits": [
+    {
+      "channel": "dense",
+      "file_path": "obfuscated/operator_core.py",
+      "raw_score": 0.96,
+      "anchor_line": 1,
+      "anchor_end_line": 80,
+      "symbol": "Block"
+    }
+  ]
+}

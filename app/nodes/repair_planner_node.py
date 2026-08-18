@@ -1,15 +1,28 @@
+from __future__ import annotations
+
 import json
 import shlex
 from uuid import uuid4
 
-from pydantic import ValidationError
-
 from app.config import settings
-from app.model import get_chat_model
+from app.model_routing.factory import build_model_gateway
 from app.prompts.repair_prompt import REPAIR_PROMPT
 from app.schemas import RepairProposal
+from app.tools.artifact_tools import (
+    artifact_dir,
+    artifact_state_update,
+    register_existing_artifact,
+    write_json_artifact,
+    write_text_artifact,
+)
+from app.tools.error_tools import (
+    stage_error_result,
+    structured_failure_update,
+)
 from app.tools.repair_tools import render_repair_proposal_md
-
+from app.tools.structured_output_tools import (
+    write_structured_output_trace,
+)
 
 CUDA_OOM_BATCH_FLAGS = ("--batch-size", "--batch_size", "-b")
 
@@ -118,106 +131,235 @@ def _build_no_repair_proposal(
     )
 
 
+def _build_file_repair_handoff_proposal(
+    *,
+    error_type: str,
+    related_files: list[str],
+) -> RepairProposal:
+    """
+    将证据明确的源码类错误移交给受限文件修复流程。
+
+    command repair planner 不在这里猜测命令参数或生成 patch；后续仍需经过
+    file repair planner、patch 审批、隔离验证和 promotion 审批。
+    """
+
+    targets = ", ".join(related_files)
+    return RepairProposal(
+        proposal_id=f"repair_{uuid4().hex[:12]}",
+        source_error_type=error_type,
+        kind="manual_only",
+        summary="错误已定位到仓库文件，移交受限文件修复流程审查。",
+        root_cause=(
+            "traceback 显示 shape mismatch，并关联到仓库内的源码或测试文件。"
+        ),
+        repaired_command=None,
+        changed_arguments=[],
+        steps=[
+            {
+                "step_type": "manual_check",
+                "target": targets,
+                "change": "检查相关文件并生成最小、可审阅的文件修复建议",
+                "reason": "当前错误不能通过有界命令参数修改可靠解决",
+                "risk": "medium",
+            },
+        ],
+        verification_steps=[
+            "只在隔离 worktree 中应用候选 patch",
+            "运行原失败行为测试验证 patch",
+        ],
+        rollback_steps=[],
+        risks=[
+            "shape mismatch 也可能来自输入或配置，文件修复规划仍需验证证据。",
+        ],
+        bounded=True,
+    )
+
+
 def repair_planner_node(state: dict) -> dict:
     debug_report = state.get("debug_report")
     if not debug_report:
-        return {
-            "repair_proposal": {
-                "proposal_id": None,
-                "source_error_type": "unknown",
-                "kind": "no_repair",
-                "summary": "missing debug_report, cannot plan repair",
-                "root_cause": "debug_report not available",
-                "repaired_command": None,
-                "changed_arguments": [],
-                "steps": [],
-                "verification_steps": [],
-                "rollback_steps": [],
-                "risks": [],
-                "bounded": True,
-            }
+        proposal = _build_no_repair_proposal(
+            error_type="unknown",
+            summary="缺少 debug_report，无法生成修复计划",
+            root_cause="debug_report 不可用",
+        )
+        _, json_record = write_json_artifact(
+            state=state,
+            relative_path="debug/repair_proposal.json",
+            payload=proposal.model_dump(),
+            producer_node="repair_planner",
+        )
+        _, md_record = write_text_artifact(
+            state=state,
+            relative_path="debug/repair_proposal.md",
+            text=render_repair_proposal_md(proposal.model_dump()),
+            producer_node="repair_planner",
+            media_type="text/markdown",
+        )
+        payload = {
+            "repair_proposal": proposal.model_dump(),
+            **artifact_state_update(
+                state,
+                [json_record, md_record],
+            ),
         }
+        return stage_error_result(
+            state={**state, **payload},
+            stage="repair_planner",
+            code="DEBUG_REPORT_REQUIRED",
+            category="agent",
+            message="缺少 debug_report，无法生成修复计划",
+            extra_update=payload,
+        )
 
     error_type = str(debug_report.get("error_type") or "unknown")
+    trace_path = None
+    invocation = None
+
+    related_files = [
+        str(path)
+        for path in (debug_report.get("related_files") or [])
+        if str(path).strip()
+    ]
+
     deterministic_proposal = None
     if error_type == "cuda_oom":
         deterministic_proposal = _build_cuda_oom_repair_proposal(
             state.get("pending_action") or {}
         )
+    elif error_type == "shape_mismatch" and related_files:
+        deterministic_proposal = _build_file_repair_handoff_proposal(
+            error_type=error_type,
+            related_files=related_files,
+        )
 
     if deterministic_proposal is not None:
         proposal = deterministic_proposal
+
     elif error_type == "unknown":
         proposal = _build_no_repair_proposal(
             error_type=error_type,
             summary="错误证据不足，不能生成可靠的自动修复命令。",
             root_cause="调试报告未识别出具体错误类型。",
         )
+
     else:
-        llm = get_chat_model(temperature=0)
-        structured_llm = llm.with_structured_output(
-            RepairProposal,
-            include_raw=True,
+        prompt = REPAIR_PROMPT.format(
+            execution_mode=state.get("active_execution_mode", "unknown"),
+            pending_action=json.dumps(
+                state.get("pending_action", {}),
+                ensure_ascii=False,
+                indent=2,
+            ),
+            preflight_report=json.dumps(
+                state.get("preflight_report", {}),
+                ensure_ascii=False,
+                indent=2,
+            ),
+            smoke_test_report=json.dumps(
+                state.get("smoke_test_report", {}),
+                ensure_ascii=False,
+                indent=2,
+            ),
+            debug_report=json.dumps(
+                debug_report,
+                ensure_ascii=False,
+                indent=2,
+            ),
         )
 
-        try:
-            result = structured_llm.invoke(
-                REPAIR_PROMPT.format(
-                    execution_mode=state.get("active_execution_mode", "unknown"),
-                    pending_action=json.dumps(
-                        state.get("pending_action", {}),
-                        ensure_ascii=False,
-                        indent=2,
-                    ),
-                    preflight_report=json.dumps(
-                        state.get("preflight_report", {}),
-                        ensure_ascii=False,
-                        indent=2,
-                    ),
-                    smoke_test_report=json.dumps(
-                        state.get("smoke_test_report", {}),
-                        ensure_ascii=False,
-                        indent=2,
-                    ),
-                    debug_report=json.dumps(
-                        debug_report,
-                        ensure_ascii=False,
-                        indent=2,
-                    ),
-                )
-            )
-            parsed = result.get("parsed") if isinstance(result, dict) else result
-            proposal = RepairProposal.model_validate(parsed)
-        except (AttributeError, TypeError, ValidationError):
+        invocation = build_model_gateway().invoke_structured(
+            task_kind="repair_plan",
+            schema=RepairProposal,
+            prompt=prompt,
+            node_name="repair_planner",
+            job_id=state.get("job_id"),
+            run_id=state.get("run_id"),
+            quality_tier="high",
+        )
+
+        if invocation.value is not None:
+            proposal = invocation.value
+        else:
             proposal = _build_no_repair_proposal(
                 error_type=error_type,
-                summary="模型的 repair proposal 未通过结构校验，已安全降级。",
-                root_cause="模型输出不符合 RepairProposal schema。",
+                summary=(
+                    "模型在有限重试后仍未返回合法 RepairProposal，"
+                    "已安全降级。"
+                ),
+                root_cause="结构化输出校验连续失败。",
             )
+
+        trace_path = write_structured_output_trace(
+            result=invocation.result,
+            node_name="repair_planner",
+            schema_name="RepairProposal",
+            output_dir=artifact_dir(
+                state,
+                "traces",
+                "structured",
+            ),
+            fallback_used=invocation.value is None,
+            model_invocation_id=invocation.invocation_id,
+            model_decision_sha256=(
+                invocation.decision.decision_sha256
+            ),
+            model_profile_id=(
+                invocation.decision.executed_profile_id
+            ),
+            model_name=(
+                invocation.decision.executed_model_name
+            ),
+            model_usage_quality=(
+                invocation.ledger_record.usage_quality
+                if invocation.ledger_record is not None
+                else None
+            ),
+        )
 
     if not proposal.proposal_id:
         proposal = proposal.model_copy(
             update={"proposal_id": f"repair_{uuid4().hex[:12]}"}
         )
 
-    settings.output_dir.mkdir(parents=True, exist_ok=True)
-    json_path = settings.output_dir / "repair_proposal.json"
-    md_path = settings.output_dir / "repair_proposal.md"
-
-    json_path.write_text(
-        proposal.model_dump_json(indent=2),
-        encoding="utf-8",
+    _, json_record = write_json_artifact(
+        state=state,
+        relative_path="debug/repair_proposal.json",
+        payload=proposal.model_dump(),
+        producer_node="repair_planner",
     )
-    md_path.write_text(
-        render_repair_proposal_md(proposal.model_dump()),
-        encoding="utf-8",
+    _, md_record = write_text_artifact(
+        state=state,
+        relative_path="debug/repair_proposal.md",
+        text=render_repair_proposal_md(proposal.model_dump()),
+        producer_node="repair_planner",
+        media_type="text/markdown",
     )
 
-    return {
+    records = [json_record, md_record]
+    if trace_path is not None:
+        records.append(
+            register_existing_artifact(
+                state=state,
+                path=trace_path,
+                producer_node="repair_planner",
+                media_type="application/json",
+            )
+        )
+
+    payload = {
         "repair_proposal": proposal.model_dump(),
-        "output_files": [
-            *state.get("output_files", []),
-            str(json_path),
-            str(md_path),
-        ],
+        **artifact_state_update(state, records),
     }
+
+    if invocation is not None and invocation.value is None:
+        payload.update(
+            structured_failure_update(
+                state={**state, **payload},
+                stage="repair_planner",
+                invocation=invocation,
+                terminal=False,
+            )
+        )
+
+    return payload

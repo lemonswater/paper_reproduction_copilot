@@ -1,0 +1,128 @@
+{
+  "enabled": true,
+  "required": false,
+  "provider_namespace": "openai-compatible:47ddbfce8ac394e9",
+  "model": "qwen-text-embedding-v4",
+  "embedding_dimensions": 1024,
+  "query_hash": "6f45ba568b9837bd1242a91746e4b7e4ebf872241fddb0ffbfbf940a1d43a3db",
+  "chunk_count": 140,
+  "cache_hits": 140,
+  "cache_misses": 1,
+  "embedding_document_calls": 0,
+  "embedding_query_calls": 1,
+  "hits": [
+    {
+      "channel": "dense",
+      "file_path": "datasets/msr.py",
+      "raw_score": 0.7330619512232118,
+      "anchor_line": 1,
+      "anchor_end_line": 79,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "train-msr.py",
+      "raw_score": 0.6913365489861825,
+      "anchor_line": 129,
+      "anchor_end_line": 208,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "models/sequence_classification.py",
+      "raw_score": 0.6531844496620907,
+      "anchor_line": 15,
+      "anchor_end_line": 94,
+      "symbol": "MSRAction"
+    },
+    {
+      "channel": "dense",
+      "file_path": "train-ntu.py",
+      "raw_score": 0.5631680911038793,
+      "anchor_line": 129,
+      "anchor_end_line": 208,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "datasets/ntu60.py",
+      "raw_score": 0.5574056132299173,
+      "anchor_line": 8,
+      "anchor_end_line": 73,
+      "symbol": "NTU60Subject"
+    },
+    {
+      "channel": "dense",
+      "file_path": "scripts/depth2point4ntu.py",
+      "raw_score": 0.5525122186097761,
+      "anchor_line": 1,
+      "anchor_end_line": 51,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "README.md",
+      "raw_score": 0.5345675374339859,
+      "anchor_line": 1,
+      "anchor_end_line": 48,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/pst_convolutions.py",
+      "raw_score": 0.5203591201607372,
+      "anchor_line": 385,
+      "anchor_end_line": 409,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/pointnet2_utils.py",
+      "raw_score": 0.4897998102726275,
+      "anchor_line": 385,
+      "anchor_end_line": 412,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/pointnet2_test.py",
+      "raw_score": 0.4812455783553992,
+      "anchor_line": 24,
+      "anchor_end_line": 28,
+      "symbol": "interpolate_func"
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/setup.py",
+      "raw_score": 0.4035371027578525,
+      "anchor_line": 1,
+      "anchor_end_line": 31,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "utils.py",
+      "raw_score": 0.3467707235000274,
+      "anchor_line": 257,
+      "anchor_end_line": 300,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "phase14_demo.py",
+      "raw_score": 0.34505858229098496,
+      "anchor_line": 1,
+      "anchor_end_line": 4,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "tests/test_phase14_demo.py",
+      "raw_score": 0.2828106162898686,
+      "anchor_line": 1,
+      "anchor_end_line": 5,
+      "symbol": null
+    }
+  ],
+  "fallback_reason": null
+}

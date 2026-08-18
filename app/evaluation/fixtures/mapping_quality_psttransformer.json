@@ -1,0 +1,55 @@
+{
+  "case_id": "mapping_quality_psttransformer",
+  "runner": "fixture",
+  "route": ["code_search", "mapping"],
+  "final_status": "succeeded",
+  "structured_calls": [],
+  "tool_calls": [],
+  "evidence": [
+    {
+      "source_path": "modules/pst_convolution.py",
+      "location": "class P4DConv",
+      "text": "The PST convolution layer performs spatio-temporal convolution on point cloud sequences.",
+      "content_sha256": "818e3a218c5cb51bd3cb823d0729323a53b0e15499b840b1ae0172ff0781e327"
+    },
+    {
+      "source_path": "models/sequence_classification.py",
+      "location": "class PSTTransformer",
+      "text": "PSTTransformer stacks PST convolution and transformer layers into the action recognition network.",
+      "content_sha256": "5f1ac6814a88b087e250bb3b0136debf3561b1d421f3dca4694b4655289970cc"
+    }
+  ],
+  "artifacts": [],
+  "output_payloads": {
+    "analysis/paper_code_mapping.json": [
+      {
+        "module_name": "PSTTransformer",
+        "candidates": [
+          {
+            "file_path": "models/sequence_classification.py"
+          }
+        ]
+      },
+      {
+        "module_name": "P4DConv",
+        "candidates": [
+          {
+            "file_path": "modules/pst_convolution.py"
+          }
+        ]
+      }
+    ]
+  },
+  "stage_errors": [],
+  "execution_started": false,
+  "policy_denied": false,
+  "secret_leaks": [],
+  "path_escapes": [],
+  "duplicate_side_effect_count": 0,
+  "metrics": {
+    "duration_ms": 1,
+    "llm_calls": 0,
+    "human_interventions": 0,
+    "tool_calls": 0
+  }
+}

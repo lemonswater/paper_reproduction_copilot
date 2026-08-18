@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "case_id": "mapping_quality_psttransformer",
+  "description": "PST-Transformer mapping 必须覆盖时空卷积和分类网络的关键代码文件",
+  "suite": "offline",
+  "runner": "fixture",
+  "categories": [
+    "evidence",
+    "quality"
+  ],
+  "tags": [
+    "mapping",
+    "psttransformer"
+  ],
+  "problem_ids": [
+    2,
+    7,
+    8
+  ],
+  "input": {
+    "fixture_path": "fixtures/mapping_quality_psttransformer.json"
+  },
+  "expected": {
+    "required_modules": [
+      "PSTTransformer",
+      "P4DConv"
+    ],
+    "required_files": [
+      "modules/pst_convolution.py",
+      "models/sequence_classification.py"
+    ],
+    "forbidden_claims": [],
+    "required_evidence_paths": [
+      "modules/pst_convolution.py",
+      "models/sequence_classification.py"
+    ],
+    "require_evidence_location": true,
+    "require_evidence_hash": true
+  },
+  "thresholds": {
+    "min_overall_score": 1.0
+  }
+}

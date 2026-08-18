@@ -51,6 +51,8 @@ def load_case_file(path: Path) -> EvalCase:
         "fixture",
         "chat_scenario",
         "chat_provider",
+        "conversation_decision",
+        "conversation_decision_provider",
     }:
         fixture_path = resolve_evaluation_path(
             str(case.input.fixture_path)

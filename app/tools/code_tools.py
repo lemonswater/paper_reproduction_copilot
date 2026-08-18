@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import ast
 from pathlib import Path
+
 
 def read_file_slice(path: str, start_line: int = 1, end_line: int = 120) -> str:
     file_path = Path(path)

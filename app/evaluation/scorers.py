@@ -728,6 +728,16 @@ def score_efficiency(
     return _finish("efficiency", items)
 
 
+def score_decision(
+    case: EvalCase,
+    actual: EvalObservation,
+) -> ScorerResult:
+    return _finish(
+        "decision",
+        chat_assertions("decision", case, actual),
+    )
+
+
 SCORERS: dict[str, Scorer] = {
     "schema": score_schema,
     "route": score_route,
@@ -737,6 +747,7 @@ SCORERS: dict[str, Scorer] = {
     "recovery": score_recovery,
     "quality": score_quality,
     "efficiency": score_efficiency,
+    "decision": score_decision,
 }
 
 

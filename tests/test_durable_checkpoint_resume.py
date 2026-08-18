@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import sqlite3
 from pathlib import Path
 from typing import TypedDict
+
 import pytest
-from langgraph.graph import START, END, StateGraph
+from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command, interrupt
 
 SqliteSaver = pytest.importorskip("langgraph.checkpoint.sqlite").SqliteSaver

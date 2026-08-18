@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from app.execution.profile_store import get_execution_profile
 from app.execution.registry import build_execution_runner
 

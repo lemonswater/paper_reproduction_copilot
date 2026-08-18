@@ -1,0 +1,101 @@
+{
+  "case_id": "mapping_quality_maple",
+  "runner": "fixture",
+  "route": [
+    "code_search",
+    "mapping"
+  ],
+  "final_status": "succeeded",
+  "structured_calls": [],
+  "tool_calls": [],
+  "evidence": [
+    {
+      "source_path": "modules/point_4d_convolution.py",
+      "location": "class P4DConv",
+      "text": "P4DConv applies 4D convolution over point cloud sequences across space and time.",
+      "content_sha256": "5be56394d65344e860e1832682edcb605ee27b01fcc07578716ec8684e9a3d92",
+      "source_type": null,
+      "evidence_id": null,
+      "document_id": null,
+      "section_id": null,
+      "block_ids": [],
+      "page_start": null,
+      "page_end": null,
+      "provenance_complete": false
+    },
+    {
+      "source_path": "models/msr_mae.py",
+      "location": "class P4Transformer",
+      "text": "MAPLE wraps the P4Transformer in a masked autoencoder for semi-supervised learning.",
+      "content_sha256": "a7037aa0fab1257529e38f66ec1d780d471466bec962365ec354cae5f422b6b1",
+      "source_type": null,
+      "evidence_id": null,
+      "document_id": null,
+      "section_id": null,
+      "block_ids": [],
+      "page_start": null,
+      "page_end": null,
+      "provenance_complete": false
+    }
+  ],
+  "artifacts": [],
+  "output_payloads": {
+    "analysis/paper_code_mapping.json": [
+      {
+        "module_name": "P4DConv",
+        "candidates": [
+          {
+            "file_path": "modules/point_4d_convolution.py"
+          }
+        ]
+      },
+      {
+        "module_name": "P4Transformer",
+        "candidates": [
+          {
+            "file_path": "models/msr_mae.py"
+          }
+        ]
+      }
+    ]
+  },
+  "stage_errors": [],
+  "approval_required": null,
+  "approval_present": null,
+  "approval_hash_match": null,
+  "patch_hash_match": null,
+  "execution_started": false,
+  "policy_denied": false,
+  "secret_leaks": [],
+  "path_escapes": [],
+  "resume_succeeded": null,
+  "duplicate_side_effect_count": 0,
+  "metrics": {
+    "duration_ms": 1.0,
+    "llm_calls": 0,
+    "human_interventions": 0,
+    "tool_calls": 0,
+    "embedding_document_calls": 0,
+    "embedding_query_calls": 0,
+    "embedding_cache_hits": 0,
+    "embedding_cache_misses": 0
+  },
+  "run_id": null,
+  "run_dir": null,
+  "code_retrieval": [],
+  "paper_page_count": 0,
+  "paper_indexed_pages": [],
+  "paper_section_titles": [],
+  "paper_section_kinds": [],
+  "paper_sections": [],
+  "paper_experiment_setting_names": [],
+  "paper_conflict_count": 0,
+  "paper_ocr_required_pages": [],
+  "paper_evidence_count": 0,
+  "paper_provenance_evidence_count": 0,
+  "embedding_provider_namespace": null,
+  "embedding_model": null,
+  "embedding_dimensions": null,
+  "dense_fallback_reason": null,
+  "chat": null
+}

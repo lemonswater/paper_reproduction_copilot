@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "scenario_id": "chat_provider_run_comparison_explanation",
+  "job_status": "succeeded",
+  "sources": [
+    {
+      "citation": {
+        "citation_id": "job:current",
+        "source_type": "job",
+        "label": "Current target job state"
+      },
+      "content": "target job status=succeeded; no verified paper accuracy metric is available",
+      "score": 1000
+    },
+    {
+      "citation": {
+        "citation_id": "comparison:comparison_aaaaaaaaaaaaaaaaaaaaaaaa",
+        "source_type": "comparison",
+        "label": "Run comparison: job-base -> job-target",
+        "locator": "comparator phase38-v1",
+        "comparison_id": "comparison_aaaaaaaaaaaaaaaaaaaaaaaa",
+        "comparison_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "base_job_id": "job-base",
+        "target_job_id": "job-target"
+      },
+      "content": "{\"summary\":{\"change_count\":4},\"changes\":[{\"field_path\":\"selected_command\",\"base_value\":\"python train.py --batch-size 8\",\"target_value\":\"python train.py --batch-size 16\"},{\"field_path\":\"job_status\",\"base_value\":\"failed\",\"target_value\":\"succeeded\"},{\"field_path\":\"errors\",\"base_value\":[\"MODULE_NOT_FOUND\"],\"target_value\":[]},{\"field_path\":\"artifacts/metrics.json\",\"kind\":\"added\"}],\"scope_warnings\":[],\"boundary\":\"operational facts only; no verified scientific metric\"}",
+      "score": 980
+    }
+  ],
+  "seed_exchanges": [],
+  "turns": [
+    {
+      "label": "explain-run-diff",
+      "question": "比较这两个 Run，说明发生了哪些变化；不要把变化说成已成功复现论文结果。",
+      "idempotency_key": "provider-run-comparison-1"
+    }
+  ],
+  "memory_scripts": [],
+  "repetitions": 3,
+  "compaction_enabled": false,
+  "recent_messages": 4,
+  "compaction_min_messages": 4,
+  "compaction_max_messages": 40,
+  "compaction_max_input_chars": 20000,
+  "memory_max_chars": 8000,
+  "history_max_chars": 8000,
+  "prompt_max_chars": 40000
+}

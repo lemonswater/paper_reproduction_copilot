@@ -1,0 +1,40 @@
+{
+  "node_name": "method_extractor_sec-1e7eb29c4f50-c000-74ad0956b4",
+  "schema_name": "SectionExtractionDraft",
+  "method": "json_schema",
+  "strict": true,
+  "max_retries": 2,
+  "provider_max_retries": 2,
+  "provider_retry_base_seconds": 0.5,
+  "succeeded": true,
+  "fallback_used": false,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt_number": 1,
+      "status": "succeeded",
+      "prompt_kind": "original",
+      "error_type": null,
+      "error_message": null,
+      "raw_preview": "{\n  \"chunk_id\": \"sec-1e7eb29c4f50-c000-74ad0956b4\",\n  \"core_idea_candidates\": [\n    {\n      \"evidence\": {\n        \"block_ids\": [\n          \"p001-b0058-4e95f5acc2\",\n          \"p001-b0059-ec89044bc3\",\n          \"p001-b0060-69debdb8dc\",\n          \"p001-b0061-3fac0a1542\",\n          \"p001-b0062-2e1befcd86\",\n          \"p001-b0063-8cb96c2441\",\n          \"p001-b0064-78c2f490dd\",\n          \"p001-b0065-b3c5e9d2a4\",\n          \"p001-b0066-466d6e3af6\"\n        ],\n        \"confidence\": 0.95,\n        \"summary\": \"P4Transformer由point 4D convolution和transformer组成；输入为点云视频(3×L×N)，其中L为帧数，N为每帧点数；卷积输出坐标张量(3×L′×N′)和特征张量(C×L′×N′)；transformer对嵌入张量执行自注意力以捕捉整个点云视频的全局时空结构。\"\n      },\n      \"value\": \"P4Transformer由point 4D convolution和transformer组成，输入点云视频(3×L×N)，L为帧数，N为每帧点数，输出坐标张量(3×L′×N′)和特征张量(C×L′×N′)，transformer执行自注意力捕捉全局时空结构。\"\n    }\n  ],\n  \"datasets\": [],\n  \"experiment_settings\": [\n    {\n      \"evidence\": {\n        \"block_ids\": [\n          \"p001-b0084-beb6367cb2\",\n          \"p001-b0085-c08f9d29f7\",\n          \"p001-b0086-bb8141b4f0\"\n        ],\n        \"confidence\": 0.9,\n        \"summary\": \"在四个基准上进行了3D动作识别和4D语义分割实验，验证P4Transformer的有效性。\"\n      },\n      \"name\": \"3D action recognition and 4D semantic segmentation on four benchmarks\",\n      \"value\": \"P4Transformer effectiveness demonstrated\"\n    }\n  ],\n  \"method_modules\": [\n    {\n      \"description\": \"点4D卷积，用于嵌入点云视频中的时空局部结构\",\n      \"evidence\": {\n        \"block_ids\": [\n          \"p001-b0077-93f7031ce1\",\n          \"p001-b0078-9bf8dce970\"\n        ],\n        \"confidence\": 0.95\n      \t,\n      \"summary\": \"P4Transformer包含一个点4D卷积，用于嵌入点云视频中的时空局部结构。\"\n    },\n    \"name\": \"point 4D convolution\"\n    ,\n    \"possible_keywords\": [\n      \"point 4D convolution\"\n    ]\n  },\n  {\n    \"description\": \"Transformer，对嵌入的局部特征执行自注意力，捕捉整个视频的外观和运动信息\",\n    \"evidence\": {\n      \"block_ids\": [\n        \"p001-b0079-8106627d3c\",\n        \"p001-b0080-47184b3063\",\n        \"p001-b0081-ba831ca452\"\n      ],\n      \"confidence\": 0.95\n    ,\n    \"summary\": \"P4Transformer包含一个transformer，对嵌入的局部特征执行自",
+      "finish_reason": "stop",
+      "token_usage": {
+        "input_tokens": 2221,
+        "output_tokens": 1392,
+        "total_tokens": 3613,
+        "input_token_details": {},
+        "output_token_details": {}
+      },
+      "output_chars": 3078,
+      "truncated": false
+    }
+  ],
+  "generated_at": "2026-08-18T08:03:19.549576+00:00",
+  "model_routing": {
+    "invocation_id": null,
+    "decision_sha256": "71a3fad904fbf9eee0d91e9b0743266c3a4bebc6ce3c7df2528c4583160580f4",
+    "executed_profile_id": "legacy_chat",
+    "model_name": "deepseek-v4-flash",
+    "usage_quality": null
+  }
+}

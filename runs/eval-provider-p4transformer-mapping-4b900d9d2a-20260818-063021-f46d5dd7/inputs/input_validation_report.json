@@ -1,0 +1,46 @@
+{
+  "valid": false,
+  "checks": [
+    {
+      "name": "paper_path",
+      "status": "passed",
+      "category": "user",
+      "code": "OK",
+      "message": "paper_path 可读取",
+      "path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf"
+    },
+    {
+      "name": "paper_format",
+      "status": "passed",
+      "category": "user",
+      "code": "OK",
+      "message": "论文格式受支持：.pdf",
+      "path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf"
+    },
+    {
+      "name": "repo_path",
+      "status": "passed",
+      "category": "user",
+      "code": "OK",
+      "message": "代码仓库目录存在",
+      "path": "/data/tianshaoqi24/P4Transformer"
+    },
+    {
+      "name": "log_path",
+      "status": "passed",
+      "category": "user",
+      "code": "NOT_PROVIDED",
+      "message": "本次未提供外部日志",
+      "path": null
+    },
+    {
+      "name": "execution_profile",
+      "status": "failed",
+      "category": "environment",
+      "code": "EXECUTION_PROFILE_INVALID",
+      "message": "未找到执行环境配置：profile-P4Transformer；可用配置：<none>",
+      "path": null
+    }
+  ],
+  "generated_at": "2026-08-18T06:30:21.451798+00:00"
+}

@@ -22,6 +22,10 @@ from app.schemas import (
     ResourceBudget,
     ResourceUsage,
 )
+from app.secrets.redaction import (
+    SecretRedactor,
+    StreamingSecretRedactor,
+)
 
 SENSITIVE_ARG_NAMES = {
     "--api-key",
@@ -234,7 +238,7 @@ def budget_end_reason(
     return None
 
 class BoundedLogSink:
-    """持续统计全部字节，但只保存有界文件和有界 preview。"""
+    """统计原始字节，但只持久化脱敏后的有界内容。"""
 
     def __init__(
         self,
@@ -242,6 +246,7 @@ class BoundedLogSink:
         path: Path,
         max_file_bytes: int,
         max_preview_bytes: int,
+        stream_redactor: StreamingSecretRedactor | None = None,
     ) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         self.path = path
@@ -251,14 +256,12 @@ class BoundedLogSink:
         self.bytes_written = 0
         self.preview = bytearray()
         self.truncated = False
+        self._redactor = stream_redactor
         self._file = path.open("wb")
 
-    def consume(self, data: bytes) -> None:
+    def _write_safe(self, data: bytes) -> None:
         if not data:
             return
-
-        self.bytes_seen += len(data)
-
         preview_remaining = (
             self.max_preview_bytes - len(self.preview)
         )
@@ -271,12 +274,24 @@ class BoundedLogSink:
             self._file.write(chunk)
             self.bytes_written += len(chunk)
 
+    def consume(self, data: bytes) -> None:
+        if not data:
+            return
+        self.bytes_seen += len(data)
+        safe = (
+            self._redactor.feed(data)
+            if self._redactor is not None
+            else data
+        )
+        self._write_safe(safe)
         if self.bytes_seen > self.max_file_bytes:
             self.truncated = True
 
     def close(self) -> None:
         if self._file.closed:
             return
+        if self._redactor is not None:
+            self._write_safe(self._redactor.flush())
         self._file.flush()
         os.fsync(self._file.fileno())
         self._file.close()
@@ -366,6 +381,8 @@ class ProcessSupervisor:
         inherited_env_keys: list[str] | None = None,
         profile_env_keys: list[str] | None = None,
         action_env_keys: list[str] | None = None,
+        secret_env_keys: list[str] | None = None,
+        redactor: SecretRedactor | None = None,
     ) -> ExecutionResult:
         if os.name != "posix":
             raise RuntimeError(
@@ -399,6 +416,9 @@ class ProcessSupervisor:
                 request.budget.max_log_bytes_per_stream
             ),
             max_preview_bytes=request.budget.max_preview_bytes,
+            stream_redactor=(
+                redactor.stream() if redactor else None
+            ),
         )
         stderr_sink = BoundedLogSink(
             path=stderr_path,
@@ -406,6 +426,9 @@ class ProcessSupervisor:
                 request.budget.max_log_bytes_per_stream
             ),
             max_preview_bytes=request.budget.max_preview_bytes,
+            stream_redactor=(
+                redactor.stream() if redactor else None
+            ),
         )
         combined_sink = BoundedLogSink(
             path=combined_path,
@@ -414,6 +437,9 @@ class ProcessSupervisor:
             ),
             max_preview_bytes=(
                 request.budget.max_preview_bytes * 2
+            ),
+            stream_redactor=(
+                redactor.stream() if redactor else None
             ),
         )
         sinks = {
@@ -444,6 +470,7 @@ class ProcessSupervisor:
             ),
             profile_env_keys=sorted(profile_env_keys or []),
             action_env_keys=sorted(action_env_keys or []),
+            secret_env_keys=sorted(secret_env_keys or []),
         )
         write_runtime_record(
             run_dir=run_root,

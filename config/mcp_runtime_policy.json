@@ -1,0 +1,32 @@
+{
+  "schema_version": "phase56-v1",
+  "offline_profile_ids": [
+    "in-memory-legacy",
+    "in-memory-modern"
+  ],
+  "release_profile_ids": [
+    "in-memory-legacy",
+    "in-memory-modern",
+    "loopback-http"
+  ],
+  "required_operation_names": [
+    "get_reproduction_status",
+    "list_reproduction_artifacts",
+    "read_reproduction_final_report",
+    "resource_final_report",
+    "resource_job_status",
+    "search_reproduction_evidence"
+  ],
+  "samples_per_operation": 2,
+  "minimum_success_rate": 1.0,
+  "maximum_p95_ms": 5000.0,
+  "request_timeout_seconds": 5.0,
+  "maximum_relative_p95_regression": 0.5,
+  "maximum_absolute_p95_regression_ms": 500.0,
+  "allowed_sdk_majors": [2],
+  "allowed_protocol_versions": [
+    "2025-11-25",
+    "2026-07-28"
+  ],
+  "policy_sha256": "3844b0209f9e527ccf2b98d4eb138fe486c9f91d895e630f609569206adb27de"
+}

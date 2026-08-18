@@ -1,0 +1,40 @@
+{
+  "node_name": "method_extractor_sec-80607dc4891e-c001-3a9e4920bc",
+  "schema_name": "SectionExtractionDraft",
+  "method": "json_schema",
+  "strict": true,
+  "max_retries": 2,
+  "provider_max_retries": 2,
+  "provider_retry_base_seconds": 0.5,
+  "succeeded": true,
+  "fallback_used": false,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt_number": 1,
+      "status": "succeeded",
+      "prompt_kind": "original",
+      "error_type": null,
+      "error_message": null,
+      "raw_preview": "{\n  \"chunk_id\": \"sec-80607dc4891e-c001-3a9e4920bc\",\n  \"core_idea_candidates\": [],\n  \"datasets\": [],\n  \"experiment_settings\": [],\n  \"method_modules\": [],\n  \"metrics\": [],\n  \"reproduction_risks\": [],\n  \"research_problem_candidates\": [],\n  \"section_id\": \"sec-80607dc4891e\",\n  \"summary\": \"该章节片段为图9的图表元素，包含多个动作名称、坐标轴标签和数值刻度，但未提供任何实验结论或具体数值对应关系。\",\n  \"table_claims_unresolved\": []\n  ,\n  \"unresolved_questions\": []\n}",
+      "finish_reason": "stop",
+      "token_usage": {
+        "input_tokens": 2371,
+        "output_tokens": 1538,
+        "total_tokens": 3909,
+        "input_token_details": {},
+        "output_token_details": {}
+      },
+      "output_chars": 408,
+      "truncated": false
+    }
+  ],
+  "generated_at": "2026-08-18T07:59:17.248494+00:00",
+  "model_routing": {
+    "invocation_id": null,
+    "decision_sha256": "d46c0e3e200813eb25cf6e4d5e234a24118b4a0e21a8f36b1011f71cb1841570",
+    "executed_profile_id": "legacy_chat",
+    "model_name": "deepseek-v4-flash",
+    "usage_quality": null
+  }
+}

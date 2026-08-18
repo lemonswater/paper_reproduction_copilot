@@ -1,0 +1,40 @@
+{
+  "node_name": "method_extractor_sec-fb61d38a0743-c001-85101da643",
+  "schema_name": "SectionExtractionDraft",
+  "method": "json_schema",
+  "strict": true,
+  "max_retries": 2,
+  "provider_max_retries": 2,
+  "provider_retry_base_seconds": 0.5,
+  "succeeded": true,
+  "fallback_used": false,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt_number": 1,
+      "status": "succeeded",
+      "prompt_kind": "original",
+      "error_type": null,
+      "error_message": null,
+      "raw_preview": "{\n  \"chunk_id\": \"sec-fb61d38a0743-c001-85101da643\",\n  \"core_idea_candidates\": [\n    {\n      \"evidence\": {\n        \"block_ids\": [\"p005-b0079-a88eab3af5\", \"p005-b0080-2bc54e2f46\"],\n        \"confidence\": 0.9\n      ,\n      \"summary\": \"卷积将空间特征编码为时空特征，原始序列尺寸为 L×N=5×8，编码后序列尺寸为 L′×N′=3×2。\"\n    }\n  ,\n  \"value\": \"卷积编码将空间特征编码为时空特征；原始序列尺寸为 L×N=5×8，编码后序列尺寸为 L′×N′=3×2。\"\n}  ,\n  {\n    \"evidence\": {\"block_ids\": [\"p-fb61d35/2bc54e2f46\"] , \"confidence\": 0.9\n    ,\n    \"summary\": \"编码后序列尺寸为 L′×N′=3×2。\"\n  }\n  ,\n  \"value\": \"编码后序列尺寸为 L′×N′=3×2。\"\n  }\n  ],\n  \"datasets\": [],\n  \"experiment_settings\": [],\n  \"method_modules\": [\n    {\n      \"description\": \"卷积编码空间特征为时空特征，序列尺寸从 L×N=5×8 变为 L′×N′=3×2。\",\n      \"evidence\": {\"block_ids\": [\"p005-b0079-a88eab3af5\", \"p005-b0080-2bc54e2f46\"] , \"confidence\": 0.9\n    ,\n    \"summary\": \"卷积编码空间特征为时空特征，序列尺寸从 L×N=5×8 变为 L′×N′=3×2。\"\n  }\n  ,\n  \"name\": \"空间特征卷积编码\"\n  ,\n  \"possible_keywords\": [\"convolution\", \"spatial features\", \"spatio-temporal feature\", \"sequence encoding\"]\n  }\n  ],\n  \"metrics\": [],\n  \"reproduction_risks\": [],\n  \"research_problem_candidates\": [\n    {\n      \"evidence\": {\"block_ids\": [\"p005-b0079-2bc54e2f46\", \"p005-b0080-2bc54e2f46\"], \"confidence\": 0.8\n    ,\n    \"summary\": \"点云序列建模中分解空间和时间，通过卷积编码空间特征得到时空特征，并改变序列尺寸。\"\n    }\n  ,\n  \"value\": \"点云序列建模中分解空间和时间，通过卷积编码空间特征得到时空特征，并改变序列尺寸。\"\n  }\n  ],\n  \"section_id\": \"sec-fb61d38a0743\",\n  \"summary\": \"该章节片段描述了点云序列建模中分解空间和时间的方法：卷积编码空间特征为时空特征，原始序列尺寸为 L×N=5×8，编码后序列尺寸为 L′×N′=3×2。\"\n  ,\n  \"table_claims_unresolved\": []\n  ,\n  \"unresolved_questions\": []\n}",
+      "finish_reason": "stop",
+      "token_usage": {
+        "input_tokens": 470,
+        "output_tokens": 738,
+        "total_tokens": 1208,
+        "input_token_details": {},
+        "output_token_details": {}
+      },
+      "output_chars": 1516,
+      "truncated": false
+    }
+  ],
+  "generated_at": "2026-08-18T08:01:16.379103+00:00",
+  "model_routing": {
+    "invocation_id": null,
+    "decision_sha256": "660c222a04c3fc5b4023d542552a191ba017363a8761a75e1014280f901437ad",
+    "executed_profile_id": "legacy_chat",
+    "model_name": "deepseek-v4-flash",
+    "usage_quality": null
+  }
+}

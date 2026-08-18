@@ -1,0 +1,25 @@
+{
+  "cache_version": 1,
+  "cache_key": "6ed4ee506468d50cc9bb751ed9038f4c1724df3a0d7a84d4d104d59a278cef94",
+  "chunk_id": "sec-e640cdcacfb7-c000-c20b4c820a",
+  "section_id": "sec-e640cdcacfb7",
+  "prompt_version": "phase18-v1",
+  "schema_version": "phase18-v1",
+  "model_name": "deepseek-v4-flash",
+  "method": "json_schema",
+  "strict": true,
+  "extraction": {
+    "section_id": "sec-e640cdcacfb7",
+    "chunk_id": "sec-e640cdcacfb7-c000-c20b4c820a",
+    "summary": "该章节片段仅包含论文标题、作者和单位信息，未提供任何方法、实验设置或结果内容。",
+    "research_problem_candidates": [],
+    "core_idea_candidates": [],
+    "method_modules": [],
+    "datasets": [],
+    "metrics": [],
+    "experiment_settings": [],
+    "reproduction_risks": [],
+    "unresolved_questions": [],
+    "table_claims_unresolved": []
+  }
+}

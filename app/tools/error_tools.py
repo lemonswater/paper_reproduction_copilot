@@ -48,12 +48,15 @@ def sanitize_error_message(value: object, max_chars: int = 4000) -> str:
     """
     错误报告不能把 API Key 等值原样写入 Artifact。
 
-    这里只做基础兜底。Phase 16 还会从子进程环境层彻底隔离 secret。
+    Phase 41 起使用统一 SecretRedactor 做已知值匹配，
+    再叠加正则规则兜底。
     """
 
-    text = str(value)
-    text = SENSITIVE_ASSIGNMENT.sub(r"\1=<redacted>", text)
-    return text[:max_chars]
+    from app.observability.redaction import (
+        sanitize_error_message as _unified_sanitize,
+    )
+
+    return _unified_sanitize(value, max_chars=max_chars)
 
 
 def is_transient_provider_error(exc: BaseException) -> bool:

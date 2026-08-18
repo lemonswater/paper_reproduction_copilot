@@ -123,7 +123,7 @@ def test_failed_suite_is_not_written_as_baseline_and_error_is_redacted(
         lambda **_: [_failing_case()],
     )
 
-    def fail_runner(_case: EvalCase):
+    def fail_runner(_case: EvalCase, **_kwargs):
         raise RuntimeError(
             "OPENAI_API_KEY=super-secret-value"
         )

@@ -8,8 +8,8 @@
   "tags": ["provider", "mapping", "p4transformer"],
   "problem_ids": [2, 7, 8],
   "input": {
-    "paper_path": "pdf/PSTNet—Point Spatio-Temporal Convolution on Point Cloud Sequences.pdf",
-    "repo_path": "/data/tianshaoqi24/PST-Convolution-main/",
+    "paper_path": "pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf",
+    "repo_path": "/data/tianshaoqi24/P4Transformer/",
     "experiment_goal": "复现论文 main result",
     "scripted_responses": []
   },

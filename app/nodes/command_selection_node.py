@@ -1,28 +1,36 @@
-from copy import deepcopy
-from datetime import datetime, timezone
-import hashlib
+from __future__ import annotations
+
 import json
-from pathlib import Path
 import shutil
+from datetime import datetime, timezone
+from pathlib import Path
 
 from langgraph.types import interrupt
 from rich import print
 
-from app.config import settings
-from app.schemas import(
-    CommandEdit,
-    CommandSelectionRecord,
-    CommandSelectionResponse
+from app.command_selection import (
+    apply_command_edits,
+    compute_run_commands_hash,
+    validate_command_selection_response,
 )
+from app.schemas import CommandSelectionRecord, CommandSelectionResponse
+from app.tools.artifact_tools import (
+    artifact_state_update,
+    register_existing_artifact,
+    resolve_artifact_path,
+    write_json_artifact,
+)
+from app.tools.error_tools import stage_error_result
+
 
 def _render_run_commands_for_terminal(run_commands: list[dict]) -> None:
-    print("\n[bold cyan]Available run_commands[/bold cyan]")
+    print("\n[bold cyan]可用的运行命令（run_commands）[/bold cyan]")
     for index, item in enumerate(run_commands):
         print(f"\n[yellow][{index}][/yellow] {item.get('command', '')}")
-        print(f"  cwd: {item.get('cwd', '')}")
-        print(f"  source: {item.get('source', '')}")
-        print(f"  risk_level: {item.get('risk_level', '')}")
-        print(f"  reason: {item.get('reason', '')}")
+        print(f"  工作目录：{item.get('cwd', '')}")
+        print(f"  来源：{item.get('source', '')}")
+        print(f"  风险等级：{item.get('risk_level', '')}")
+        print(f"  原因：{item.get('reason', '')}")
 
 
 def build_command_selection_template(run_commands: list[dict]) -> dict:
@@ -39,18 +47,6 @@ def build_command_selection_template(run_commands: list[dict]) -> dict:
             for index, item in enumerate(run_commands)
         ],
     }
-
-
-def compute_run_commands_hash(run_commands: list[dict]) -> str:
-    """计算与字典键顺序无关、但保留命令列表顺序的稳定哈希。"""
-
-    canonical_json = json.dumps(
-        run_commands,
-        ensure_ascii=False,
-        sort_keys=True,
-        separators=(",", ":"),
-    )
-    return hashlib.sha256(canonical_json.encode("utf-8")).hexdigest()
 
 
 def _write_command_selection_template(
@@ -100,34 +96,6 @@ def ensure_command_selection_input_file(
     _write_command_selection_template(input_path, run_commands)
     return "refreshed", backup_path
 
-
-def _command_selection_input_path(state: dict) -> Path:
-    """优先把输入模板放入当前 run，直接调用节点时回退到 outputs。"""
-
-    run_dir = state.get("run_dir")
-    if run_dir:
-        return Path(run_dir) / "planning" / "command_selection_input.json"
-    return settings.output_dir / "command_selection_input.json"
-
-
-def _ensure_command_selection_input(
-    state: dict,
-    run_commands: list[dict],
-) -> tuple[Path, str, Path | None]:
-    """
-    为本次 run 创建预填输入文件，但不覆盖用户已经修改过的文件。
-
-    LangGraph 从 interrupt 恢复时会从节点开头重新执行，因此这里不能
-    每次无条件写文件，否则用户刚编辑好的命令会在恢复瞬间被覆盖。
-    """
-
-    input_path = _command_selection_input_path(state)
-    status, backup_path = ensure_command_selection_input_file(
-        input_path,
-        run_commands,
-    )
-    return input_path, status, backup_path
-
 def _normalize_interrupt_response(
     response: object,
     expected_hash: str,
@@ -147,24 +115,7 @@ def _normalize_interrupt_response(
             run_commands_hash=expected_hash,
         )
     
-    raise ValueError("invalid command selection response")
-
-def _apply_command_edits(
-    run_commands: list[dict],
-    edits: list[CommandEdit]
-) -> list[dict]:
-    effective_commands = deepcopy(run_commands)
-    for edit in edits:
-        if edit.index < 0 or edit.index >= len(effective_commands):
-            raise ValueError(f"edit index out of range: {edit.index}")
-
-        new_command = edit.command.strip()
-        if not new_command:
-             raise ValueError(f"edited command cannot be empty: index={edit.index}")
-
-        effective_commands[edit.index]["command"] = new_command
-
-    return effective_commands
+    raise ValueError("无效的命令选择响应")
 
 def command_selection_node(state: dict) -> dict:
     run_commands = state.get("run_commands", [])
@@ -175,20 +126,33 @@ def command_selection_node(state: dict) -> dict:
         }
     
     expected_hash = compute_run_commands_hash(run_commands)
-    input_path, input_status, stale_backup_path = _ensure_command_selection_input(
-        state,
-        run_commands,
-    )
+    raw_input_path = state.get("command_selection_input_path")
+    if not raw_input_path:
+        return stage_error_result(
+            state=state,
+            stage="command_selection",
+            code="COMMAND_SELECTION_INPUT_MISSING",
+            category="agent",
+            message="checkpoint 中缺少 command_selection_input_path",
+            extra_update={
+                "selected_run_command_index": None,
+                "edited_run_commands": [],
+            },
+        )
+
+    input_path = Path(raw_input_path)
+    input_status = state.get("command_selection_input_status", "current")
+    stale_backup_path = None
 
     _render_run_commands_for_terminal(run_commands)
     print(
-        "\n[green]Command selection input:[/green] "
+        "\n[green]命令选择输入文件：[/green] "
         f"[bold]{input_path}[/bold]"
     )
-    print("Edit this file, then resume the current thread.")
+    print("请编辑此文件，然后恢复当前 thread。")
     if input_status == "refreshed":
         print(
-            "[yellow]Stale command selection input was backed up to:[/yellow] "
+            "[yellow]过期的命令选择输入已备份到：[/yellow] "
             f"{stale_backup_path}"
         )
 
@@ -207,18 +171,22 @@ def command_selection_node(state: dict) -> dict:
     }
 
     response = interrupt(payload)
-    parsed = _normalize_interrupt_response(response, expected_hash)
+    parsed = _normalize_interrupt_response(
+        response,
+        expected_hash,
+    )
 
-    if parsed.run_commands_hash != expected_hash:
-        raise ValueError(
-            "stale command selection response: run_commands_hash does not "
-            "match the current checkpoint; review the regenerated input file"
-        )
-
-    if parsed.selected_index < 0 or parsed.selected_index >= len(run_commands):
-        raise ValueError(f"selected_index out of range: {parsed.selected_index}")
-    
-    effective_commands = _apply_command_edits(run_commands, parsed.edits)
+    # 即使 HTTP 层已经校验，Graph 恢复后仍使用 checkpoint 中的真实
+    # run_commands 再校验一次，防御 CLI、旧 checkpoint 和其他调用入口。
+    parsed = validate_command_selection_response(
+        run_commands=run_commands,
+        response=parsed,
+        expected_preview_hash=expected_hash,
+    )
+    effective_commands = apply_command_edits(
+        run_commands,
+        parsed.edits,
+    )
 
     record = CommandSelectionRecord(
         selected_index=parsed.selected_index,
@@ -228,17 +196,17 @@ def command_selection_node(state: dict) -> dict:
         reviewed_at=datetime.now(timezone.utc).isoformat()
     )
 
-    settings.output_dir.mkdir(parents=True, exist_ok=True)
-    record_path = settings.output_dir / "command_selection_record.json"
-    effective_path = settings.output_dir / "effective_run_commands.json"
-
-    record_path.write_text(
-        record.model_dump_json(indent=2),
-        encoding="utf-8",
+    _record_path, record_artifact = write_json_artifact(
+        state=state,
+        relative_path="planning/command_selection_record.json",
+        payload=record.model_dump(),
+        producer_node="command_selection",
     )
-    effective_path.write_text(
-        json.dumps(effective_commands, ensure_ascii=False, indent=2),
-        encoding="utf-8",
+    _effective_path, effective_artifact = write_json_artifact(
+        state=state,
+        relative_path="planning/effective_run_commands.json",
+        payload=effective_commands,
+        producer_node="command_selection",
     )
 
     return {
@@ -261,10 +229,57 @@ def command_selection_node(state: dict) -> dict:
         "last_action_result": {},
         "final_status": None,
         "error": None,
-        "output_files": [
-            *state.get("output_files", []),
-            str(input_path),
-            str(record_path),
-            str(effective_path),
-        ],
+        **artifact_state_update(
+            state,
+            [record_artifact, effective_artifact],
+        ),
+    }
+
+def command_selection_prepare_node(state: dict) -> dict:
+    """
+    在 interrupt 节点之前落盘并登记命令选择模板。
+
+    这样 checkpoint 到达 command_selection 时，模板已经是当前 run 的
+    正式 Artifact。
+    """
+
+    run_commands = state.get("run_commands", [])
+    if not run_commands:
+        return {
+            "command_selection_input_path": None,
+            "selected_run_command_index": None,
+            "edited_run_commands": [],
+        }
+
+    input_path = resolve_artifact_path(
+        state,
+        "planning/command_selection_input.json",
+    )
+    status, stale_backup_path = ensure_command_selection_input_file(
+        input_path,
+        run_commands,
+    )
+
+    records = [
+        register_existing_artifact(
+            state=state,
+            path=input_path,
+            producer_node="command_selection_prepare",
+            media_type="application/json",
+        )
+    ]
+    if stale_backup_path is not None:
+        records.append(
+            register_existing_artifact(
+                state=state,
+                path=stale_backup_path,
+                producer_node="command_selection_prepare",
+                media_type="application/json",
+            )
+        )
+
+    return {
+        "command_selection_input_path": str(input_path),
+        "command_selection_input_status": status,
+        **artifact_state_update(state, records),
     }

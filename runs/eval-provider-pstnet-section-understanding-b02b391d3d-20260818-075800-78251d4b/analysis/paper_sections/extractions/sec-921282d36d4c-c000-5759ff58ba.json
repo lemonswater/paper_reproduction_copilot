@@ -1,0 +1,25 @@
+{
+  "cache_version": 1,
+  "cache_key": "bce003759146e86de7e2f545fec29d5997705a1508dbdf7e28fd20ce23c8e6e1",
+  "chunk_id": "sec-921282d36d4c-c000-5759ff58ba",
+  "section_id": "sec-921282d36d4c",
+  "prompt_version": "phase18-v1",
+  "schema_version": "phase18-v1",
+  "model_name": "deepseek-v4-flash",
+  "method": "json_schema",
+  "strict": true,
+  "extraction": {
+    "section_id": "sec-921282d36d4c",
+    "chunk_id": "sec-921282d36d4c-c000-5759ff58ba",
+    "summary": "该章节为消融研究，主要探讨了三个超参数的影响：clip length（帧数）、temporal kernel size（时间卷积核大小）和spatial search radius（空间搜索半径）。",
+    "research_problem_candidates": [],
+    "core_idea_candidates": [],
+    "method_modules": [],
+    "datasets": [],
+    "metrics": [],
+    "experiment_settings": [],
+    "reproduction_risks": [],
+    "unresolved_questions": [],
+    "table_claims_unresolved": []
+  }
+}

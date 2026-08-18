@@ -1,0 +1,40 @@
+{
+  "node_name": "method_extractor_sec-4532b80038f0-c000-1e64af1411",
+  "schema_name": "SectionExtractionDraft",
+  "method": "json_schema",
+  "strict": true,
+  "max_retries": 2,
+  "provider_max_retries": 2,
+  "provider_retry_base_seconds": 0.5,
+  "succeeded": true,
+  "fallback_used": false,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt_number": 1,
+      "status": "succeeded",
+      "prompt_kind": "original",
+      "error_type": null,
+      "error_message": null,
+      "raw_preview": "{\n  \"chunk_id\": \"sec-4532b80038f0-c000-1e64af1411\",\n  \"core_idea_candidates\": [],\n  \"datasets\": [],\n  \"experiment_settings\": [],\n  \"method_modules\": [],\n  \"metrics\": [],\n  \"reproduction_risks\": [],\n  \"research_problem_candidates\": [],\n  \"section_id\": \"sec-4532b80038f0\",\n  \"summary\": \"该章节片段仅包含机构名称“University of Technology Sydney”，未提供任何可提取的复现事实。\",\n  \"table_claims_unresolved\": []\n  ,\n  \"unresolved_questions\": []\n}",
+      "finish_reason": "stop",
+      "token_usage": {
+        "input_tokens": 399,
+        "output_tokens": 203,
+        "total_tokens": 602,
+        "input_token_details": {},
+        "output_token_details": {}
+      },
+      "output_chars": 414,
+      "truncated": false
+    }
+  ],
+  "generated_at": "2026-08-18T08:04:41.502969+00:00",
+  "model_routing": {
+    "invocation_id": null,
+    "decision_sha256": "b3d6f7408b8f68274cc4874394d6553615b6b2f9435cec17ca47cff129983166",
+    "executed_profile_id": "legacy_chat",
+    "model_name": "deepseek-v4-flash",
+    "usage_quality": null
+  }
+}

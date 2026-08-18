@@ -7,8 +7,11 @@ from langgraph.checkpoint.memory import MemorySaver
 
 from app.graph import (
     build_graph,
+    route_after_execution_verifier,
     route_after_executor,
     route_after_input_validation,
+    route_after_patch_verdict,
+    route_after_patch_verification_executor,
     route_after_smoke_test,
 )
 
@@ -34,7 +37,7 @@ def test_terminal_input_error_routes_to_final_report():
     assert route_after_input_validation(state) == "final_report"
 
 
-def test_nonterminal_paper_error_still_routes_to_debug():
+def test_legacy_nonterminal_paper_error_routes_to_debug():
     state = {
         "final_status": "failed",
         "log_path": (
@@ -100,6 +103,54 @@ def test_nonterminal_smoke_resource_error_routes_to_debug():
     }
 
     assert route_after_smoke_test(state) == "log_debug"
+
+
+def test_new_executor_evidence_cannot_skip_verifier():
+    assert route_after_executor(
+        {
+            "execution_evidence": {
+                "evidence_id": "phase43-evidence"
+            },
+            # 故意残留旧值，Evidence 路由仍应优先。
+            "final_status": "succeeded",
+        }
+    ) == "execution_verifier"
+
+
+def test_execution_verifier_failure_routes_to_debug():
+    assert route_after_execution_verifier(
+        {
+            "execution_verification": {"verdict": "failed"},
+            "final_status": "failed",
+            "log_path": "/run/combined.log",
+        }
+    ) == "log_debug"
+
+
+def test_compiled_graph_contains_two_stage_verifiers():
+    graph = build_graph(checkpointer=MemorySaver())
+    drawable = graph.get_graph()
+
+    assert "execution_verifier" in drawable.nodes
+    assert "patch_verification_executor" in drawable.nodes
+    assert "patch_verdict" in drawable.nodes
+
+    executor_targets = {
+        edge.target
+        for edge in drawable.edges
+        if edge.source == "executor"
+    }
+    assert "execution_verifier" in executor_targets
+
+    patch_executor_targets = {
+        edge.target
+        for edge in drawable.edges
+        if edge.source == "patch_verification_executor"
+    }
+    assert patch_executor_targets == {
+        "patch_verdict",
+        "final_report",
+    }
 
 
 def test_compiled_graph_contains_input_and_prepare_nodes():

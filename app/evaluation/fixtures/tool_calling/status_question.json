@@ -1,0 +1,25 @@
+{
+  "question": "现在运行到哪一步？",
+  "job_status": "running",
+  "turns": [
+    {
+      "tool_calls": [
+        {
+          "name": "get_reproduction_status",
+          "args": {},
+          "id": "fixture-call-status"
+        }
+      ]
+    },
+    {
+      "content": "enough"
+    }
+  ],
+  "expected": {
+    "status": "completed",
+    "tool_names": ["chat.get_reproduction_status"],
+    "max_calls": 1,
+    "mutation_calls": 0,
+    "unknown_calls": 0
+  }
+}

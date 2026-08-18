@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 IGNORE_DIRS = {
@@ -7,57 +9,135 @@ IGNORE_DIRS = {
     "node_modules",
     "outputs",
     "checkpoints",
-    "wandb"
+    "wandb",
 }
 
+
+def _resolve_repo(repo_path: str) -> Path:
+    """解析并验证仓库根目录，供本模块三个公开函数复用。"""
+
+    root = Path(repo_path).expanduser().resolve()
+    if not root.is_dir():
+        raise FileNotFoundError(f"未找到代码仓库：{repo_path}")
+    return root
+
+
+def _ignored(relative_path: Path) -> bool:
+    """只检查仓库相对路径，避免宿主机父目录名称影响过滤结果。"""
+
+    return any(part in IGNORE_DIRS for part in relative_path.parts)
+
+
 def get_file_tree(repo_path: str, max_depth: int = 3) -> str:
-    root = Path(repo_path).resolve()
-    if not root.exists():
-        raise FileNotFoundError(f"repo not found: {repo_path}")
-    
+    root = _resolve_repo(repo_path)
+    if max_depth < 1:
+        return root.name + "/"
+
     lines: list[str] = [root.name + "/"]
 
     def walk(path: Path, depth: int, prefix: str = "") -> None:
         if depth > max_depth:
             return
-        children = sorted(path.iterdir(), key = lambda p: (p.is_file(), p.name.lower()))
-        children = [p for p in children if p.name not in IGNORE_DIRS]
+
+        children = []
+        for candidate in path.iterdir():
+            relative = candidate.relative_to(root)
+            if _ignored(relative) or candidate.is_symlink():
+                # 即使链接最终仍位于仓库内，也不递归符号链接；这样行为更容易审计。
+                continue
+            children.append(candidate)
+
+        children.sort(
+            key=lambda item: (item.is_file(), item.name.lower())
+        )
         for index, child in enumerate(children):
-            connector = "└── " if index == len(children) - 1 else "├── "
-            lines.append(prefix + connector + child.name + ("/" if child.is_dir() else ""))
+            last = index == len(children) - 1
+            connector = "└── " if last else "├── "
+            lines.append(
+                prefix
+                + connector
+                + child.name
+                + ("/" if child.is_dir() else "")
+            )
             if child.is_dir():
-                extension = " " if index == len(children) - 1 else "|  "
+                extension = "    " if last else "│   "
                 walk(child, depth + 1, prefix + extension)
+
     walk(root, 1)
     return "\n".join(lines)
 
-def list_files(repo_path: str, suffixes: tuple[str, ...] | None = None) -> list[str]:
-    root  =Path(repo_path).resolve()
+
+def list_files(
+    repo_path: str,
+    suffixes: tuple[str, ...] | None = None,
+) -> list[str]:
+    root = _resolve_repo(repo_path)
+    normalized_suffixes = (
+        tuple(value.lower() for value in suffixes)
+        if suffixes is not None
+        else None
+    )
+
     files: list[str] = []
     for path in root.rglob("*"):
-        if any(part in IGNORE_DIRS for part in path.parts):
+        relative = path.relative_to(root)
+        if _ignored(relative) or path.is_symlink():
             continue
-        if path.is_file() and (suffixes is None or path.suffix in suffixes):
-            files.append(str(path.relative_to(root)))
+        if not path.is_file():
+            continue
+        if (
+            normalized_suffixes is not None
+            and path.suffix.lower() not in normalized_suffixes
+        ):
+            continue
+        files.append(relative.as_posix())
     return sorted(files)
+
 
 def classify_repo_file(repo_path: str) -> dict[str, list[str]]:
     files = list_files(repo_path)
-    
+
     def contains_any(path: str, keywords: list[str]) -> bool:
         lower = path.lower()
-        return any(keyword in lower for keyword in  keywords)
+        return any(keyword in lower for keyword in keywords)
 
     return {
-        "readme_files": [f for f in files if Path(f).name.lower().startswith("readme")],
-        "train_entries": [f for f in files if contains_any(f, ["train", "finetune"])],
-        "eval_entries": [f for f in files if contains_any(f, ["eval", "test", "infer"])],
-        "config_files": [
-            f for f in files
-            if f.endswith((".yaml", ".yml", ".json", ".toml", ".ini", ".cfg"))
-            or contains_any(f, ["config", "configs"])
+        "readme_files": [
+            item
+            for item in files
+            if Path(item).name.lower().startswith("readme")
         ],
-        "model_files": [f for f in files if contains_any(f, ["model", "models", "network", "net"])],
-        "dataset_files": [f for f in files if contains_any(f, ["dataset", "data", "dataloader"])],
-        "loss_files": [f for f in files if contains_any(f, ["loss", "criterion"])]
+        "train_entries": [
+            item
+            for item in files
+            if contains_any(item, ["train", "finetune"])
+        ],
+        "eval_entries": [
+            item
+            for item in files
+            if contains_any(item, ["eval", "test", "infer"])
+        ],
+        "config_files": [
+            item
+            for item in files
+            if item.endswith(
+                (".yaml", ".yml", ".json", ".toml", ".ini", ".cfg")
+            )
+            or contains_any(item, ["config", "configs"])
+        ],
+        "model_files": [
+            item
+            for item in files
+            if contains_any(item, ["model", "models", "network", "net"])
+        ],
+        "dataset_files": [
+            item
+            for item in files
+            if contains_any(item, ["dataset", "data", "dataloader"])
+        ],
+        "loss_files": [
+            item
+            for item in files
+            if contains_any(item, ["loss", "criterion"])
+        ],
     }

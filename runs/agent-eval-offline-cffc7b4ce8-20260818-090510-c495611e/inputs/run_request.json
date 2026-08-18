@@ -1,0 +1,12 @@
+{
+  "job_id": null,
+  "thread_id": null,
+  "run_id": "agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e",
+  "task_id": "agent-eval-offline-cffc7b4ce8",
+  "paper_path": null,
+  "repo_path": null,
+  "log_path": null,
+  "experiment_goal": null,
+  "execution_profile_id": null,
+  "run_started_at": "2026-08-18T09:05:10.190045+00:00"
+}

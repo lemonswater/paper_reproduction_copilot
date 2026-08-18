@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 PAPER_SUMMARY_PROMPT = """
 你是一个论文复现助手。请从论文文本中提取复现所需信息，并严格按照指定 JSON 结构输出。
 
@@ -24,8 +26,7 @@ PAPER_SUMMARY_PROMPT = """
 6. 对缺失信息的处理规则：
    - 不确定的问题写入 unresolved_questions
    - 列表字段没有信息时返回 []
-   - 对象字段没有信息时返回 {{}}
-7. datasets 必须是“数据集名称”的字符串列表，例如 ["NTU RGB+D 120", "MSR-Action3D"]，
+7. datasets 必须是论文原文明确给出的“数据集名称”字符串列表，
    不能写成任务名称，例如 "3D Action Recognition" 或 "4D Semantic Segmentation"。
 8. unresolved_questions 必须是字符串列表，不能返回对象列表。
 9. method_modules 必须是对象列表，每个对象只能包含以下字段：
@@ -40,7 +41,14 @@ PAPER_SUMMARY_PROMPT = """
    - location: 字符串或 null
    - quote_or_summary: 字符串
    - confidence: 只能是 "low"、"medium"、"high"
-
+11. experiment_settings 必须是对象列表，不能是字符串列表或单个对象。
+    每个对象只能包含：
+    - name: 字符串
+    - value: 字符串
+    - evidence: 对象列表
+    如果论文没有明确实验设置，必须返回 []。
+    任务名称、数据集名称和方法对比不属于实验设置。
+    
 请严格输出如下结构：
 {{
   "title": "...",
@@ -65,7 +73,21 @@ PAPER_SUMMARY_PROMPT = """
   ],
   "datasets": ["..."],
   "metrics": ["..."],
-  "experiment_settings": {{}},
+  "experiment_settings": [
+    {{
+      "name": "...",
+      "value": "...",
+      "evidence": [
+        {{
+          "source_type": "paper",
+          "source_path": "paper",
+          "location": "page 5",
+          "quote_or_summary": "...",
+          "confidence": "medium"
+        }}
+      ]
+    }}
+  ],
   "reproduction_risks": ["..."],
   "unresolved_questions": ["..."]
 }}

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from app.config import settings
 from app.tools.repair_tools import (
     apply_command_repair_to_state,
@@ -10,14 +12,14 @@ def repair_action_builder_node(state: dict) -> dict:
     if not proposal:
         return {
             "final_status": "no_repair_proposal",
-            "error": "repair_proposal is missing",
+            "error": "缺少 repair_proposal",
         }
 
     attempts = int(state.get("repair_attempt_count", 0))
     if attempts >= settings.max_repair_attempts:
         return {
             "final_status": "repair_limit_reached",
-            "error": f"max repair attempts reached: {settings.max_repair_attempts}",
+            "error": f"已达到最大修复次数：{settings.max_repair_attempts}",
         }
 
     kind = proposal.get("kind")

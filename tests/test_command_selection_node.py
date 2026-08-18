@@ -1,19 +1,27 @@
+from __future__ import annotations
+
 import json
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
-from app.config import settings
 from app.nodes.action_builder_node import action_builder_node
 from app.nodes.command_selection_node import (
     build_command_selection_template,
     command_selection_node,
+    command_selection_prepare_node,
     compute_run_commands_hash,
 )
 
 
-def test_command_selection_selects_index_without_edits(tmp_path, monkeypatch) -> None:
-    monkeypatch.setattr(settings, "output_dir", tmp_path)
+def _prepare(state: dict, run_state: dict) -> dict:
+    working_state = {**run_state, **state}
+    working_state.update(command_selection_prepare_node(working_state))
+    return working_state
+
+
+def test_command_selection_selects_index_without_edits(run_state) -> None:
 
     state = {
         "run_commands": [
@@ -32,9 +40,19 @@ def test_command_selection_selects_index_without_edits(tmp_path, monkeypatch) ->
                 "reason": "run b",
             },
         ],
-        "output_files": [],
     }
+    state = _prepare(state, run_state)
     run_commands_hash = compute_run_commands_hash(state["run_commands"])
+    input_record = next(
+        record
+        for record in state["artifact_records"]
+        if record["relative_path"]
+        == "planning/command_selection_input.json"
+    )
+    assert input_record["run_id"] == run_state["run_id"]
+    assert state["command_selection_input_path"] == (
+        input_record["absolute_path"]
+    )
 
     with patch(
         "app.nodes.command_selection_node.interrupt",
@@ -50,7 +68,7 @@ def test_command_selection_selects_index_without_edits(tmp_path, monkeypatch) ->
     assert result["edited_run_commands"][1]["command"] == "python b.py"
     assert result["command_selection_record"]["selected_index"] == 1
 
-    input_path = tmp_path / "command_selection_input.json"
+    input_path = Path(state["command_selection_input_path"])
     assert input_path.exists()
     assert json.loads(input_path.read_text(encoding="utf-8")) == {
         "run_commands_hash": run_commands_hash,
@@ -61,10 +79,31 @@ def test_command_selection_selects_index_without_edits(tmp_path, monkeypatch) ->
         ],
     }
     assert str(input_path) in result["output_files"]
+    expected_records = {
+        "planning/command_selection_input.json",
+        "planning/command_selection_record.json",
+        "planning/effective_run_commands.json",
+    }
+    selected_records = [
+        record
+        for record in result["artifact_records"]
+        if record["relative_path"] in expected_records
+    ]
+    assert {
+        record["relative_path"] for record in selected_records
+    } == expected_records
+    assert all(
+        record["run_id"] == run_state["run_id"]
+        for record in selected_records
+    )
+    assert all(
+        Path(run_state["run_dir"])
+        in Path(record["absolute_path"]).parents
+        for record in selected_records
+    )
 
 
-def test_command_selection_applies_multiple_command_edits(tmp_path, monkeypatch) -> None:
-    monkeypatch.setattr(settings, "output_dir", tmp_path)
+def test_command_selection_applies_multiple_command_edits(run_state) -> None:
 
     state = {
         "run_commands": [
@@ -83,8 +122,8 @@ def test_command_selection_applies_multiple_command_edits(tmp_path, monkeypatch)
                 "reason": "build extension",
             },
         ],
-        "output_files": [],
     }
+    state = _prepare(state, run_state)
     run_commands_hash = compute_run_commands_hash(state["run_commands"])
 
     with patch(
@@ -115,11 +154,8 @@ def test_command_selection_applies_multiple_command_edits(tmp_path, monkeypatch)
 
 
 def test_command_selection_does_not_overwrite_edited_input(
-    tmp_path,
-    monkeypatch,
+    run_state,
 ) -> None:
-    monkeypatch.setattr(settings, "output_dir", tmp_path)
-
     state = {
         "run_commands": [
             {
@@ -130,9 +166,9 @@ def test_command_selection_does_not_overwrite_edited_input(
                 "reason": "run training",
             }
         ],
-        "output_files": [],
     }
-    input_path = tmp_path / "command_selection_input.json"
+    state = _prepare(state, run_state)
+    input_path = Path(state["command_selection_input_path"])
     edited_payload = {
         "run_commands_hash": compute_run_commands_hash(state["run_commands"]),
         "selected_index": 0,
@@ -159,11 +195,8 @@ def test_command_selection_does_not_overwrite_edited_input(
 
 
 def test_command_selection_clears_stale_execution_state(
-    tmp_path,
-    monkeypatch,
+    run_state,
 ) -> None:
-    monkeypatch.setattr(settings, "output_dir", tmp_path)
-
     state = {
         "run_commands": [
             {
@@ -183,8 +216,8 @@ def test_command_selection_clears_stale_execution_state(
         "preflight_passed": True,
         "execution_result": {"ok": True},
         "final_status": "succeeded",
-        "output_files": [],
     }
+    state = _prepare(state, run_state)
     run_commands_hash = compute_run_commands_hash(state["run_commands"])
 
     with patch(
@@ -209,11 +242,8 @@ def test_command_selection_clears_stale_execution_state(
 
 
 def test_command_selection_refreshes_stale_input_and_keeps_backup(
-    tmp_path,
-    monkeypatch,
+    run_state,
 ) -> None:
-    monkeypatch.setattr(settings, "output_dir", tmp_path)
-
     old_commands = [
         {
             "command": "python old.py",
@@ -233,35 +263,36 @@ def test_command_selection_refreshes_stale_input_and_keeps_backup(
             "reason": "new command",
         },
     ]
-    input_path = tmp_path / "command_selection_input.json"
+    state = _prepare({"run_commands": old_commands}, run_state)
+    input_path = Path(state["command_selection_input_path"])
     old_payload = build_command_selection_template(old_commands)
     old_payload["edits"][0]["command"] = "python old.py --help"
     input_path.write_text(json.dumps(old_payload), encoding="utf-8")
 
+    state["run_commands"] = new_commands
+    state.update(command_selection_prepare_node(state))
     response = build_command_selection_template(new_commands)
     response["selected_index"] = 1
     with patch(
         "app.nodes.command_selection_node.interrupt",
         return_value=response,
     ), patch("app.nodes.command_selection_node.print"):
-        result = command_selection_node(
-            {"run_commands": new_commands, "output_files": []}
-        )
+        result = command_selection_node(state)
 
     assert result["selected_run_command_index"] == 1
     assert json.loads(input_path.read_text(encoding="utf-8")) == (
         build_command_selection_template(new_commands)
     )
-    backups = list(tmp_path.glob("command_selection_input.stale-*.json"))
+    backups = list(
+        input_path.parent.glob("command_selection_input.stale-*.json")
+    )
     assert len(backups) == 1
     assert json.loads(backups[0].read_text(encoding="utf-8")) == old_payload
 
 
 def test_command_selection_rejects_stale_response_hash(
-    tmp_path,
-    monkeypatch,
+    run_state,
 ) -> None:
-    monkeypatch.setattr(settings, "output_dir", tmp_path)
     current_commands = [
         {
             "command": "python current.py",
@@ -276,40 +307,63 @@ def test_command_selection_rejects_stale_response_hash(
         "selected_index": 0,
         "edits": [],
     }
+    state = _prepare(
+        {"run_commands": current_commands},
+        run_state,
+    )
 
     with patch(
         "app.nodes.command_selection_node.interrupt",
         return_value=stale_response,
     ), patch("app.nodes.command_selection_node.print"):
-        with pytest.raises(ValueError, match="stale command selection response"):
+        with pytest.raises(ValueError, match="命令选择已经过期"):
             command_selection_node(
-                {"run_commands": current_commands, "output_files": []}
+                state
             )
 
 
-def test_action_builder_uses_selected_index_from_edited_run_commands() -> None:
+def test_action_builder_uses_selected_index_from_edited_run_commands(
+    tmp_path,
+) -> None:
+    from app.schemas import ExecutionProfile
+
+    repo = tmp_path / "repo"
+    modules = repo / "modules"
+    modules.mkdir(parents=True)
+    profile = ExecutionProfile(
+        profile_id="test-local",
+        backend="local",
+        workspace_root=str(repo),
+        artifact_root=str(tmp_path / "runs"),
+        writable_roots=[str(repo)],
+    )
     state = {
-        "repo_path": "/repo",
+        "execution_profile_id": profile.profile_id,
+        "repo_path": str(repo),
         "selected_run_command_index": 1,
         "edited_run_commands": [
             {
                 "command": "python train.py --dataset_path /data/demo",
-                "cwd": "/repo",
+                "cwd": str(repo),
                 "source": "script",
                 "reason": "train model",
             },
             {
                 "command": "python setup.py install",
-                "cwd": "/repo/modules",
+                "cwd": str(modules),
                 "source": "inferred",
                 "reason": "build extension",
             },
         ],
     }
 
-    result = action_builder_node(state)
+    with patch(
+        "app.nodes.action_builder_node.get_execution_profile",
+        return_value=profile,
+    ):
+        result = action_builder_node(state)
 
     assert result["pending_action"]["program"] == "python"
     assert result["pending_action"]["args"] == ["setup.py", "install"]
-    assert result["pending_action"]["cwd"] == "/repo/modules"
+    assert result["pending_action"]["cwd"] == str(modules)
     assert result["pending_action_hash"]

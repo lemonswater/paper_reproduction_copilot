@@ -25,6 +25,7 @@ from app.evaluation.schemas import (
 from app.graph import (
     build_graph,
     route_after_action_builder,
+    route_after_execution_verifier,
     route_after_executor,
     route_after_human_review,
     route_after_input_validation,
@@ -33,6 +34,8 @@ from app.graph import (
     route_after_patch_builder,
     route_after_patch_promotion_review,
     route_after_patch_review,
+    route_after_patch_verdict,
+    route_after_patch_verification_executor,
     route_after_patch_verifier,
     route_after_preflight,
     route_after_repair_action_builder,
@@ -68,6 +71,9 @@ ROUTE_FUNCTIONS: dict[str, RouteCallable] = {
     "route_after_preflight": route_after_preflight,
     "route_after_smoke_test": route_after_smoke_test,
     "route_after_executor": route_after_executor,
+    "route_after_execution_verifier": (
+        route_after_execution_verifier
+    ),
     "route_after_log_debug": route_after_log_debug,
     "route_after_repair_planner": route_after_repair_planner,
     "route_after_repair_action_builder": (
@@ -75,6 +81,10 @@ ROUTE_FUNCTIONS: dict[str, RouteCallable] = {
     ),
     "route_after_patch_builder": route_after_patch_builder,
     "route_after_patch_review": route_after_patch_review,
+    "route_after_patch_verification_executor": (
+        route_after_patch_verification_executor
+    ),
+    "route_after_patch_verdict": route_after_patch_verdict,
     "route_after_patch_verifier": route_after_patch_verifier,
     "route_after_patch_promotion_review": (
         route_after_patch_promotion_review
@@ -675,13 +685,21 @@ def run_case(
         )
     elif case.runner == "live_graph":
         observation = run_live_graph_case(case)
-    elif case.runner in {"chat_scenario", "chat_provider"}:
+    elif case.runner in {
+        "chat_scenario",
+        "chat_provider",
+        "conversation_decision",
+        "conversation_decision_provider",
+    }:
         if work_dir is None:
             raise ValueError("Chat Eval runner 要求 work_dir")
         observation = run_chat_eval_case(
             case,
             work_dir=work_dir,
-            provider=(case.runner == "chat_provider"),
+            provider=case.runner in {
+                "chat_provider",
+                "conversation_decision_provider",
+            },
         )
     else:
         raise ValueError(

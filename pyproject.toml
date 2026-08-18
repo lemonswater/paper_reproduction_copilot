@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "paper-reproduction-copilot"
 version = "0.1.0"
@@ -5,7 +9,7 @@ description = "A LangGraph-based copilot for paper reproduction tasks."
 requires-python = ">=3.10"
 dependencies = [
     "langchain>=0.3",
-    "langchain-openai>=0.2",
+    "langchain-openai>=1.3,<2",
     "langgraph>=0.2",
     "langgraph-checkpoint-sqlite>=3",
     "pydantic>=2",
@@ -13,13 +17,81 @@ dependencies = [
     "rich>=13",
     "pymupdf>=1.24",
     "python-dotenv>=1.0",
+    "psutil>=5.9",
+    "cryptography>=42",
 ]
 
 [project.optional-dependencies]
+api = [
+    "fastapi>=0.141,<1",
+    "uvicorn>=0.30,<1",
+]
+
+storage-s3 = [
+"boto3>=1.43,<2",
+]
+
+research-browser = [
+"httpx>=0.27,<1",
+"PyMuPDF>=1.24,<2",
+]
+
 dev = [
     "pytest>=8",
     "ruff>=0.6",
+    "httpx2>=2.7,<3",
+    # Phase 55：MCP 契约测试不允许因为 optional dependency 缺失而跳过。
+    "mcp>=2.0,<3",
+    "jsonschema>=4.23,<5",
+    "uvicorn>=0.30,<1",
+]
+
+postgres = [
+    "SQLAlchemy>=2.0.51,<2.1",
+    "alembic>=1.18,<2",
+    "psycopg[binary,pool]>=3.2,<4",
+    "langgraph-checkpoint-postgres>=3.1,<4",
+]
+
+observability = [
+    "opentelemetry-api>=1.28,<2",
+    "opentelemetry-sdk>=1.28,<2",
+    "opentelemetry-exporter-otlp-proto-http>=1.28,<2",
+]
+
+resources = [
+    "httpx>=0.27,<1",
+]
+
+mcp = [
+    "mcp>=2.0,<3",
+    "httpx2>=2.7,<3",
+    "jsonschema>=4.23,<5",
+    "uvicorn>=0.30,<1",
 ]
 
 [tool.ruff]
 line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+# 显式固定阻断执行的规则，避免 Ruff 升级后默认规则集扩大，
+# 将数百条历史风格问题突然变成发布门禁。
+select = ["E9", "F63", "F7", "F82"]
+
+[tool.ruff.lint.per-file-ignores]
+# 这些文件是检索评测语料，未定义算子用于模拟不完整的外部仓库。
+"app/evaluation/fixtures/retrieval_repo/**" = ["F821"]
+
+[tool.pytest.ini_options]
+markers = [
+    "provider: 需要真实模型 Provider，不进入普通离线回归",
+    "container_runtime: 需要真实 Podman/容器运行时，默认跳过",
+    "postgres: 需要 TEST_DATABASE_URL 的 PostgreSQL integration test",
+    "network: 需要真实公网访问，默认跳过，仅 ENABLE_RESOURCE_NETWORK_TESTS=true 时运行",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app", "app.*"]
+namespaces = true

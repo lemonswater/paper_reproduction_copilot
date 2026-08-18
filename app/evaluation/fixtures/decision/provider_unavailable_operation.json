@@ -1,0 +1,46 @@
+{
+  "schema_version": 2,
+  "scenario_id": "decision_provider_unavailable_operation",
+  "job_status": "succeeded",
+  "job_version": 12,
+  "wait_generation": 0,
+  "allowed_operations": [
+    {
+      "operation_id": "rerun-proposal:12",
+      "kind": "create_rerun_proposal",
+      "endpoint": "/v1/rerun-proposals",
+      "expected_job_version": 12,
+      "requires_idempotency_key": true,
+      "detail": "可创建重跑提案"
+    }
+  ],
+  "sources": [
+    {
+      "citation": {
+        "citation_id": "job:current",
+        "source_type": "job",
+        "label": "Current job state"
+      },
+      "content": "status=succeeded; terminal=true; cancel operation is unavailable",
+      "score": 1000
+    }
+  ],
+  "seed_exchanges": [],
+  "turns": [
+    {
+      "label": "cancel-terminal-job",
+      "question": "取消这个任务。",
+      "idempotency_key": "decision-provider-cancel-terminal-1"
+    }
+  ],
+  "memory_scripts": [],
+  "repetitions": 3,
+  "compaction_enabled": false,
+  "recent_messages": 4,
+  "compaction_min_messages": 4,
+  "compaction_max_messages": 40,
+  "compaction_max_input_chars": 20000,
+  "memory_max_chars": 8000,
+  "history_max_chars": 8000,
+  "prompt_max_chars": 40000
+}

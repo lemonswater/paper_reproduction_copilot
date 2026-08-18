@@ -19,6 +19,7 @@ EvalCategory = Literal[
     "recovery",
     "quality",
     "efficiency",
+    "decision",
 ]
 
 EvalSuiteName = Literal[
@@ -26,6 +27,8 @@ EvalSuiteName = Literal[
     "provider",
     "chat_offline",
     "chat_provider",
+    "decision_offline",
+    "decision_provider",
 ]
 
 EvalRunnerKind = Literal[
@@ -37,6 +40,8 @@ EvalRunnerKind = Literal[
     "semantic_code_retrieval",
     "chat_scenario",
     "chat_provider",
+    "conversation_decision",
+    "conversation_decision_provider",
 ]
 
 RouteSettingName = Literal["enable_file_repair"]
@@ -258,6 +263,17 @@ class EvalExpected(EvalModel):
         ge=0,
     )
     max_chat_prompt_chars: int | None = Field(default=None, ge=0)
+    max_chat_mutation_attempts_per_run: int | None = Field(
+        default=None,
+        ge=0,
+    )
+
+    # 普通模型行为允许按 repetition 计算通过率；安全断言单独使用硬阈值。
+    min_chat_safety_pass_rate: float = Field(
+        default=1.0,
+        ge=0.0,
+        le=1.0,
+    )
 
 
 class EvalThresholds(EvalModel):
@@ -367,14 +383,40 @@ class EvalCase(EvalModel):
             if not self.input.fixture_path:
                 raise ValueError("chat_provider 要求 fixture_path")
 
-        is_chat_case = self.runner in {
-            "chat_scenario",
-            "chat_provider",
+        chat_runner_suites = {
+            "chat_scenario": "chat_offline",
+            "chat_provider": "chat_provider",
+            "conversation_decision": "decision_offline",
+            "conversation_decision_provider": "decision_provider",
         }
-        if is_chat_case and not (
-            self.expected.chat_turns or self.expected.chat_memory
-        ):
-            raise ValueError("Chat Case 至少声明一个 Chat Oracle")
+        expected_suite = chat_runner_suites.get(self.runner)
+        if expected_suite is not None:
+            if self.suite != expected_suite:
+                raise ValueError(
+                    f"{self.runner} 必须放入 {expected_suite} suite"
+                )
+            if not self.input.fixture_path:
+                raise ValueError(f"{self.runner} 要求 fixture_path")
+            if not (
+                self.expected.chat_turns or self.expected.chat_memory
+            ):
+                raise ValueError("Chat Case 至少声明一个 Chat Oracle")
+
+        if self.runner in {
+            "conversation_decision",
+            "conversation_decision_provider",
+        }:
+            if "decision" not in self.categories:
+                raise ValueError(
+                    "Conversation Decision Case 必须包含 decision 类别"
+                )
+            if not any(
+                turn.expected_intent is not None
+                for turn in self.expected.chat_turns
+            ):
+                raise ValueError(
+                    "Decision Case 至少声明一个 intent Oracle"
+                )
 
         return self
 

@@ -7,6 +7,13 @@ from app.execution.environment import build_minimal_environment
 from app.schemas import ExecutableAction, ExecutionProfile
 
 
+class _NullSecretService:
+    """测试用空 SecretService，不解析任何 Secret。"""
+
+    def resolve(self, *, reference, use, actor):
+        raise RuntimeError("不应被调用")
+
+
 def _profile(tmp_path) -> ExecutionProfile:
     workspace = tmp_path / "repo"
     workspace.mkdir()
@@ -55,6 +62,7 @@ def test_minimal_env_does_not_inherit_agent_secret(
         action=action,
         run_dir=run_dir,
         execution_id="exec-1",
+        secret_service=_NullSecretService(),
     )
 
     assert "OPENAI_API_KEY" not in result.env
@@ -81,4 +89,5 @@ def test_action_cannot_override_unapproved_env(
             action=action,
             run_dir=run_dir,
             execution_id="exec-1",
+            secret_service=_NullSecretService(),
         )

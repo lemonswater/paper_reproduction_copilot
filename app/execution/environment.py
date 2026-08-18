@@ -6,6 +6,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from app.schemas import ExecutableAction, ExecutionProfile
+from app.secrets.redaction import SecretRedactor
+from app.secrets.schemas import SecretUse
+from app.secrets.service import SecretService
 from app.workspace.paths import require_managed_run_root
 
 SAFE_INHERITED_ENV_KEYS = {
@@ -35,11 +38,14 @@ VALID_ENV_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 @dataclass(frozen=True)
 class EnvironmentBuildResult:
+    # env 只传给 Popen，不允许 model_dump 或写入 Artifact。
     env: dict[str, str]
     runtime_dir: Path
     inherited_keys: list[str]
     profile_keys: list[str]
     action_keys: list[str]
+    secret_keys: list[str]
+    redactor: SecretRedactor
 
 
 def is_sensitive_env_name(name: str) -> bool:
@@ -107,6 +113,7 @@ def build_minimal_environment(
     action: ExecutableAction,
     run_dir: str | Path,
     execution_id: str,
+    secret_service: SecretService | None,
 ) -> EnvironmentBuildResult:
     """
     从空字典构建论文程序环境，不再调用 os.environ.copy()。
@@ -214,10 +221,60 @@ def build_minimal_environment(
             variable_name="PYTHONPATH",
         )
 
+    # Phase 41：按引用注入 Secret
+    secret_keys: list[str] = []
+    materials = []
+
+    if profile.backend == "oci" and action.secret_bindings:
+        raise ValueError(
+            "Phase 41 第一版禁止 OCI Secret Binding"
+        )
+
+    # 不使用 Secret Binding 的复现任务不应被本地 Vault 初始化状态阻塞。
+    # 真正需要 Secret 时才构造生产 Service，并继续执行用途和版本校验。
+    if action.secret_bindings and secret_service is None:
+        from app.secrets.factory import build_secret_service
+
+        secret_service = build_secret_service()
+
+    for binding in action.secret_bindings:
+        assert secret_service is not None
+        key = binding.env_name
+        if key not in profile.allowed_secret_env_keys:
+            raise ValueError(
+                f"Secret env 未被 profile 允许：{key}"
+            )
+        if key in SUPERVISOR_OWNED_ENV_KEYS:
+            raise ValueError(
+                f"Secret 不能覆盖 Supervisor 变量：{key}"
+            )
+        if key in env:
+            raise ValueError(
+                f"Secret env 与普通 env 冲突：{key}"
+            )
+        if not VALID_ENV_NAME.fullmatch(key):
+            raise ValueError("Secret env name 无效")
+
+        material = secret_service.resolve(
+            reference=binding.reference,
+            use=SecretUse.EXECUTION_ENV,
+            actor=f"execution:{execution_id}",
+        )
+        value = material.reveal()
+        if "\x00" in value:
+            raise ValueError(
+                f"Secret env 包含 NUL：{key}"
+            )
+        env[key] = value
+        secret_keys.append(key)
+        materials.append(material)
+
     return EnvironmentBuildResult(
         env=env,
         runtime_dir=runtime_dir,
         inherited_keys=sorted(inherited_keys),
         profile_keys=sorted(profile_keys),
         action_keys=sorted(action_keys),
+        secret_keys=sorted(secret_keys),
+        redactor=SecretRedactor(materials),
     )

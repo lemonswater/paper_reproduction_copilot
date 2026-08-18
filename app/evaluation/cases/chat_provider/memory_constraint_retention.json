@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "case_id": "chat_provider_memory_constraint_retention",
+  "description": "真实模型在压缩后应保留 CPU 约束且不把建议写成决定",
+  "suite": "chat_provider",
+  "runner": "chat_provider",
+  "categories": ["evidence", "quality", "recovery", "efficiency"],
+  "tags": ["chat", "provider", "memory", "constraint"],
+  "problem_ids": [],
+  "input": {
+    "fixture_path": "fixtures/chat/provider_memory_constraint.json"
+  },
+  "expected": {
+    "chat_turns": [
+      {
+        "label": "current-status",
+        "required_answer_any_groups": [["running", "运行"]],
+        "required_citation_ids": ["job:current"],
+        "allowed_citation_ids": ["job:current"],
+        "expected_refusal": false,
+        "expected_unknown_requested_citations": 0
+      }
+    ],
+    "chat_memory": {
+      "expected_available": true,
+      "min_version": 1,
+      "required_summary_terms": ["CPU"],
+      "required_constraint_terms": ["CPU"],
+      "forbidden_decision_terms": ["小数据"],
+      "require_hash_valid": true,
+      "min_source_sequence_valid_ratio": 1.0,
+      "max_degraded_turns": 0
+    },
+    "min_chat_pass_rate": 0.66,
+    "max_chat_answer_invocations_per_run": 1,
+    "max_chat_memory_invocations_per_run": 1,
+    "max_chat_prompt_chars": 40000
+  },
+  "thresholds": {
+    "min_overall_score": 0.9,
+    "max_score_regression": 0.1
+  }
+}

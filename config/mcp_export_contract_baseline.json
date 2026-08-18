@@ -1,0 +1,47 @@
+{
+  "accepted_at": "2026-08-17T13:24:05.228027+00:00",
+  "accepted_surface_sha256": "1ba8791a3d18d34e405ace02b3af22fb0e54be2e49317ab325e03e48a7571041",
+  "allow_prompts": false,
+  "allow_static_resources": false,
+  "allowed_protocol_versions": [
+    "2025-11-25",
+    "2026-07-28"
+  ],
+  "allowed_sdk_majors": [
+    2
+  ],
+  "baseline_id": "mcpbaseline_6cb760fbb8e14617",
+  "baseline_sha256": "16b271dce69f3257d3ac609c0a50b23a6910d23e2a41bdaf1f84ce772f8ef59b",
+  "forbidden_name_fragments": [
+    "shell",
+    "command",
+    "execute",
+    "patch",
+    "write",
+    "delete",
+    "approve",
+    "decision",
+    "cancel",
+    "rerun"
+  ],
+  "reason": "reviewed unchanged read-only MCP surface after SDK serialization drift",
+  "require_output_schema": true,
+  "required_profile_ids": [
+    "in-memory-legacy",
+    "in-memory-modern"
+  ],
+  "required_resource_templates": [
+    "repro://jobs/{job_id}/final-report",
+    "repro://jobs/{job_id}/status"
+  ],
+  "required_tool_names": [
+    "get_reproduction_status",
+    "list_reproduction_artifacts",
+    "read_reproduction_final_report",
+    "search_reproduction_evidence"
+  ],
+  "reviewed_by": "tianshaoqi24",
+  "schema_version": "phase55-v1",
+  "server_name": "Paper Reproduction Copilot Read-only Export",
+  "server_version": "phase54-v1"
+}

@@ -1,0 +1,20 @@
+{
+  "version": "phase23.5-v2",
+  "rules": [
+    {
+      "canonical_key": "temporal-aggregation-block",
+      "aliases": [
+        "Temporal Aggregation Block",
+        "TAB",
+        "Temporal Aggregation (TAB) Block"
+      ],
+      "match_all": [
+        "temporal",
+        "aggregation"
+      ],
+      "exclude_any": [
+        "ablation"
+      ]
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from app.config import settings
 from app.execution.profile_store import compute_execution_profile_fingerprint, get_execution_profile
 from app.tools.action_tools import build_run_action_from_command, compute_action_hash
@@ -27,7 +29,7 @@ def action_builder_node(state: dict) -> dict:
             "pending_action": None,
             "pending_action_hash": None,
             "final_status": "invalid_action",
-            "error": f"selected_run_command_index out of range: {selected_index}",
+            "error": f"selected_run_command_index 超出范围：{selected_index}",
         }
 
     selected_command = effective_run_commands[selected_index]
@@ -48,7 +50,7 @@ def action_builder_node(state: dict) -> dict:
             command=selected_command["command"],
             cwd=cwd,
             source=selected_command.get("source", "inferred"),
-            reason=selected_command.get("reason", "from experiment plan"),
+            reason=selected_command.get("reason", "来自实验计划"),
             execution_profile_id=profile.profile_id,
             execution_profile_fingerprint=profile_fingerprint,
             timeout_seconds=300,

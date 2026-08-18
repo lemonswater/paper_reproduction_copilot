@@ -1,0 +1,40 @@
+{
+  "node_name": "method_extractor_sec-80607dc4891e-c000-3f0092e436",
+  "schema_name": "SectionExtractionDraft",
+  "method": "json_schema",
+  "strict": true,
+  "max_retries": 2,
+  "provider_max_retries": 2,
+  "provider_retry_base_seconds": 0.5,
+  "succeeded": true,
+  "fallback_used": false,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt_number": 1,
+      "status": "succeeded",
+      "prompt_kind": "original",
+      "error_type": null,
+      "error_message": null,
+      "raw_preview": "{\n  \"chunk_id\": \"sec-80607dc4891e-c000-3f0092e436\",\n  \"core_idea_candidates\": [\n    {\n      \"evidence\": {\n        \"block_ids\": [\n          \"p014-b0149-47d42e3b7e\",\n          \"p014-b0150-64dd9d9f82\"\n        ],\n        \"confidence\": 0.95,\n        \"summary\": \"在MSR-Action3D数据集上，通过图9展示了不同动作的时间核大小的影响，且片段长度为24。\"\n      },\n      \"value\": \"MSR-Action3D上，时间核大小对不同动作的影响在Fig.9中展示，片段长度为24。\"\n    },\n    {\n      \"evidence\": {\n        \"block_ids\": [\n          \"p014-b0151-57c48bbb6a\"\n        ],\n        \"confidence\": 0.95,\n        \"summary\": \"当时间核大小l=1时，时间相关性未被利用。\"\n      },\n      \"value\": \"当时间核大小l=1时，PSTNet不利用时间相关性。\"\n    },\n    {\n      \"evidence\": {\n        \"block_ids\": [\n          \"p014-b0151-57c48bbb6a\",\n          \"p014-b0152-479587de66\"\n        ],\n        \"confidence\": 0.9,\n        \"summary\": \"PSTNet可以利用姿态信息进行识别，尤其对于姿态在数据集中独特的动作。\"\n      },\n      \"value\": \"PSTNet可以利用姿态信息进行识别，尤其对于姿态在数据集中独特的动作。\"\n    },\n    {\n      \"evidence\": {\n        \"block_ids\": [\n          \"p014-b0153-bc2b37adbb\",\n          \"p014-b0154-1d027dac36\"\n        ],\n        \"confidence\": 0.95,\n        \"summary\": \"例如，l=1的PSTNet能正确识别“jogging”动作，因为该动作的姿态在MSR-Action3D数据集中具有区分性。\"\n      },\n      \"value\": \"在MSR-Action3D上，l=1的PSTNet能正确识别“jogging”动作，因为该动作的姿态具有区分性。\"\n    },\n    {\n      \"evidence\": {\n        \"block_ids\": [\n          \"p014-b0154-1d027dac36\",\n          \"p014-b0155-603a5b4cb5\"\n        ],\n        \"confidence\": 0.95,\n        \"summary\": \"具有运动建模（l≥3）的PSTNet可以区分相似动作，如“draw x”、“draw tick”和“draw circle”。\"\n      },\n      \"value\": \"在MSR-Action3D上，具有运动建模（l≥3）的PSTNet可以区分相似动作，如“draw x”、“draw tick”和“draw circle”。\"\n    },\n    {\n      \"evidence\": {\n        \"block_ids\": [\n          \"p014-b0156-44fccc5b7b\"\n        ],\n        \"confidence\": 0.9,\n        \"summary\": \"结果支持PSTNet有效捕获点云序列中动态的直觉。\"\n      },\n      \"value\": \"结果支持PSTNet有效捕获点云序列中动态的直觉。\"\n    }\n  ],\n  \"datasets\": [\n    {\n      \"evidence\": {\n        \"block_ids\": [\n          \"p014-b0149-47d42e3b7e\",\n          \"p014-b0154-1d027dac36\"\n        ],\n        \"confidence\": 0.95,\n        \"summary\"",
+      "finish_reason": "stop",
+      "token_usage": {
+        "input_tokens": 6423,
+        "output_tokens": 2338,
+        "total_tokens": 8761,
+        "input_token_details": {},
+        "output_token_details": {}
+      },
+      "output_chars": 4251,
+      "truncated": false
+    }
+  ],
+  "generated_at": "2026-08-18T07:58:59.590657+00:00",
+  "model_routing": {
+    "invocation_id": null,
+    "decision_sha256": "af4cea509a68fd1ebbebbff09ff88826cee3e90e30dd18380b7ae82b262a959a",
+    "executed_profile_id": "legacy_chat",
+    "model_name": "deepseek-v4-flash",
+    "usage_quality": null
+  }
+}

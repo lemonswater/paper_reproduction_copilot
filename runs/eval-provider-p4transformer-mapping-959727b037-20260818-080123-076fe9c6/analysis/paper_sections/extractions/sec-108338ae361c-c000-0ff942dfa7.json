@@ -1,0 +1,25 @@
+{
+  "cache_version": 1,
+  "cache_key": "bd947c84a3d30db84265f838c10b979b9eecbeb854194d9dfea5c67dd3828b86",
+  "chunk_id": "sec-108338ae361c-c000-0ff942dfa7",
+  "section_id": "sec-108338ae361c",
+  "prompt_version": "phase18-v1",
+  "schema_version": "phase18-v1",
+  "model_name": "deepseek-v4-flash",
+  "method": "json_schema",
+  "strict": true,
+  "extraction": {
+    "section_id": "sec-108338ae361c",
+    "chunk_id": "sec-108338ae361c-c000-0ff942dfa7",
+    "summary": "该章节片段仅包含标题“Point 4D Transformer Networks for Spatio-Temporal Modeling”，没有提供任何可提取的复现事实。",
+    "research_problem_candidates": [],
+    "core_idea_candidates": [],
+    "method_modules": [],
+    "datasets": [],
+    "metrics": [],
+    "experiment_settings": [],
+    "reproduction_risks": [],
+    "unresolved_questions": [],
+    "table_claims_unresolved": []
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": "phase51-v1",
+  "policy_version": "phase51-local-v1",
+  "search_provider_binding": "brave_search",
+  "allowed_hosts": [
+    "arxiv.org",
+    "openreview.net",
+    "doi.org",
+    "github.com",
+    "raw.githubusercontent.com",
+    "paperswithcode.com",
+    "pytorch.org",
+    "nvidia.com"
+  ],
+  "allowed_media_types": [
+    "text/html",
+    "text/plain",
+    "application/pdf"
+  ],
+  "user_agent": "paper-reproduction-copilot-research/1.0",
+  "max_redirects": 4,
+  "connect_timeout_seconds": 5.0,
+  "read_timeout_seconds": 15.0,
+  "total_timeout_seconds": 90.0,
+  "max_response_bytes": 2000000,
+  "max_total_bytes": 5000000,
+  "max_pdf_pages": 80,
+  "max_blocks_per_source": 160,
+  "max_citations": 24,
+  "min_host_interval_seconds": 1.0,
+  "robots_required": true
+}

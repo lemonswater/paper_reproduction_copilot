@@ -1,0 +1,76 @@
+{
+  "run_id": "eval-provider-pstnet-mapping-8cf4076051-20260818-075759-eadea1d0",
+  "artifact_count": 5,
+  "artifacts": [
+    {
+      "artifact_id": "artifact_35daf630a3aefde0aa32",
+      "run_id": "eval-provider-pstnet-mapping-8cf4076051-20260818-075759-eadea1d0",
+      "layer": "inputs",
+      "relative_path": "inputs/run_request.json",
+      "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8cf4076051-20260818-075759-eadea1d0/inputs/run_request.json",
+      "media_type": "application/json",
+      "sha256": "bc9e54a502c1c2932d30c4bea128ead6dfd0775aa0cf34ed1081e4382589a3ac",
+      "size_bytes": 508,
+      "producer_node": "run_context",
+      "created_at": "2026-08-18T07:57:59.868020+00:00",
+      "integrity_status": "current",
+      "integrity_detail": ""
+    },
+    {
+      "artifact_id": "artifact_06b166db511bde56ddee",
+      "run_id": "eval-provider-pstnet-mapping-8cf4076051-20260818-075759-eadea1d0",
+      "layer": "inputs",
+      "relative_path": "inputs/input_validation_report.json",
+      "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8cf4076051-20260818-075759-eadea1d0/inputs/input_validation_report.json",
+      "media_type": "application/json",
+      "sha256": "4a45366c17d3c71b5ba0592f26f9d17eee4e2d113436988f36f96444624b2f95",
+      "size_bytes": 1378,
+      "producer_node": "input_validation",
+      "created_at": "2026-08-18T07:57:59.909976+00:00",
+      "integrity_status": "current",
+      "integrity_detail": ""
+    },
+    {
+      "artifact_id": "artifact_acda5af5eaef1c74907c",
+      "run_id": "eval-provider-pstnet-mapping-8cf4076051-20260818-075759-eadea1d0",
+      "layer": "reports",
+      "relative_path": "reports/error_report.json",
+      "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8cf4076051-20260818-075759-eadea1d0/reports/error_report.json",
+      "media_type": "application/json",
+      "sha256": "96ed92b9a8bda287ce1778a91b3f67326ccae151de48d910d0aeac67bd9e23b3",
+      "size_bytes": 719,
+      "producer_node": "error_report",
+      "created_at": "2026-08-18T07:57:59.943630+00:00",
+      "integrity_status": "current",
+      "integrity_detail": ""
+    },
+    {
+      "artifact_id": "artifact_0d03e08e36ebd80d90ec",
+      "run_id": "eval-provider-pstnet-mapping-8cf4076051-20260818-075759-eadea1d0",
+      "layer": "reports",
+      "relative_path": "reports/error_report.md",
+      "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8cf4076051-20260818-075759-eadea1d0/reports/error_report.md",
+      "media_type": "text/markdown",
+      "sha256": "2b150ee5e1357e2a192f2d76679d98691ea66b585b355e43c6614a34cd83b8e9",
+      "size_bytes": 329,
+      "producer_node": "error_report",
+      "created_at": "2026-08-18T07:57:59.976953+00:00",
+      "integrity_status": "current",
+      "integrity_detail": ""
+    },
+    {
+      "artifact_id": "artifact_9c35044502c76e9b816e",
+      "run_id": "eval-provider-pstnet-mapping-8cf4076051-20260818-075759-eadea1d0",
+      "layer": "reports",
+      "relative_path": "reports/final_report.md",
+      "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8cf4076051-20260818-075759-eadea1d0/reports/final_report.md",
+      "media_type": "text/markdown",
+      "sha256": "f68f26fc41accb59110293e424a764c5a9aea4fe6f0424f137b7b01d02f08092",
+      "size_bytes": 1775,
+      "producer_node": "final_report",
+      "created_at": "2026-08-18T07:58:00.018710+00:00",
+      "integrity_status": "current",
+      "integrity_detail": ""
+    }
+  ]
+}

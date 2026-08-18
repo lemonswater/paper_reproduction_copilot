@@ -1,0 +1,40 @@
+{
+  "node_name": "method_extractor_sec-254b22b38ae4-c000-0548af81bd",
+  "schema_name": "SectionExtractionDraft",
+  "method": "json_schema",
+  "strict": true,
+  "max_retries": 2,
+  "provider_max_retries": 2,
+  "provider_retry_base_seconds": 0.5,
+  "succeeded": true,
+  "fallback_used": false,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt_number": 1,
+      "status": "succeeded",
+      "prompt_kind": "original",
+      "error_type": null,
+      "error_message": null,
+      "raw_preview": "{\n  \"chunk_id\": \"sec-254b22b38ae4-c000-0548af81bd\",\n  \"core_idea_candidates\": [\n    {\n      \"evidence\": {\n        \"block_ids\": [\n          \"p016-b0081-66935fb535\",\n          \"p016-b0082-e3f3967efc\",\n          \"p016-b0083-252f10c836\",\n          \"p016-b0084-01264c8374\",\n          \"p016-b0085-e415220f10\",\n          \"p016-b0086-bd8ca2f050\"\n        ],\n        \"confidence\": 0.95\n       ,\n      \"summary\": \"本文设计了Eq.(5)中f函数的轻量实现：f(δx,δy,δz); θ = θd · (δx,δy,δz)T · 1 ⊙ θs，其中θd为位移变换核，θs为共享核。\"\n    },\n    \"value\": \"本文设计了Eq.(5)中f函数的轻量实现：f(δx,δy,δz); θ = θd · (δx,δy,δz)T · 1 ⊙ θs，其中θd为位移变换核，θs为共享核。\"\n  },\n  {\n    \"evidence\": {\n      \"block_ids\": [\n        \"p016-b0086-bd8ca2f050\",\n        \"p016-b0087-26ff42055b\"\n      ],\n      \"confidence\": 0.9\n    ,\n    \"summary\": \"本节研究位移核和共享核的影响，在MSR-Action3D上进行3D动作识别实验，结果见表5。\"\n  },\n  \"value\": \"本节研究位移核和共享核的影响，在MSR-Action3D上进行3D动作识别实验，结果见表5。\"\n  },\n  {\n    \"evidence\": {\n      \"block_ids\": [\n        \"p016-b0088-c71161751b\",\n        \"p016-b0089-d7df2bfa0e\"\n      ],\n      \"confidence\": 0.9\n    ,\n    \"summary\": \"表5标题为“位移核和共享核对3D动作识别准确率(%)的影响”，使用MSR-Action3D数据集。\"\n  },\n  \"value\": \"表5标题为“位移核和共享核对3D动作识别准确率(%)的影响”，使用MSR-Action3D数据集。\"\n  },\n  {\n    \"evidence\": {\n      \"block_ids\": [\n        \"p017-b0001-a8382454c5\",\n        \"p017-b0002-e3b98a4da3\",\n        \"p017-b0003-f573ec7d3d\",\n        \"p017-b0004-c6cf918fb6\",\n        \"p017-b0005-e1bbe64b28\",\n        \"p017-b0006-55e16c77e4\"\n      ],\n      \"confidence\": 0.9\n    ,\n    \"summary\": \"没有θs时，空间卷积退化为M(x,y,z)t = Σ_{||(δx,δy,δz)||≤r} θd · (δx,δy,δz)T。这样只有PSTNet最终层的点被使用，因此准确率急剧下降。\"\n  },\n  \"value\": \"没有θs时，空间卷积退化为M(x,y,z)t = Σ_{||(δx,δy,δz)||≤r} θd · (δx,δy,δz)T。这样只有PSTNet最终层的点被使用，因此准确率急剧下降。\"\n  },\n  {\n    \"evidence\": {\n      \"block_ids\": [\n        \"p017-b0007-634ecd85da\",\n        \"p017-b0008-51a4bf1f13\",\n        \"p017-b0009-e3b98a4da3\",\n        \"p017-b0010-f573ec7d3d\",\n        \"p017-b0011-e3b98a4da3\",\n        \"p017-b0012-cdb4ee2aea\",\n        \"p017-b0013-1d51371935\",\n        \"p017-b0014-9e00b6c950\",\n        \"p017-b0015-52a",
+      "finish_reason": "stop",
+      "token_usage": {
+        "input_tokens": 1898,
+        "output_tokens": 3133,
+        "total_tokens": 5031,
+        "input_token_details": {},
+        "output_token_details": {}
+      },
+      "output_chars": 5475,
+      "truncated": false
+    }
+  ],
+  "generated_at": "2026-08-18T07:59:42.843720+00:00",
+  "model_routing": {
+    "invocation_id": null,
+    "decision_sha256": "23b26572e113072ffbee4f01dbd190cf3935e032fe04acacc5591424140d104f",
+    "executed_profile_id": "legacy_chat",
+    "model_name": "deepseek-v4-flash",
+    "usage_quality": null
+  }
+}

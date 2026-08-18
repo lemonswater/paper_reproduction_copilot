@@ -1,0 +1,175 @@
+{
+  "case_id": "provider_retrieval_obfuscated_semantics",
+  "runner": "semantic_code_retrieval",
+  "route": [
+    "repository_index",
+    "semantic_chunking",
+    "embedding_provider",
+    "dense_hybrid_retrieval"
+  ],
+  "final_status": "succeeded",
+  "structured_calls": [],
+  "tool_calls": [],
+  "evidence": [],
+  "artifacts": [],
+  "output_payloads": {},
+  "stage_errors": [],
+  "approval_required": null,
+  "approval_present": null,
+  "approval_hash_match": null,
+  "patch_hash_match": null,
+  "execution_started": false,
+  "policy_denied": false,
+  "secret_leaks": [],
+  "path_escapes": [],
+  "resume_succeeded": null,
+  "duplicate_side_effect_count": 0,
+  "metrics": {
+    "duration_ms": 246.1782320169732,
+    "llm_calls": 0,
+    "human_interventions": 0,
+    "tool_calls": 0,
+    "embedding_document_calls": 0,
+    "embedding_query_calls": 0,
+    "embedding_cache_hits": 25,
+    "embedding_cache_misses": 0
+  },
+  "run_id": null,
+  "run_dir": null,
+  "code_retrieval": [
+    {
+      "rank": 1,
+      "file_path": "obfuscated/operator_core.py",
+      "symbol": null,
+      "retrieval_channels": [
+        "dense"
+      ],
+      "fused_score": 0.03442622950819672,
+      "evidence_id": "code-4360f15e86f07f7ac251",
+      "repo_revision": "239441e26eb044e38a3a5a2ffa131464c66bda9d",
+      "repo_fingerprint": "7d602597d6047789fca8a2fac9262c4a2f9d74c25a07e4b80aab57447cbece0e",
+      "file_sha256": "28a875ea2e1d8733d5903df3b7d44ab8ec4aeeb1c65f9903d6701a9fbd7df098",
+      "start_line": 1,
+      "end_line": 39,
+      "content_hash": "3c6f20c7c292671b2732eab96fbe4253f670836dd4972e53f5486e5a5cc04036",
+      "provenance_complete": true
+    },
+    {
+      "rank": 2,
+      "file_path": "modules/pst_convolutions.py",
+      "symbol": "PSTConv.forward",
+      "retrieval_channels": [
+        "dense"
+      ],
+      "fused_score": 0.03387096774193549,
+      "evidence_id": "code-1a1dd633ff3c7040dd0a",
+      "repo_revision": "239441e26eb044e38a3a5a2ffa131464c66bda9d",
+      "repo_fingerprint": "7d602597d6047789fca8a2fac9262c4a2f9d74c25a07e4b80aab57447cbece0e",
+      "file_sha256": "863747e705d9a4c02355bb51abe366feb9192e375429dd7466b6f082cd2d518b",
+      "start_line": 1,
+      "end_line": 23,
+      "content_hash": "2c6cbdd10562bd230fefef721bbaa0234ef1a64d16224fbea726bfef09c9fadd",
+      "provenance_complete": true
+    },
+    {
+      "rank": 3,
+      "file_path": "models/sequence_classification.py",
+      "symbol": null,
+      "retrieval_channels": [
+        "dense"
+      ],
+      "fused_score": 0.03333333333333333,
+      "evidence_id": "code-cb06852c99d835e85bbf",
+      "repo_revision": "239441e26eb044e38a3a5a2ffa131464c66bda9d",
+      "repo_fingerprint": "7d602597d6047789fca8a2fac9262c4a2f9d74c25a07e4b80aab57447cbece0e",
+      "file_sha256": "5f869abbe269fd7b32b6ed08775e22c47324738e70fcd5856668cf0a6638ef30",
+      "start_line": 1,
+      "end_line": 16,
+      "content_hash": "c1fe14c8e36be29da9b71ec163f841fb57a099ab21f423dc159bed1b5f85aa60",
+      "provenance_complete": true
+    },
+    {
+      "rank": 4,
+      "file_path": "notes/pstconv_overview.md",
+      "symbol": null,
+      "retrieval_channels": [
+        "dense"
+      ],
+      "fused_score": 0.0328125,
+      "evidence_id": "code-7d540dffeb60725585b0",
+      "repo_revision": "239441e26eb044e38a3a5a2ffa131464c66bda9d",
+      "repo_fingerprint": "7d602597d6047789fca8a2fac9262c4a2f9d74c25a07e4b80aab57447cbece0e",
+      "file_sha256": "60af2485cd79139674a520fe5d637915e9209264134cd26b5d237b5638cc1533",
+      "start_line": 1,
+      "end_line": 4,
+      "content_hash": "226d4f25ae16e7af3738d8829a789180dc5e5edd939e95776d78ec8ea8642a4a",
+      "provenance_complete": true
+    },
+    {
+      "rank": 5,
+      "file_path": "train_msr.py",
+      "symbol": "main",
+      "retrieval_channels": [
+        "dense"
+      ],
+      "fused_score": 0.03230769230769231,
+      "evidence_id": "code-f92f39d0249d3ce8a897",
+      "repo_revision": "239441e26eb044e38a3a5a2ffa131464c66bda9d",
+      "repo_fingerprint": "7d602597d6047789fca8a2fac9262c4a2f9d74c25a07e4b80aab57447cbece0e",
+      "file_sha256": "ff64299ce60e408d1433311fd6863596bd22b57a58712d7ab805ce0a40fbf069",
+      "start_line": 9,
+      "end_line": 37,
+      "content_hash": "807ba36d08e9cb031e03e1d79d2258801fc291002e8f592fa953a22e09782dfc",
+      "provenance_complete": true
+    },
+    {
+      "rank": 6,
+      "file_path": "obfuscated/image_filter.py",
+      "symbol": "ImageSmoother",
+      "retrieval_channels": [
+        "dense"
+      ],
+      "fused_score": 0.03181818181818182,
+      "evidence_id": "code-327e72bab7a232fbb6d4",
+      "repo_revision": "239441e26eb044e38a3a5a2ffa131464c66bda9d",
+      "repo_fingerprint": "7d602597d6047789fca8a2fac9262c4a2f9d74c25a07e4b80aab57447cbece0e",
+      "file_sha256": "10140883b791822d81ea2bd2545393395431d675b8a062c348f7222ea2f1179d",
+      "start_line": 1,
+      "end_line": 11,
+      "content_hash": "95d7f8275b26f488653d43555a3d87438c8835e5dc5fbb808a334b78ba89ff5f",
+      "provenance_complete": true
+    },
+    {
+      "rank": 7,
+      "file_path": "datasets/msr.py",
+      "symbol": null,
+      "retrieval_channels": [
+        "dense"
+      ],
+      "fused_score": 0.03134328358208956,
+      "evidence_id": "code-ba82e688b24d7ce46285",
+      "repo_revision": "239441e26eb044e38a3a5a2ffa131464c66bda9d",
+      "repo_fingerprint": "7d602597d6047789fca8a2fac9262c4a2f9d74c25a07e4b80aab57447cbece0e",
+      "file_sha256": "bd47c776155fb9336cca989059f598d431739c111cd147fda49242e9f39cae72",
+      "start_line": 1,
+      "end_line": 7,
+      "content_hash": "55737f837260f88cd73a155761b0ff5c92b73cc050398362fd5d3ae7c597853b",
+      "provenance_complete": true
+    }
+  ],
+  "paper_page_count": 0,
+  "paper_indexed_pages": [],
+  "paper_section_titles": [],
+  "paper_section_kinds": [],
+  "paper_sections": [],
+  "paper_experiment_setting_names": [],
+  "paper_conflict_count": 0,
+  "paper_ocr_required_pages": [],
+  "paper_evidence_count": 0,
+  "paper_provenance_evidence_count": 0,
+  "embedding_provider_namespace": "openai-compatible:47ddbfce8ac394e9",
+  "embedding_model": "qwen-text-embedding-v4",
+  "embedding_dimensions": 1024,
+  "dense_fallback_reason": null,
+  "chat": null
+}

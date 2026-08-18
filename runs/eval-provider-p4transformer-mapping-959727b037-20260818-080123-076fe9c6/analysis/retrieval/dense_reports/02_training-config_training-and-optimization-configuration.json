@@ -1,0 +1,168 @@
+{
+  "enabled": true,
+  "required": false,
+  "provider_namespace": "openai-compatible:47ddbfce8ac394e9",
+  "model": "qwen-text-embedding-v4",
+  "embedding_dimensions": 1024,
+  "query_hash": "c4a365d65429e03d2525c8047ca4f4649389134b6e16ac57c9267d4d62da6474",
+  "chunk_count": 204,
+  "cache_hits": 37,
+  "cache_misses": 168,
+  "embedding_document_calls": 17,
+  "embedding_query_calls": 1,
+  "hits": [
+    {
+      "channel": "dense",
+      "file_path": "train-msr-small.py",
+      "raw_score": 0.6247953172210879,
+      "anchor_line": 193,
+      "anchor_end_line": 263,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "train-ntu60.py",
+      "raw_score": 0.6143482110640591,
+      "anchor_line": 193,
+      "anchor_end_line": 258,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "models/sequence_classification.py",
+      "raw_score": 0.5728385462687964,
+      "anchor_line": 16,
+      "anchor_end_line": 49,
+      "symbol": "P4Transformer"
+    },
+    {
+      "channel": "dense",
+      "file_path": "README.md",
+      "raw_score": 0.4940552093318198,
+      "anchor_line": 1,
+      "anchor_end_line": 13,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/point_4d_convolution.py",
+      "raw_score": 0.48898203490806313,
+      "anchor_line": 80,
+      "anchor_end_line": 159,
+      "symbol": "P4DConv"
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/transformer_v1.py",
+      "raw_score": 0.4587879015568326,
+      "anchor_line": 69,
+      "anchor_end_line": 82,
+      "symbol": "Transformer"
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/pytorch_utils.py",
+      "raw_score": 0.4541396847765693,
+      "anchor_line": 291,
+      "anchor_end_line": 296,
+      "symbol": "BNMomentumScheduler.step"
+    },
+    {
+      "channel": "dense",
+      "file_path": "datasets/msr.py",
+      "raw_score": 0.436334799206277,
+      "anchor_line": 65,
+      "anchor_end_line": 83,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/pointnet2_utils.py",
+      "raw_score": 0.41678978021614654,
+      "anchor_line": 46,
+      "anchor_end_line": 48,
+      "symbol": "RandomDropout.forward"
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/pointnet2_modules.py",
+      "raw_score": 0.3979074067245257,
+      "anchor_line": 449,
+      "anchor_end_line": 518,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "utils.py",
+      "raw_score": 0.3954629509833406,
+      "anchor_line": 1,
+      "anchor_end_line": 80,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "datasets/ntu60.py",
+      "raw_score": 0.38996443281788784,
+      "anchor_line": 65,
+      "anchor_end_line": 81,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "scheduler.py",
+      "raw_score": 0.37183783221916944,
+      "anchor_line": 1,
+      "anchor_end_line": 47,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/pointnet2_test.py",
+      "raw_score": 0.3666402603104856,
+      "anchor_line": 24,
+      "anchor_end_line": 28,
+      "symbol": "interpolate_func"
+    },
+    {
+      "channel": "dense",
+      "file_path": "datasets/preprocess_file.py",
+      "raw_score": 0.35058638458804803,
+      "anchor_line": 1,
+      "anchor_end_line": 80,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/pointnet2.egg-info/dependency_links.txt",
+      "raw_score": 0.3054821332127748,
+      "anchor_line": 1,
+      "anchor_end_line": 1,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/pointnet2.egg-info/top_level.txt",
+      "raw_score": 0.3023826107161515,
+      "anchor_line": 1,
+      "anchor_end_line": 1,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/pointnet2.egg-info/SOURCES.txt",
+      "raw_score": 0.2998959650408143,
+      "anchor_line": 1,
+      "anchor_end_line": 14,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/setup.py",
+      "raw_score": 0.2701985664086661,
+      "anchor_line": 1,
+      "anchor_end_line": 34,
+      "symbol": null
+    }
+  ],
+  "fallback_reason": null
+}

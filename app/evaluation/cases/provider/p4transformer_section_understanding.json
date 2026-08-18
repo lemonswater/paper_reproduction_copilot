@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "case_id": "provider_p4transformer_section_understanding",
+  "description": "真实 Provider 应从 P4Transformer 论文抽取带 block provenance 的章节结构与事实",
+  "suite": "provider",
+  "runner": "live_graph",
+  "categories": [
+    "schema",
+    "evidence",
+    "quality",
+    "efficiency"
+  ],
+  "tags": [
+    "provider",
+    "paper",
+    "structured_output",
+    "phase18",
+    "p4transformer"
+  ],
+  "problem_ids": [],
+  "input": {
+    "paper_path": "pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf",
+    "repo_path": "/data/tianshaoqi24/P4Transformer/",
+    "experiment_goal": "复现论文 main result",
+    "execution_profile_id": "profile-P4Transformer",
+    "scripted_responses": []
+  },
+  "expected": {
+    "required_schemas": [
+      "SectionExtractionDraft"
+    ],
+    "min_schema_success_rate": 0.9,
+    "max_schema_fallbacks": 0,
+    "max_schema_retries": 6,
+    "required_artifacts": [
+      {
+        "relative_path": "analysis/paper_document.json"
+      },
+      {
+        "relative_path": "analysis/paper_blocks.json"
+      },
+      {
+        "relative_path": "analysis/paper_sections.json"
+      },
+      {
+        "relative_path": "analysis/paper_parse_report.json"
+      },
+      {
+        "relative_path": "analysis/paper_fact_index.json"
+      },
+      {
+        "relative_path": "analysis/paper_conflicts.json"
+      }
+    ],
+    "max_llm_calls": 30,
+    "max_human_interventions": 1
+  },
+  "thresholds": {
+    "min_overall_score": 0.7,
+    "max_score_regression": 0.05
+  }
+}

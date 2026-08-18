@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "scenario_id": "chat_provider_memory_constraint_retention",
+  "job_status": "running",
+  "sources": [
+    {
+      "citation": {
+        "citation_id": "job:current",
+        "source_type": "job",
+        "label": "Current job state"
+      },
+      "content": "status=running; stage=planning; execution_started=false",
+      "score": 1000
+    }
+  ],
+  "seed_exchanges": [
+    {
+      "question": "后续只考虑 CPU 环境。",
+      "answer": "已记录这个用户约束。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "可以考虑先跑小数据集。",
+      "answer": "这是建议，不是已经确认的决定。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "当前任务处于哪个阶段？",
+      "answer": "当前处于 planning。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "训练是否已经启动？",
+      "answer": "execution_started=false。",
+      "citation_ids": ["job:current"]
+    }
+  ],
+  "turns": [
+    {
+      "label": "current-status",
+      "question": "根据当前证据说明任务状态，并遵守此前环境限制。",
+      "idempotency_key": "provider-memory-1"
+    }
+  ],
+  "memory_scripts": [],
+  "repetitions": 3,
+  "compaction_enabled": true,
+  "recent_messages": 4,
+  "compaction_min_messages": 4,
+  "compaction_max_messages": 40,
+  "compaction_max_input_chars": 20000,
+  "memory_max_chars": 8000,
+  "history_max_chars": 8000,
+  "prompt_max_chars": 40000
+}

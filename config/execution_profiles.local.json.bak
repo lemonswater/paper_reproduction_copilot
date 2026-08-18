@@ -1,0 +1,45 @@
+{
+  "profile_id": "profile-P4Transformer",
+  "backend": "conda",
+  "workspace_root": "/data/tianshaoqi24/P4Transformer",
+  "artifact_root": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs",
+  "conda_executable": "/home/tianshaoqi24/miniconda3/bin/conda",
+  "conda_prefix": "/home/tianshaoqi24/miniconda3/envs/3d",
+  "inherited_env_keys": [
+    "PATH",
+    "LANG",
+    "LC_ALL",
+    "TERM"
+  ],
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "0"
+  },
+  "allowed_action_env_keys": [
+    "OMP_NUM_THREADS"
+  ],
+  "allowed_secret_env_keys": [],
+  "allowed_programs": [
+    "python",
+    "python3",
+    "torchrun",
+    "pytest"
+  ],
+  "writable_roots": [
+    "/data/tianshaoqi24/P4Transformer",
+    "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs"
+  ],
+  "network_policy": "deny",
+  "enforcement_mode": "best_effort",
+  "budget": {
+    "max_wall_time_seconds": 3600,
+    "max_cpu_seconds": 7200,
+    "max_memory_bytes": 17179869184,
+    "max_processes": 64,
+    "max_write_bytes": 107374182400,
+    "max_gpu_memory_bytes": null,
+    "max_log_bytes_per_stream": 16777216,
+    "max_preview_bytes": 65536,
+    "sample_interval_seconds": 0.2,
+    "terminate_grace_seconds": 5
+  }
+}

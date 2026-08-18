@@ -1,0 +1,1321 @@
+{
+  "candidate_id": "mcpcandidate_e613eb8ac1b64edf",
+  "candidate_sha256": "7d4fdf1d5c37e8bc47928c3d632cb1695cd3a7da3ac5cea3e52ab041ed73d309",
+  "consistent_surface": true,
+  "generated_at": "2026-08-16T09:15:55.296575+00:00",
+  "observations": [
+    {
+      "profile": {
+        "enabled": true,
+        "endpoint": null,
+        "mode": "auto",
+        "profile_id": "in-memory-modern",
+        "required_for_release": true,
+        "secret_name": null,
+        "transport": "in_memory"
+      },
+      "runtime": {
+        "connect_mode": "auto",
+        "mcp_sdk_major": 2,
+        "mcp_sdk_version": "2.0.0",
+        "profile_id": "in-memory-modern",
+        "protocol_version": "2026-07-28",
+        "pydantic_version": "2.13.4",
+        "python_version": "3.10.20",
+        "transport": "in_memory"
+      },
+      "surface": {
+        "capability_names": [
+          "prompts",
+          "resources",
+          "tools"
+        ],
+        "prompt_names": [],
+        "resource_templates": [
+          {
+            "contract_sha256": "3776e4d753f5fc91a136eec7b1abdc90c958e750efcfc3080dd6f354df88c734",
+            "description_sha256": "65f4b90dcdd79d7bf174755c59d1517d1d914b2d7b884b86851e6ee02f6439b9",
+            "mime_type": "application/json",
+            "name": "final_report_resource",
+            "uri_template": "repro://jobs/{job_id}/final-report"
+          },
+          {
+            "contract_sha256": "f82d537b0a6499827a1d125880946bf1d457d80a661c35b295b6c58d5956e79e",
+            "description_sha256": "ffc2ecb9721ff5ac7c70e5db8b5915039613daf6addecf16360f209dda7ab006",
+            "mime_type": "application/json",
+            "name": "job_status_resource",
+            "uri_template": "repro://jobs/{job_id}/status"
+          }
+        ],
+        "schema_version": "phase55-v1",
+        "server_name": "Paper Reproduction Copilot Read-only Export",
+        "server_version": "phase54-v1",
+        "static_resource_uris": [],
+        "surface_sha256": "6888f3b4a84f8f09b6ff33610cfae233a611f563ecdd8593cebd8a5e00c7d78f",
+        "tools": [
+          {
+            "annotations": {},
+            "contract_sha256": "06893d0886b8f4d7dd2f6fc3c190e00bc29dfdc62f3563ec091640ecbc3c69ba",
+            "description_sha256": "769df30edb3db3a33ff145124c52d5bc44ad9396edd022ec0c8cceafbba7b33a",
+            "input_schema": {
+              "properties": {
+                "job_id": {
+                  "description": "Server-generated reproduction Job ID: job_ followed by 32 lowercase hex characters",
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "job_id"
+              ],
+              "title": "get_reproduction_statusArguments",
+              "type": "object"
+            },
+            "name": "get_reproduction_status",
+            "output_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "allowed_operation_kinds": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "maxItems": 8,
+                  "title": "Allowed Operation Kinds",
+                  "type": "array"
+                },
+                "attempt_count": {
+                  "minimum": 0,
+                  "title": "Attempt Count",
+                  "type": "integer"
+                },
+                "created_at": {
+                  "title": "Created At",
+                  "type": "string"
+                },
+                "error_code": {
+                  "anyOf": [
+                    {
+                      "maxLength": 100,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Error Code"
+                },
+                "final_status": {
+                  "anyOf": [
+                    {
+                      "maxLength": 100,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Final Status"
+                },
+                "has_error": {
+                  "title": "Has Error",
+                  "type": "boolean"
+                },
+                "job_id": {
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                },
+                "max_attempts": {
+                  "minimum": 1,
+                  "title": "Max Attempts",
+                  "type": "integer"
+                },
+                "output_file_count": {
+                  "anyOf": [
+                    {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Output File Count"
+                },
+                "run_id": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "title": "Run Id",
+                  "type": "string"
+                },
+                "schema_version": {
+                  "const": "phase54-v1",
+                  "default": "phase54-v1",
+                  "title": "Schema Version",
+                  "type": "string"
+                },
+                "snapshot_sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "title": "Snapshot Sha256",
+                  "type": "string"
+                },
+                "stage_error_count": {
+                  "anyOf": [
+                    {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Stage Error Count"
+                },
+                "status": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "title": "Status",
+                  "type": "string"
+                },
+                "updated_at": {
+                  "title": "Updated At",
+                  "type": "string"
+                },
+                "version": {
+                  "minimum": 0,
+                  "title": "Version",
+                  "type": "integer"
+                },
+                "waiting_for_user": {
+                  "title": "Waiting For User",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "job_id",
+                "run_id",
+                "status",
+                "version",
+                "attempt_count",
+                "max_attempts",
+                "waiting_for_user",
+                "has_error",
+                "created_at",
+                "updated_at",
+                "snapshot_sha256"
+              ],
+              "title": "McpExportJobStatus",
+              "type": "object"
+            }
+          },
+          {
+            "annotations": {},
+            "contract_sha256": "275d986330c85db1100e181ae1a794888f2e1c49cdf157173c8ea5bb20149763",
+            "description_sha256": "2ff7a8ab77b58276cf0c0facffa7737c1521863de3c3e6ff59aa033b99ca7695",
+            "input_schema": {
+              "properties": {
+                "job_id": {
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                },
+                "limit": {
+                  "default": 20,
+                  "maximum": 100,
+                  "minimum": 1,
+                  "title": "Limit",
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "job_id"
+              ],
+              "title": "list_reproduction_artifactsArguments",
+              "type": "object"
+            },
+            "name": "list_reproduction_artifacts",
+            "output_schema": {
+              "$defs": {
+                "McpExportArtifact": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "artifact_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "title": "Artifact Id",
+                      "type": "string"
+                    },
+                    "created_at": {
+                      "title": "Created At",
+                      "type": "string"
+                    },
+                    "display_name": {
+                      "maxLength": 255,
+                      "minLength": 1,
+                      "title": "Display Name",
+                      "type": "string"
+                    },
+                    "layer": {
+                      "maxLength": 100,
+                      "minLength": 1,
+                      "title": "Layer",
+                      "type": "string"
+                    },
+                    "media_type": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "title": "Media Type",
+                      "type": "string"
+                    },
+                    "preview_supported": {
+                      "title": "Preview Supported",
+                      "type": "boolean"
+                    },
+                    "producer_node": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "title": "Producer Node",
+                      "type": "string"
+                    },
+                    "run_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "title": "Run Id",
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "pattern": "^[0-9a-f]{64}$",
+                      "title": "Sha256",
+                      "type": "string"
+                    },
+                    "size_bytes": {
+                      "minimum": 0,
+                      "title": "Size Bytes",
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "artifact_id",
+                    "run_id",
+                    "display_name",
+                    "layer",
+                    "media_type",
+                    "sha256",
+                    "size_bytes",
+                    "producer_node",
+                    "created_at",
+                    "preview_supported"
+                  ],
+                  "title": "McpExportArtifact",
+                  "type": "object"
+                }
+              },
+              "additionalProperties": false,
+              "properties": {
+                "items": {
+                  "items": {
+                    "$ref": "#/$defs/McpExportArtifact"
+                  },
+                  "maxItems": 100,
+                  "title": "Items",
+                  "type": "array"
+                },
+                "job_id": {
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                },
+                "returned_count": {
+                  "minimum": 0,
+                  "title": "Returned Count",
+                  "type": "integer"
+                },
+                "run_id": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "title": "Run Id",
+                  "type": "string"
+                },
+                "schema_version": {
+                  "const": "phase54-v1",
+                  "default": "phase54-v1",
+                  "title": "Schema Version",
+                  "type": "string"
+                },
+                "snapshot_sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "title": "Snapshot Sha256",
+                  "type": "string"
+                },
+                "truncated": {
+                  "title": "Truncated",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "job_id",
+                "run_id",
+                "returned_count",
+                "truncated",
+                "snapshot_sha256"
+              ],
+              "title": "McpExportArtifactPage",
+              "type": "object"
+            }
+          },
+          {
+            "annotations": {},
+            "contract_sha256": "04a1504df6f94b9ddc998d77de843cd523a0166cd311b868d953797cfd660cb1",
+            "description_sha256": "1dd6aee4bccf2115f16147a2ce6bd4831660c14e43a8e12f18707cba1d1071fe",
+            "input_schema": {
+              "properties": {
+                "job_id": {
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "job_id"
+              ],
+              "title": "read_reproduction_final_reportArguments",
+              "type": "object"
+            },
+            "name": "read_reproduction_final_report",
+            "output_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "artifact_id": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "title": "Artifact Id",
+                  "type": "string"
+                },
+                "artifact_sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "title": "Artifact Sha256",
+                  "type": "string"
+                },
+                "content": {
+                  "maxLength": 100000,
+                  "title": "Content",
+                  "type": "string"
+                },
+                "content_sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "title": "Content Sha256",
+                  "type": "string"
+                },
+                "job_id": {
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                },
+                "media_type": {
+                  "enum": [
+                    "text/markdown",
+                    "text/plain"
+                  ],
+                  "title": "Media Type",
+                  "type": "string"
+                },
+                "returned_chars": {
+                  "minimum": 0,
+                  "title": "Returned Chars",
+                  "type": "integer"
+                },
+                "run_id": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "title": "Run Id",
+                  "type": "string"
+                },
+                "schema_version": {
+                  "const": "phase54-v1",
+                  "default": "phase54-v1",
+                  "title": "Schema Version",
+                  "type": "string"
+                },
+                "snapshot_sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "title": "Snapshot Sha256",
+                  "type": "string"
+                },
+                "total_size_bytes": {
+                  "minimum": 0,
+                  "title": "Total Size Bytes",
+                  "type": "integer"
+                },
+                "truncated": {
+                  "title": "Truncated",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "job_id",
+                "run_id",
+                "artifact_id",
+                "artifact_sha256",
+                "media_type",
+                "total_size_bytes",
+                "returned_chars",
+                "truncated",
+                "content",
+                "content_sha256",
+                "snapshot_sha256"
+              ],
+              "title": "McpExportFinalReport",
+              "type": "object"
+            }
+          },
+          {
+            "annotations": {},
+            "contract_sha256": "400fe70f076aeb49a88f5858b566324588eee7e09f784ae03cd9121a1c2e207a",
+            "description_sha256": "208c6d714628616a0f1d3e12ca5d26ae5408bdab33335ca5de4ae39971267569",
+            "input_schema": {
+              "properties": {
+                "job_id": {
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                },
+                "limit": {
+                  "default": 5,
+                  "maximum": 6,
+                  "minimum": 1,
+                  "title": "Limit",
+                  "type": "integer"
+                },
+                "query": {
+                  "description": "Question used only to rank local Job, Event, Artifact and Log evidence",
+                  "maxLength": 500,
+                  "minLength": 1,
+                  "title": "Query",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "job_id",
+                "query"
+              ],
+              "title": "search_reproduction_evidenceArguments",
+              "type": "object"
+            },
+            "name": "search_reproduction_evidence",
+            "output_schema": {
+              "$defs": {
+                "McpExportCitation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "artifact_id": {
+                      "anyOf": [
+                        {
+                          "maxLength": 200,
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Artifact Id"
+                    },
+                    "artifact_sha256": {
+                      "anyOf": [
+                        {
+                          "pattern": "^[0-9a-f]{64}$",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Artifact Sha256"
+                    },
+                    "citation_id": {
+                      "maxLength": 300,
+                      "minLength": 1,
+                      "title": "Citation Id",
+                      "type": "string"
+                    },
+                    "event_id": {
+                      "anyOf": [
+                        {
+                          "minimum": 0,
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Event Id"
+                    },
+                    "label": {
+                      "maxLength": 300,
+                      "minLength": 1,
+                      "title": "Label",
+                      "type": "string"
+                    },
+                    "source_type": {
+                      "enum": [
+                        "job",
+                        "event",
+                        "artifact",
+                        "log"
+                      ],
+                      "title": "Source Type",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "citation_id",
+                    "source_type",
+                    "label"
+                  ],
+                  "title": "McpExportCitation",
+                  "type": "object"
+                },
+                "McpExportEvidenceItem": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "citation": {
+                      "$ref": "#/$defs/McpExportCitation"
+                    },
+                    "excerpt": {
+                      "maxLength": 4000,
+                      "minLength": 1,
+                      "title": "Excerpt",
+                      "type": "string"
+                    },
+                    "excerpt_sha256": {
+                      "pattern": "^[0-9a-f]{64}$",
+                      "title": "Excerpt Sha256",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "citation",
+                    "excerpt",
+                    "excerpt_sha256"
+                  ],
+                  "title": "McpExportEvidenceItem",
+                  "type": "object"
+                }
+              },
+              "additionalProperties": false,
+              "properties": {
+                "items": {
+                  "items": {
+                    "$ref": "#/$defs/McpExportEvidenceItem"
+                  },
+                  "maxItems": 6,
+                  "title": "Items",
+                  "type": "array"
+                },
+                "job_id": {
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                },
+                "pack_sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "title": "Pack Sha256",
+                  "type": "string"
+                },
+                "query_sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "title": "Query Sha256",
+                  "type": "string"
+                },
+                "schema_version": {
+                  "const": "phase54-v1",
+                  "default": "phase54-v1",
+                  "title": "Schema Version",
+                  "type": "string"
+                },
+                "truncated": {
+                  "title": "Truncated",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "job_id",
+                "query_sha256",
+                "truncated",
+                "pack_sha256"
+              ],
+              "title": "McpExportEvidencePack",
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "profile": {
+        "enabled": true,
+        "endpoint": null,
+        "mode": "legacy",
+        "profile_id": "in-memory-legacy",
+        "required_for_release": true,
+        "secret_name": null,
+        "transport": "in_memory"
+      },
+      "runtime": {
+        "connect_mode": "legacy",
+        "mcp_sdk_major": 2,
+        "mcp_sdk_version": "2.0.0",
+        "profile_id": "in-memory-legacy",
+        "protocol_version": "2025-11-25",
+        "pydantic_version": "2.13.4",
+        "python_version": "3.10.20",
+        "transport": "in_memory"
+      },
+      "surface": {
+        "capability_names": [
+          "prompts",
+          "resources",
+          "tools"
+        ],
+        "prompt_names": [],
+        "resource_templates": [
+          {
+            "contract_sha256": "3776e4d753f5fc91a136eec7b1abdc90c958e750efcfc3080dd6f354df88c734",
+            "description_sha256": "65f4b90dcdd79d7bf174755c59d1517d1d914b2d7b884b86851e6ee02f6439b9",
+            "mime_type": "application/json",
+            "name": "final_report_resource",
+            "uri_template": "repro://jobs/{job_id}/final-report"
+          },
+          {
+            "contract_sha256": "f82d537b0a6499827a1d125880946bf1d457d80a661c35b295b6c58d5956e79e",
+            "description_sha256": "ffc2ecb9721ff5ac7c70e5db8b5915039613daf6addecf16360f209dda7ab006",
+            "mime_type": "application/json",
+            "name": "job_status_resource",
+            "uri_template": "repro://jobs/{job_id}/status"
+          }
+        ],
+        "schema_version": "phase55-v1",
+        "server_name": "Paper Reproduction Copilot Read-only Export",
+        "server_version": "phase54-v1",
+        "static_resource_uris": [],
+        "surface_sha256": "6888f3b4a84f8f09b6ff33610cfae233a611f563ecdd8593cebd8a5e00c7d78f",
+        "tools": [
+          {
+            "annotations": {},
+            "contract_sha256": "06893d0886b8f4d7dd2f6fc3c190e00bc29dfdc62f3563ec091640ecbc3c69ba",
+            "description_sha256": "769df30edb3db3a33ff145124c52d5bc44ad9396edd022ec0c8cceafbba7b33a",
+            "input_schema": {
+              "properties": {
+                "job_id": {
+                  "description": "Server-generated reproduction Job ID: job_ followed by 32 lowercase hex characters",
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "job_id"
+              ],
+              "title": "get_reproduction_statusArguments",
+              "type": "object"
+            },
+            "name": "get_reproduction_status",
+            "output_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "allowed_operation_kinds": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "maxItems": 8,
+                  "title": "Allowed Operation Kinds",
+                  "type": "array"
+                },
+                "attempt_count": {
+                  "minimum": 0,
+                  "title": "Attempt Count",
+                  "type": "integer"
+                },
+                "created_at": {
+                  "title": "Created At",
+                  "type": "string"
+                },
+                "error_code": {
+                  "anyOf": [
+                    {
+                      "maxLength": 100,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Error Code"
+                },
+                "final_status": {
+                  "anyOf": [
+                    {
+                      "maxLength": 100,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Final Status"
+                },
+                "has_error": {
+                  "title": "Has Error",
+                  "type": "boolean"
+                },
+                "job_id": {
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                },
+                "max_attempts": {
+                  "minimum": 1,
+                  "title": "Max Attempts",
+                  "type": "integer"
+                },
+                "output_file_count": {
+                  "anyOf": [
+                    {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Output File Count"
+                },
+                "run_id": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "title": "Run Id",
+                  "type": "string"
+                },
+                "schema_version": {
+                  "const": "phase54-v1",
+                  "default": "phase54-v1",
+                  "title": "Schema Version",
+                  "type": "string"
+                },
+                "snapshot_sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "title": "Snapshot Sha256",
+                  "type": "string"
+                },
+                "stage_error_count": {
+                  "anyOf": [
+                    {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Stage Error Count"
+                },
+                "status": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "title": "Status",
+                  "type": "string"
+                },
+                "updated_at": {
+                  "title": "Updated At",
+                  "type": "string"
+                },
+                "version": {
+                  "minimum": 0,
+                  "title": "Version",
+                  "type": "integer"
+                },
+                "waiting_for_user": {
+                  "title": "Waiting For User",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "job_id",
+                "run_id",
+                "status",
+                "version",
+                "attempt_count",
+                "max_attempts",
+                "waiting_for_user",
+                "has_error",
+                "created_at",
+                "updated_at",
+                "snapshot_sha256"
+              ],
+              "title": "McpExportJobStatus",
+              "type": "object"
+            }
+          },
+          {
+            "annotations": {},
+            "contract_sha256": "275d986330c85db1100e181ae1a794888f2e1c49cdf157173c8ea5bb20149763",
+            "description_sha256": "2ff7a8ab77b58276cf0c0facffa7737c1521863de3c3e6ff59aa033b99ca7695",
+            "input_schema": {
+              "properties": {
+                "job_id": {
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                },
+                "limit": {
+                  "default": 20,
+                  "maximum": 100,
+                  "minimum": 1,
+                  "title": "Limit",
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "job_id"
+              ],
+              "title": "list_reproduction_artifactsArguments",
+              "type": "object"
+            },
+            "name": "list_reproduction_artifacts",
+            "output_schema": {
+              "$defs": {
+                "McpExportArtifact": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "artifact_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "title": "Artifact Id",
+                      "type": "string"
+                    },
+                    "created_at": {
+                      "title": "Created At",
+                      "type": "string"
+                    },
+                    "display_name": {
+                      "maxLength": 255,
+                      "minLength": 1,
+                      "title": "Display Name",
+                      "type": "string"
+                    },
+                    "layer": {
+                      "maxLength": 100,
+                      "minLength": 1,
+                      "title": "Layer",
+                      "type": "string"
+                    },
+                    "media_type": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "title": "Media Type",
+                      "type": "string"
+                    },
+                    "preview_supported": {
+                      "title": "Preview Supported",
+                      "type": "boolean"
+                    },
+                    "producer_node": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "title": "Producer Node",
+                      "type": "string"
+                    },
+                    "run_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "title": "Run Id",
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "pattern": "^[0-9a-f]{64}$",
+                      "title": "Sha256",
+                      "type": "string"
+                    },
+                    "size_bytes": {
+                      "minimum": 0,
+                      "title": "Size Bytes",
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "artifact_id",
+                    "run_id",
+                    "display_name",
+                    "layer",
+                    "media_type",
+                    "sha256",
+                    "size_bytes",
+                    "producer_node",
+                    "created_at",
+                    "preview_supported"
+                  ],
+                  "title": "McpExportArtifact",
+                  "type": "object"
+                }
+              },
+              "additionalProperties": false,
+              "properties": {
+                "items": {
+                  "items": {
+                    "$ref": "#/$defs/McpExportArtifact"
+                  },
+                  "maxItems": 100,
+                  "title": "Items",
+                  "type": "array"
+                },
+                "job_id": {
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                },
+                "returned_count": {
+                  "minimum": 0,
+                  "title": "Returned Count",
+                  "type": "integer"
+                },
+                "run_id": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "title": "Run Id",
+                  "type": "string"
+                },
+                "schema_version": {
+                  "const": "phase54-v1",
+                  "default": "phase54-v1",
+                  "title": "Schema Version",
+                  "type": "string"
+                },
+                "snapshot_sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "title": "Snapshot Sha256",
+                  "type": "string"
+                },
+                "truncated": {
+                  "title": "Truncated",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "job_id",
+                "run_id",
+                "returned_count",
+                "truncated",
+                "snapshot_sha256"
+              ],
+              "title": "McpExportArtifactPage",
+              "type": "object"
+            }
+          },
+          {
+            "annotations": {},
+            "contract_sha256": "04a1504df6f94b9ddc998d77de843cd523a0166cd311b868d953797cfd660cb1",
+            "description_sha256": "1dd6aee4bccf2115f16147a2ce6bd4831660c14e43a8e12f18707cba1d1071fe",
+            "input_schema": {
+              "properties": {
+                "job_id": {
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "job_id"
+              ],
+              "title": "read_reproduction_final_reportArguments",
+              "type": "object"
+            },
+            "name": "read_reproduction_final_report",
+            "output_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "artifact_id": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "title": "Artifact Id",
+                  "type": "string"
+                },
+                "artifact_sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "title": "Artifact Sha256",
+                  "type": "string"
+                },
+                "content": {
+                  "maxLength": 100000,
+                  "title": "Content",
+                  "type": "string"
+                },
+                "content_sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "title": "Content Sha256",
+                  "type": "string"
+                },
+                "job_id": {
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                },
+                "media_type": {
+                  "enum": [
+                    "text/markdown",
+                    "text/plain"
+                  ],
+                  "title": "Media Type",
+                  "type": "string"
+                },
+                "returned_chars": {
+                  "minimum": 0,
+                  "title": "Returned Chars",
+                  "type": "integer"
+                },
+                "run_id": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "title": "Run Id",
+                  "type": "string"
+                },
+                "schema_version": {
+                  "const": "phase54-v1",
+                  "default": "phase54-v1",
+                  "title": "Schema Version",
+                  "type": "string"
+                },
+                "snapshot_sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "title": "Snapshot Sha256",
+                  "type": "string"
+                },
+                "total_size_bytes": {
+                  "minimum": 0,
+                  "title": "Total Size Bytes",
+                  "type": "integer"
+                },
+                "truncated": {
+                  "title": "Truncated",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "job_id",
+                "run_id",
+                "artifact_id",
+                "artifact_sha256",
+                "media_type",
+                "total_size_bytes",
+                "returned_chars",
+                "truncated",
+                "content",
+                "content_sha256",
+                "snapshot_sha256"
+              ],
+              "title": "McpExportFinalReport",
+              "type": "object"
+            }
+          },
+          {
+            "annotations": {},
+            "contract_sha256": "400fe70f076aeb49a88f5858b566324588eee7e09f784ae03cd9121a1c2e207a",
+            "description_sha256": "208c6d714628616a0f1d3e12ca5d26ae5408bdab33335ca5de4ae39971267569",
+            "input_schema": {
+              "properties": {
+                "job_id": {
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                },
+                "limit": {
+                  "default": 5,
+                  "maximum": 6,
+                  "minimum": 1,
+                  "title": "Limit",
+                  "type": "integer"
+                },
+                "query": {
+                  "description": "Question used only to rank local Job, Event, Artifact and Log evidence",
+                  "maxLength": 500,
+                  "minLength": 1,
+                  "title": "Query",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "job_id",
+                "query"
+              ],
+              "title": "search_reproduction_evidenceArguments",
+              "type": "object"
+            },
+            "name": "search_reproduction_evidence",
+            "output_schema": {
+              "$defs": {
+                "McpExportCitation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "artifact_id": {
+                      "anyOf": [
+                        {
+                          "maxLength": 200,
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Artifact Id"
+                    },
+                    "artifact_sha256": {
+                      "anyOf": [
+                        {
+                          "pattern": "^[0-9a-f]{64}$",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Artifact Sha256"
+                    },
+                    "citation_id": {
+                      "maxLength": 300,
+                      "minLength": 1,
+                      "title": "Citation Id",
+                      "type": "string"
+                    },
+                    "event_id": {
+                      "anyOf": [
+                        {
+                          "minimum": 0,
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Event Id"
+                    },
+                    "label": {
+                      "maxLength": 300,
+                      "minLength": 1,
+                      "title": "Label",
+                      "type": "string"
+                    },
+                    "source_type": {
+                      "enum": [
+                        "job",
+                        "event",
+                        "artifact",
+                        "log"
+                      ],
+                      "title": "Source Type",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "citation_id",
+                    "source_type",
+                    "label"
+                  ],
+                  "title": "McpExportCitation",
+                  "type": "object"
+                },
+                "McpExportEvidenceItem": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "citation": {
+                      "$ref": "#/$defs/McpExportCitation"
+                    },
+                    "excerpt": {
+                      "maxLength": 4000,
+                      "minLength": 1,
+                      "title": "Excerpt",
+                      "type": "string"
+                    },
+                    "excerpt_sha256": {
+                      "pattern": "^[0-9a-f]{64}$",
+                      "title": "Excerpt Sha256",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "citation",
+                    "excerpt",
+                    "excerpt_sha256"
+                  ],
+                  "title": "McpExportEvidenceItem",
+                  "type": "object"
+                }
+              },
+              "additionalProperties": false,
+              "properties": {
+                "items": {
+                  "items": {
+                    "$ref": "#/$defs/McpExportEvidenceItem"
+                  },
+                  "maxItems": 6,
+                  "title": "Items",
+                  "type": "array"
+                },
+                "job_id": {
+                  "pattern": "^job_[0-9a-f]{32}$",
+                  "title": "Job Id",
+                  "type": "string"
+                },
+                "pack_sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "title": "Pack Sha256",
+                  "type": "string"
+                },
+                "query_sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "title": "Query Sha256",
+                  "type": "string"
+                },
+                "schema_version": {
+                  "const": "phase54-v1",
+                  "default": "phase54-v1",
+                  "title": "Schema Version",
+                  "type": "string"
+                },
+                "truncated": {
+                  "title": "Truncated",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "job_id",
+                "query_sha256",
+                "truncated",
+                "pack_sha256"
+              ],
+              "title": "McpExportEvidencePack",
+              "type": "object"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "profile_ids": [
+    "in-memory-legacy",
+    "in-memory-modern"
+  ],
+  "surface_sha256": "6888f3b4a84f8f09b6ff33610cfae233a611f563ecdd8593cebd8a5e00c7d78f"
+}

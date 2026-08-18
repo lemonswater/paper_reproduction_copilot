@@ -1,4 +1,5 @@
-import shlex
+from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Literal
 
@@ -39,7 +40,7 @@ def assess_action_risk(action: dict) -> ActionRisk:
             program="",
             args=[],
             risk_level="blocked",
-            reason="missing executable program",
+            reason="缺少可执行程序",
             blocked=True,
         )
 
@@ -48,7 +49,7 @@ def assess_action_risk(action: dict) -> ActionRisk:
             program=program,
             args=args,
             risk_level="blocked",
-            reason=f"program is blocked: {program}",
+            reason=f"程序已被安全策略阻止：{program}",
             blocked=True,
         )
 
@@ -57,7 +58,7 @@ def assess_action_risk(action: dict) -> ActionRisk:
             program=program,
             args=args,
             risk_level="low",
-            reason="read-only utility command can run without manual approval",
+            reason="只读工具命令可以在无需人工审批的情况下运行",
             blocked=False,
         )
     
@@ -66,7 +67,7 @@ def assess_action_risk(action: dict) -> ActionRisk:
             program=program,
             args=args,
             risk_level="high",
-            reason="environment-changing command requires approval",
+            reason="会修改环境的命令需要人工审批",
             blocked=False,
         )
     
@@ -75,7 +76,7 @@ def assess_action_risk(action: dict) -> ActionRisk:
             program=program,
             args=args,
             risk_level="high",
-            reason="python module execution requires explicit approval",
+            reason="执行 Python 模块需要明确的人工审批",
             blocked=False,
         )
 
@@ -84,7 +85,7 @@ def assess_action_risk(action: dict) -> ActionRisk:
             program=program,
             args=args,
             risk_level="medium",
-            reason="script or training execution requires approval",
+            reason="执行脚本或训练任务需要人工审批",
             blocked=False,
         )
 
@@ -92,6 +93,6 @@ def assess_action_risk(action: dict) -> ActionRisk:
         program=program,
         args=args,
         risk_level="medium",
-        reason="unknown executable, review before execution",
+        reason="未知的可执行程序，运行前需要人工审核",
         blocked=False,
     )

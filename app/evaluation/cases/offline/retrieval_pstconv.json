@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "case_id": "offline_retrieval_pstconv",
+  "description": "PSTConv exact symbol 应优先于说明文档，并找到导入调用方",
+  "suite": "offline",
+  "runner": "code_retrieval",
+  "categories": [
+    "evidence",
+    "efficiency"
+  ],
+  "tags": [
+    "offline",
+    "retrieval",
+    "phase20",
+    "golden"
+  ],
+  "problem_ids": [],
+  "input": {
+    "repo_path": "fixtures/retrieval_repo",
+    "retrieval_query": "PST convolution spatio temporal point tube",
+    "retrieval_keywords": [
+      "PSTConv",
+      "PSTConvTranspose"
+    ]
+  },
+  "expected": {
+    "required_retrieval_paths": [
+      "modules/pst_convolutions.py",
+      "models/sequence_classification.py"
+    ],
+    "max_retrieval_rank_by_path": {
+      "modules/pst_convolutions.py": 1,
+      "models/sequence_classification.py": 4
+    },
+    "required_retrieval_channels": [
+      "symbol",
+      "import_graph",
+      "bm25"
+    ],
+    "min_retrieval_provenance_ratio": 1.0,
+    "max_duration_ms": 3000
+  },
+  "thresholds": {
+    "min_overall_score": 1.0,
+    "max_score_regression": 0.0
+  }
+}

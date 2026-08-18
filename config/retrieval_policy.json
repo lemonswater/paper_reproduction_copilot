@@ -1,0 +1,153 @@
+{
+  "schema_version": "phase47-v1",
+  "policy_version": "phase47-policy-v1",
+  "default_profile_id": "balanced_sparse_v1",
+  "fallback_profile_id": "balanced_sparse_v1",
+  "profiles": [
+    {
+      "profile_id": "balanced_sparse_v1",
+      "profile_version": "1",
+      "description": "Phase 20 稳定 sparse 基线",
+      "enabled_channels": [
+        "keyword",
+        "symbol",
+        "import_graph",
+        "path",
+        "cli_config",
+        "bm25"
+      ],
+      "channel_weights": {
+        "keyword": 2.0,
+        "symbol": 2.4,
+        "import_graph": 1.7,
+        "path": 1.2,
+        "cli_config": 1.6,
+        "bm25": 1.0
+      },
+      "top_k": 8,
+      "rrf_k": 60,
+      "requires_dense": false,
+      "max_duration_ms": 3000,
+      "max_embedding_query_calls": 0
+    },
+    {
+      "profile_id": "exact_lexical_v1",
+      "profile_version": "1",
+      "description": "精确错误码和长 literal 优先",
+      "enabled_channels": ["keyword", "bm25"],
+      "channel_weights": {
+        "keyword": 3.2,
+        "bm25": 1.0
+      },
+      "top_k": 8,
+      "rrf_k": 40,
+      "requires_dense": false,
+      "max_duration_ms": 2500,
+      "max_embedding_query_calls": 0
+    },
+    {
+      "profile_id": "symbol_path_v1",
+      "profile_version": "1",
+      "description": "符号、路径和 import caller 优先",
+      "enabled_channels": [
+        "symbol",
+        "path",
+        "keyword",
+        "import_graph",
+        "bm25"
+      ],
+      "channel_weights": {
+        "symbol": 3.2,
+        "path": 2.0,
+        "keyword": 2.0,
+        "import_graph": 2.2,
+        "bm25": 0.8
+      },
+      "top_k": 8,
+      "rrf_k": 50,
+      "requires_dense": false,
+      "max_duration_ms": 3000,
+      "max_embedding_query_calls": 0
+    },
+    {
+      "profile_id": "semantic_hybrid_v1",
+      "profile_version": "1",
+      "description": "论文语义与命名不一致时使用 dense + sparse fusion",
+      "enabled_channels": [
+        "dense",
+        "keyword",
+        "symbol",
+        "import_graph",
+        "path",
+        "bm25"
+      ],
+      "channel_weights": {
+        "dense": 3.0,
+        "keyword": 1.6,
+        "symbol": 2.0,
+        "import_graph": 1.4,
+        "path": 1.0,
+        "bm25": 1.2
+      },
+      "top_k": 8,
+      "rrf_k": 60,
+      "requires_dense": true,
+      "max_duration_ms": 120000,
+      "max_embedding_query_calls": 1
+    },
+    {
+      "profile_id": "diagnostic_sparse_v1",
+      "profile_version": "1",
+      "description": "可信 traceback path 和错误文本优先",
+      "enabled_channels": [
+        "traceback",
+        "keyword",
+        "symbol",
+        "path",
+        "bm25"
+      ],
+      "channel_weights": {
+        "traceback": 4.0,
+        "keyword": 2.6,
+        "symbol": 2.4,
+        "path": 1.8,
+        "bm25": 1.0
+      },
+      "top_k": 8,
+      "rrf_k": 40,
+      "requires_dense": false,
+      "max_duration_ms": 3000,
+      "max_embedding_query_calls": 0
+    }
+  ],
+  "rules": [
+    {
+      "rule_id": "diagnostic_first",
+      "priority": 500,
+      "query_kinds": ["diagnostic"],
+      "profile_id": "diagnostic_sparse_v1",
+      "requires_dense_available": false
+    },
+    {
+      "rule_id": "exact_error_first",
+      "priority": 400,
+      "query_kinds": ["exact_error"],
+      "profile_id": "exact_lexical_v1",
+      "requires_dense_available": false
+    },
+    {
+      "rule_id": "symbol_path_first",
+      "priority": 300,
+      "query_kinds": ["symbol_path"],
+      "profile_id": "symbol_path_v1",
+      "requires_dense_available": false
+    },
+    {
+      "rule_id": "semantic_when_dense_ready",
+      "priority": 200,
+      "query_kinds": ["semantic_alignment"],
+      "profile_id": "semantic_hybrid_v1",
+      "requires_dense_available": true
+    }
+  ]
+}

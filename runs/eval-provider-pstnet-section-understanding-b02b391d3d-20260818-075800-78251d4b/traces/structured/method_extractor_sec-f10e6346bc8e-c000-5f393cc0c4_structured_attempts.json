@@ -1,0 +1,40 @@
+{
+  "node_name": "method_extractor_sec-f10e6346bc8e-c000-5f393cc0c4",
+  "schema_name": "SectionExtractionDraft",
+  "method": "json_schema",
+  "strict": true,
+  "max_retries": 2,
+  "provider_max_retries": 2,
+  "provider_retry_base_seconds": 0.5,
+  "succeeded": true,
+  "fallback_used": false,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt_number": 1,
+      "status": "succeeded",
+      "prompt_kind": "original",
+      "error_type": null,
+      "error_message": null,
+      "raw_preview": "{\n  \"chunk_id\": \"sec-f10e6346bc8e-c000-5f393cc0c4\",\n  \"core_idea_candidates\": [],\n  \"datasets\": [],\n  \"experiment_settings\": [],\n  \"method_modules\": [],\n  \"metrics\": [],\n  \"reproduction_risks\": [],\n  \"research_problem_candidates\": [],\n  \"section_id\": \"sec-f10e6346bc8e\",\n  \"summary\": \"该章节片段仅包含章节标题“EXPERIMENTS”和页码标记“4”，未提供任何实验内容、数据集、指标或设置，无法提取有原文证据支持的复现事实。\",\n  \"table_claims_unresolved\": []\n  ,\n  \"unresolved_questions\": []\n}",
+      "finish_reason": "stop",
+      "token_usage": {
+        "input_tokens": 419,
+        "output_tokens": 268,
+        "total_tokens": 687,
+        "input_token_details": {},
+        "output_token_details": {}
+      },
+      "output_chars": 425,
+      "truncated": false
+    }
+  ],
+  "generated_at": "2026-08-18T07:58:24.736406+00:00",
+  "model_routing": {
+    "invocation_id": null,
+    "decision_sha256": "3a1e5e61764508163310663a8be339fc73d5b36319efa10e4b4071f0f01b00eb",
+    "executed_profile_id": "legacy_chat",
+    "model_name": "deepseek-v4-flash",
+    "usage_quality": null
+  }
+}

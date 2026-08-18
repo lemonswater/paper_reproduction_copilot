@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "case_id": "offline_p4transformer_paper_parser",
+  "description": "P4Transformer PDF 应完整索引正文，并保持高精度章节和父子结构",
+  "suite": "offline",
+  "runner": "paper_parser",
+  "categories": [
+    "route",
+    "quality",
+    "efficiency"
+  ],
+  "tags": [
+    "offline",
+    "paper",
+    "parser",
+    "golden"
+  ],
+  "problem_ids": [],
+  "input": {
+    "paper_path": "pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf"
+  },
+  "expected": {
+    "allowed_final_statuses": [
+      "succeeded",
+      "partial"
+    ],
+    "required_section_kinds": [
+      "abstract",
+      "introduction",
+      "related_work",
+      "method",
+      "experiments",
+      "conclusion",
+      "references"
+    ],
+    "required_section_titles": [
+      "Abstract",
+      "Introduction",
+      "Related Work",
+      "Point 4D Transformer Networks",
+      "Experiments",
+      "Conclusion"
+    ],
+    "required_exact_section_titles": [
+      "Point 4D Transformer Networks for Spatio-Temporal Modeling"
+    ],
+    "forbidden_exact_section_titles": [],
+    "forbidden_section_title_terms": [],
+    "min_section_count": 15,
+    "max_section_count": 25,
+    "required_parent_relations": [],
+    "min_indexed_page_ratio": 1.0,
+    "max_ocr_required_pages": 0,
+    "max_duration_ms": 15000
+  },
+  "thresholds": {
+    "min_overall_score": 1.0,
+    "max_score_regression": 0.0
+  }
+}

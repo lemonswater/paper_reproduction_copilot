@@ -1,0 +1,55 @@
+{
+  "case_id": "mapping_quality_maple",
+  "runner": "fixture",
+  "route": ["code_search", "mapping"],
+  "final_status": "succeeded",
+  "structured_calls": [],
+  "tool_calls": [],
+  "evidence": [
+    {
+      "source_path": "modules/point_4d_convolution.py",
+      "location": "class P4DConv",
+      "text": "P4DConv applies 4D convolution over point cloud sequences across space and time.",
+      "content_sha256": "5be56394d65344e860e1832682edcb605ee27b01fcc07578716ec8684e9a3d92"
+    },
+    {
+      "source_path": "models/msr_mae.py",
+      "location": "class P4Transformer",
+      "text": "MAPLE wraps the P4Transformer in a masked autoencoder for semi-supervised learning.",
+      "content_sha256": "a7037aa0fab1257529e38f66ec1d780d471466bec962365ec354cae5f422b6b1"
+    }
+  ],
+  "artifacts": [],
+  "output_payloads": {
+    "analysis/paper_code_mapping.json": [
+      {
+        "module_name": "P4DConv",
+        "candidates": [
+          {
+            "file_path": "modules/point_4d_convolution.py"
+          }
+        ]
+      },
+      {
+        "module_name": "P4Transformer",
+        "candidates": [
+          {
+            "file_path": "models/msr_mae.py"
+          }
+        ]
+      }
+    ]
+  },
+  "stage_errors": [],
+  "execution_started": false,
+  "policy_denied": false,
+  "secret_leaks": [],
+  "path_escapes": [],
+  "duplicate_side_effect_count": 0,
+  "metrics": {
+    "duration_ms": 1,
+    "llm_calls": 0,
+    "human_interventions": 0,
+    "tool_calls": 0
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "execution_profile_ids": [
+    "pstnet-local-supervised"
+  ],
+  "execution_backends": [
+    "local"
+  ],
+  "cpu_count": 32,
+  "memory_bytes": 68719476736,
+  "workspace_free_bytes": 0,
+  "gpu_count": 1,
+  "cuda_major": 11,
+  "labels": [
+    "dataset:pstnet-ready",
+    "arch:x86_64"
+  ],
+  "dataset_mounts": {
+    "dataset:pstnet-ready": "/data/tianshaoqi24/datasets/pstnet"
+  },
+  "capability_version": "phase26-v1"
+}

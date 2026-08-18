@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "case_id": "offline_maple_paper_parser",
+  "description": "MAPLE PDF 应完整索引正文，并保持高精度章节和父子结构",
+  "suite": "offline",
+  "runner": "paper_parser",
+  "categories": [
+    "route",
+    "quality",
+    "efficiency"
+  ],
+  "tags": [
+    "offline",
+    "paper",
+    "parser",
+    "golden"
+  ],
+  "problem_ids": [],
+  "input": {
+    "paper_path": "pdf/MAPLE—Masked Pseudo-Labeling autoEncoder for Semi-supervised Point Cloud Action Recognition.pdf"
+  },
+  "expected": {
+    "allowed_final_statuses": [
+      "succeeded"
+    ],
+    "required_section_kinds": [
+      "abstract",
+      "introduction",
+      "related_work",
+      "method",
+      "experiments",
+      "implementation",
+      "ablation",
+      "conclusion",
+      "references"
+    ],
+    "required_section_titles": [
+      "Introduction",
+      "Related Work",
+      "The Proposed MAPLE Framework",
+      "Experiments",
+      "Conclusion"
+    ],
+    "required_exact_section_titles": [
+      "THE PROPOSED MAPLE FRAMEWORK"
+    ],
+    "forbidden_exact_section_titles": [],
+    "forbidden_section_title_terms": [],
+    "min_section_count": 70,
+    "max_section_count": 95,
+    "required_parent_relations": [
+      {
+        "child_number": "3.1",
+        "parent_number": "3"
+      },
+      {
+        "child_number": "3.2",
+        "parent_number": "3"
+      },
+      {
+        "child_number": "3.3",
+        "parent_number": "3"
+      },
+      {
+        "child_number": "4.1",
+        "parent_number": "4"
+      },
+      {
+        "child_number": "4.2",
+        "parent_number": "4"
+      },
+      {
+        "child_number": "4.5",
+        "parent_number": "4"
+      }
+    ],
+    "min_indexed_page_ratio": 1.0,
+    "max_ocr_required_pages": 0,
+    "max_duration_ms": 15000
+  },
+  "thresholds": {
+    "min_overall_score": 1.0,
+    "max_score_regression": 0.0
+  }
+}

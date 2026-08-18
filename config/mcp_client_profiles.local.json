@@ -1,0 +1,28 @@
+{
+  "schema_version": "phase55-v1",
+  "profiles": [
+    {
+      "profile_id": "in-memory-modern",
+      "transport": "in_memory",
+      "mode": "auto",
+      "enabled": true,
+      "required_for_release": true
+    },
+    {
+      "profile_id": "in-memory-legacy",
+      "transport": "in_memory",
+      "mode": "legacy",
+      "enabled": true,
+      "required_for_release": true
+    },
+    {
+      "profile_id": "loopback-http",
+      "transport": "streamable_http",
+      "mode": "auto",
+      "enabled": true,
+      "required_for_release": true,
+      "endpoint": "http://127.0.0.1:8770/mcp",
+      "secret_name": "PAPER_COPILOT_MCP_EXPORT_TOKEN"
+    }
+  ]
+}

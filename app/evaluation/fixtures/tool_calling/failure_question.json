@@ -1,0 +1,25 @@
+{
+  "question": "为什么 CUDA 构建失败？",
+  "job_status": "failed",
+  "turns": [
+    {
+      "tool_calls": [
+        {
+          "name": "inspect_failure_context",
+          "args": {"focus": "CUDA build error", "limit": 3},
+          "id": "fixture-call-failure"
+        }
+      ]
+    },
+    {
+      "content": "enough"
+    }
+  ],
+  "expected": {
+    "status": "completed",
+    "tool_names": ["chat.inspect_failure_context"],
+    "max_calls": 1,
+    "mutation_calls": 0,
+    "unknown_calls": 0
+  }
+}

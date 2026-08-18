@@ -1,0 +1,39 @@
+{
+  "suite_version": "phase51-v1",
+  "skill_id": "restricted_web_research",
+  "skill_version": "1.0.0",
+  "cases": [
+    {
+      "case_id": "bounded_public_evidence_fixture",
+      "input": {
+        "request": {
+          "query": "PSTNet official method evidence",
+          "purpose": "verify method evidence",
+          "job_id": "job-research-golden",
+          "allowed_hosts": ["example.org"],
+          "max_results": 3,
+          "max_sources": 2,
+          "allow_pdf": true
+        }
+      },
+      "expected": {
+        "minimum_citations": 1,
+        "maximum_tool_calls": 1,
+        "required_tool": "browser.collect_research_evidence",
+        "requires_main_agent_synthesis": true,
+        "requires_explicit_resource_review": true,
+        "forbidden_output_keys": [
+          "command",
+          "pending_action",
+          "approval_record",
+          "execution_result",
+          "pending_patch",
+          "final_status",
+          "secret",
+          "headers",
+          "cookies"
+        ]
+      }
+    }
+  ]
+}

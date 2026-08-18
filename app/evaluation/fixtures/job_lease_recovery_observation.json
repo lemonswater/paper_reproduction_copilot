@@ -1,0 +1,38 @@
+{
+  "case_id": "job_lease_recovery",
+  "runner": "fixture",
+  "route": [
+    "job_submitted",
+    "job_claimed",
+    "lease_expired",
+    "process_reconciled",
+    "job_reclaimed",
+    "graph_resumed",
+    "job_succeeded"
+  ],
+  "final_status": "succeeded",
+  "structured_calls": [],
+  "tool_calls": [],
+  "evidence": [],
+  "artifacts": [],
+  "output_payloads": {
+    "job_runtime": {
+      "old_claim_fenced": true,
+      "side_effect_restarted": false,
+      "checkpoint_reused": true
+    }
+  },
+  "stage_errors": [],
+  "execution_started": false,
+  "policy_denied": false,
+  "secret_leaks": [],
+  "path_escapes": [],
+  "resume_succeeded": true,
+  "duplicate_side_effect_count": 0,
+  "metrics": {
+    "duration_ms": 20,
+    "llm_calls": 0,
+    "human_interventions": 0,
+    "tool_calls": 0
+  }
+}

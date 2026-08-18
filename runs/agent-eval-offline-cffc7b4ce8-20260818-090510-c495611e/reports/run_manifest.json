@@ -1,0 +1,242 @@
+{
+  "manifest_version": 5,
+  "job_id": null,
+  "thread_id": null,
+  "run_id": "agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e",
+  "task_id": "agent-eval-offline-cffc7b4ce8",
+  "run_dir": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e",
+  "run_started_at": "2026-08-18T09:05:10.190045+00:00",
+  "manifest_generated_at": "2026-08-18T09:05:21.549163+00:00",
+  "paper_path": null,
+  "repo_path": null,
+  "repo_git_commit": null,
+  "experiment_goal": null,
+  "final_status": "failed",
+  "inputs_validated": false,
+  "execution_profile": {
+    "profile_id": null,
+    "fingerprint": null
+  },
+  "capability_policy": {
+    "decision": null,
+    "report_path": null
+  },
+  "execution_supervision": {
+    "execution_id": null,
+    "process_record_path": null,
+    "end_reason": null,
+    "resource_usage": null,
+    "cancellation_requested": false,
+    "cancellation_reason": null,
+    "security_semantics": {
+      "process_group_supervised": true,
+      "minimal_environment": true,
+      "network_os_enforced": false,
+      "writable_paths_os_enforced": false
+    }
+  },
+  "selected_run_command_index": null,
+  "selected_run_command": null,
+  "command_selection_record": null,
+  "pending_action_hash": null,
+  "approval": {
+    "decision": null,
+    "feedback": null,
+    "record": null
+  },
+  "execution": {
+    "log_path": null,
+    "result": null,
+    "evidence": null,
+    "verification": null,
+    "verification_sha256": null
+  },
+  "errors": {
+    "count": 0,
+    "terminal_count": 0,
+    "items": []
+  },
+  "artifacts": {
+    "count": 11,
+    "current_count": 11,
+    "issue_count": 0,
+    "items": [
+      {
+        "artifact_id": "artifact_acd608228424b3396ee7",
+        "run_id": "agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e",
+        "layer": "inputs",
+        "relative_path": "inputs/run_request.json",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e/inputs/run_request.json",
+        "media_type": "application/json",
+        "sha256": "b37238971c903c615223c9e37ac5fe73bebe1cb30c283b64c60434b13611a294",
+        "size_bytes": 336,
+        "producer_node": "run_context",
+        "created_at": "2026-08-18T09:05:10.232593+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      },
+      {
+        "artifact_id": "artifact_2c34057fa6ff1333c4a1",
+        "run_id": "agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e",
+        "layer": "traces",
+        "relative_path": "traces/eval_cases/offline_maple_paper_parser/observation.json",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e/traces/eval_cases/offline_maple_paper_parser/observation.json",
+        "media_type": "application/json",
+        "sha256": "9baacaebb1071967d59438e8191ae8ddc90912178dbcc9cc4eb9698adaecabd7",
+        "size_bytes": 15717,
+        "producer_node": "agent_eval",
+        "created_at": "2026-08-18T09:05:13.849062+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      },
+      {
+        "artifact_id": "artifact_078dfaa998fe58301667",
+        "run_id": "agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e",
+        "layer": "traces",
+        "relative_path": "traces/eval_cases/mapping_quality_maple/observation.json",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e/traces/eval_cases/mapping_quality_maple/observation.json",
+        "media_type": "application/json",
+        "sha256": "a3889210dabf96b9d20dc3c98a32aa92f46dd9e49ad03c0bbc0dde5ba5dd8c70",
+        "size_bytes": 2712,
+        "producer_node": "agent_eval",
+        "created_at": "2026-08-18T09:05:13.890698+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      },
+      {
+        "artifact_id": "artifact_940e09c8766c2194b52b",
+        "run_id": "agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e",
+        "layer": "traces",
+        "relative_path": "traces/eval_cases/mapping_quality_p4transformer/observation.json",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e/traces/eval_cases/mapping_quality_p4transformer/observation.json",
+        "media_type": "application/json",
+        "sha256": "1b7d1a2d3fdd3ebbd2ce9e93e24e8c3c39761642f6b7e6512e04a905458b3e05",
+        "size_bytes": 2757,
+        "producer_node": "agent_eval",
+        "created_at": "2026-08-18T09:05:13.924148+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      },
+      {
+        "artifact_id": "artifact_e06342d8f556030cdb5a",
+        "run_id": "agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e",
+        "layer": "traces",
+        "relative_path": "traces/eval_cases/mapping_quality_psttransformer/observation.json",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e/traces/eval_cases/mapping_quality_psttransformer/observation.json",
+        "media_type": "application/json",
+        "sha256": "a4310fa987208521ab8b60244abba09434c7632cbb9b77c4501962fbd3bf9e06",
+        "size_bytes": 2767,
+        "producer_node": "agent_eval",
+        "created_at": "2026-08-18T09:05:13.957704+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      },
+      {
+        "artifact_id": "artifact_0bce5faf63713d7e467d",
+        "run_id": "agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e",
+        "layer": "traces",
+        "relative_path": "traces/eval_cases/offline_p4transformer_paper_parser/observation.json",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e/traces/eval_cases/offline_p4transformer_paper_parser/observation.json",
+        "media_type": "application/json",
+        "sha256": "0c30753873eb0d5c937e5d812d9f773ed79b5655a751ce41eea3ccdf8374c54d",
+        "size_bytes": 4840,
+        "producer_node": "agent_eval",
+        "created_at": "2026-08-18T09:05:17.707062+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      },
+      {
+        "artifact_id": "artifact_b91217f0495e3623f84c",
+        "run_id": "agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e",
+        "layer": "traces",
+        "relative_path": "traces/eval_cases/offline_psttransformer_paper_parser/observation.json",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e/traces/eval_cases/offline_psttransformer_paper_parser/observation.json",
+        "media_type": "application/json",
+        "sha256": "214e63434a9ad7beca8ca8a2ee3bd2f882854b5161e8e4902706868abe93486e",
+        "size_bytes": 136582,
+        "producer_node": "agent_eval",
+        "created_at": "2026-08-18T09:05:21.348149+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      },
+      {
+        "artifact_id": "artifact_855a2c16226b64fbc48a",
+        "run_id": "agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e",
+        "layer": "reports",
+        "relative_path": "reports/eval_suite.json",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e/reports/eval_suite.json",
+        "media_type": "application/json",
+        "sha256": "ea22c160b7948a3775b4d5c7cc7913ba536d26717f41cacf8fb33b10585fc84d",
+        "size_bytes": 316176,
+        "producer_node": "agent_eval",
+        "created_at": "2026-08-18T09:05:21.441004+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      },
+      {
+        "artifact_id": "artifact_74e605adb357b2e023d1",
+        "run_id": "agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e",
+        "layer": "reports",
+        "relative_path": "reports/eval_report.md",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e/reports/eval_report.md",
+        "media_type": "text/markdown",
+        "sha256": "8ebd5599046abffbb1544b1113671ce3aabc964a35ebaedd11b7d2fc04fd19d2",
+        "size_bytes": 35423,
+        "producer_node": "agent_eval",
+        "created_at": "2026-08-18T09:05:21.472840+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      },
+      {
+        "artifact_id": "artifact_6d55858d7128f3470111",
+        "run_id": "agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e",
+        "layer": "reports",
+        "relative_path": "reports/baseline_diff.json",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e/reports/baseline_diff.json",
+        "media_type": "application/json",
+        "sha256": "d3cb7b9de66a9925749510fc2fff543cecb5d3aa56e3be9fef5d3eaacd3fde06",
+        "size_bytes": 365,
+        "producer_node": "agent_eval",
+        "created_at": "2026-08-18T09:05:21.507143+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      },
+      {
+        "artifact_id": "artifact_86adb3da829882992c38",
+        "run_id": "agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e",
+        "layer": "reports",
+        "relative_path": "reports/artifact_index.json",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-offline-cffc7b4ce8-20260818-090510-c495611e/reports/artifact_index.json",
+        "media_type": "application/json",
+        "sha256": "1efeb884227c5e258d2c32be077e4dc166cc0c604014c5c36fbf19787efe898c",
+        "size_bytes": 7491,
+        "producer_node": "run_manifest",
+        "created_at": "2026-08-18T09:05:21.549049+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      }
+    ]
+  },
+  "smoke_test": {
+    "status": null,
+    "passed": null,
+    "log_path": null,
+    "report": null
+  },
+  "repair": {
+    "attempt_count": 0,
+    "history": [],
+    "proposal": null
+  },
+  "file_repair": {
+    "attempt_count": 0,
+    "history": [],
+    "proposal": null,
+    "pending_patch": null,
+    "patch_approval": null,
+    "verification_evidence": null,
+    "verification": null,
+    "promotion": null,
+    "application": null
+  }
+}

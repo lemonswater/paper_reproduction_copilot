@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -183,7 +185,7 @@ def test_resume_command_selection_rejects_stale_explicit_input(
     )
 
     with patch("app.main.build_graph", return_value=graph), patch("app.main.print"):
-        with pytest.raises(typer.BadParameter, match="input is stale"):
+        with pytest.raises(typer.BadParameter, match="命令选择输入已经过期"):
             resume_command_selection(
                 thread_id="thread-explicit",
                 selected_index=None,
@@ -200,7 +202,10 @@ def test_resume_command_selection_rejects_wrong_interrupt(tmp_path) -> None:
     )
 
     with patch("app.main.build_graph", return_value=graph), patch("app.main.print"):
-        with pytest.raises(typer.BadParameter, match="not waiting at command_selection"):
+        with pytest.raises(
+            typer.BadParameter,
+            match="当前未在 command_selection 节点等待",
+        ):
             resume_command_selection(
                 thread_id="thread-003",
                 selected_index=0,

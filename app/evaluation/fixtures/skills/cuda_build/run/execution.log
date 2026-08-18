@@ -1,0 +1,4 @@
+running build_ext
+building 'fixture_extension' extension
+error: command 'nvcc' failed: No such file or directory
+ninja: build stopped: subcommand failed.

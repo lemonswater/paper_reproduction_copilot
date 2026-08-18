@@ -1,0 +1,28 @@
+{
+  "suite_id": "cross-paper-offline-v1",
+  "cases": [
+    {
+      "case_id": "retrieve_shared_temporal_concepts",
+      "query": "convolution",
+      "entity_kinds": ["concept_instance"],
+      "expected_entity_names": [
+        "PST convolution",
+        "P4D convolution"
+      ],
+      "expected_relation_types": [],
+      "max_depth": 0,
+      "minimum_entity_recall": 1.0,
+      "minimum_evidence_coverage": 1.0
+    },
+    {
+      "case_id": "retrieve_dataset_and_paper_edge",
+      "query": "MSR-Action3D dataset",
+      "entity_kinds": ["dataset_mention"],
+      "expected_entity_names": ["MSR-Action3D"],
+      "expected_relation_types": ["paper_uses_dataset"],
+      "max_depth": 1,
+      "minimum_entity_recall": 1.0,
+      "minimum_evidence_coverage": 1.0
+    }
+  ]
+}

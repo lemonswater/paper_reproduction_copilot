@@ -1,0 +1,55 @@
+{
+  "case_id": "mapping_quality_p4transformer",
+  "runner": "fixture",
+  "route": ["code_search", "mapping"],
+  "final_status": "succeeded",
+  "structured_calls": [],
+  "tool_calls": [],
+  "evidence": [
+    {
+      "source_path": "modules/point_4d_convolution.py",
+      "location": "class P4DConv",
+      "text": "P4DConv applies 4D convolution over point cloud sequences across space and time.",
+      "content_sha256": "9e56be48956da38b40905fece84c40c30f378943155918d927467dc8813b91a2"
+    },
+    {
+      "source_path": "models/sequence_classification.py",
+      "location": "class P4Transformer",
+      "text": "P4Transformer stacks P4DConv and Transformer layers into the action recognition network.",
+      "content_sha256": "32ad3908819d00184d6d24ecdbfff88ab773c503673739911562a77e7dc1a312"
+    }
+  ],
+  "artifacts": [],
+  "output_payloads": {
+    "analysis/paper_code_mapping.json": [
+      {
+        "module_name": "P4DConv",
+        "candidates": [
+          {
+            "file_path": "modules/point_4d_convolution.py"
+          }
+        ]
+      },
+      {
+        "module_name": "P4Transformer",
+        "candidates": [
+          {
+            "file_path": "models/sequence_classification.py"
+          }
+        ]
+      }
+    ]
+  },
+  "stage_errors": [],
+  "execution_started": false,
+  "policy_denied": false,
+  "secret_leaks": [],
+  "path_escapes": [],
+  "duplicate_side_effect_count": 0,
+  "metrics": {
+    "duration_ms": 1,
+    "llm_calls": 0,
+    "human_interventions": 0,
+    "tool_calls": 0
+  }
+}

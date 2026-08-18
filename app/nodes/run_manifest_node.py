@@ -1,76 +1,92 @@
-import json
-from pathlib import Path
+from __future__ import annotations
+
+from typing import Any
 
 from app.tools.artifact_tools import (
-    build_run_id,
+    artifact_state_update,
     build_run_manifest,
-    create_run_layout,
-    snapshot_output_files,
+    inspect_artifact_records,
+    write_json_artifact,
+)
+from app.tools.error_tools import (
+    build_stage_error,
+    persist_stage_errors,
 )
 
 
-def _dedupe_preserve_order(items: list[str]) -> list[str]:
+def run_manifest_node(state: dict[str, Any]) -> dict[str, Any]:
     """
-    output_files 是一个不断 append 的列表。
-    这里做一个保序去重，避免 manifest 自己重复追加多次。
+    只索引当前 run 已登记的 Artifact，不再从共享 outputs/ 复制文件。
+
+    Artifact 不完整时仍生成 Manifest，并把完整性问题记录为 StageError。
     """
-    seen: set[str] = set()
-    result: list[str] = []
-    for item in items:
-        if item in seen:
-            continue
-        seen.add(item)
-        result.append(item)
-    return result
 
+    working_state = dict(state)
+    inspected, issues = inspect_artifact_records(working_state)
 
-def run_manifest_node(state: dict) -> dict:
-    """
-    把本次运行的 output_files 归档到 runs/<run_id>/，
-    然后生成 artifact_index.json 和 run_manifest.json。
-    """
-    run_id = state.get("run_id") or build_run_id(state.get("task_id"))
-    layout = create_run_layout(run_id)
-    run_dir = Path(state.get("run_dir") or layout["run_root"])
-    reports_dir = run_dir / "reports"
-    reports_dir.mkdir(parents=True, exist_ok=True)
-
-    original_output_files = state.get("output_files", [])
-    artifact_records = snapshot_output_files(original_output_files, str(run_dir))
-
-    artifact_index_path = reports_dir / "artifact_index.json"
-    artifact_index_path.write_text(
-        json.dumps(artifact_records, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-
-    manifest = build_run_manifest(
-        {
-            **state,
-            "run_id": run_id,
-            "run_dir": str(run_dir),
-        },
-        artifact_records,
-    )
-    run_manifest_path = reports_dir / "run_manifest.json"
-    run_manifest_path.write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-
-    updated_output_files = _dedupe_preserve_order(
-        [
-            *original_output_files,
-            str(artifact_index_path),
-            str(run_manifest_path),
+    if issues:
+        integrity_errors = [
+            build_stage_error(
+                stage="run_manifest",
+                code=issue["code"],
+                category="agent",
+                message=issue["message"],
+                terminal=True,
+            )
+            for issue in issues
         ]
+        error_update = persist_stage_errors(
+            state=working_state,
+            new_errors=integrity_errors,
+        )
+        working_state.update(error_update)
+
+        # Error Report 被原子重写并重新登记后，再基于当前事实检查一次。
+        inspected, _ = inspect_artifact_records(working_state)
+
+    index_path, index_record = write_json_artifact(
+        state=working_state,
+        relative_path="reports/artifact_index.json",
+        payload={
+            "run_id": working_state.get("run_id"),
+            "artifact_count": len(inspected),
+            "artifacts": inspected,
+        },
+        producer_node="run_manifest",
     )
 
+    index_item = {
+        **index_record.model_dump(),
+        "integrity_status": "current",
+        "integrity_detail": "",
+    }
+    manifest_artifacts = [*inspected, index_item]
+    manifest = build_run_manifest(
+        working_state,
+        manifest_artifacts,
+    )
+
+    manifest_path, manifest_record = write_json_artifact(
+        state=working_state,
+        relative_path="reports/run_manifest.json",
+        payload=manifest,
+        producer_node="run_manifest",
+    )
+
+    final_artifact_update = artifact_state_update(
+        working_state,
+        [index_record, manifest_record],
+    )
     return {
-        "run_id": run_id,
-        "run_dir": str(run_dir),
-        "artifact_records": artifact_records,
-        "artifact_index_path": str(artifact_index_path),
-        "run_manifest_path": str(run_manifest_path),
-        "output_files": updated_output_files,
+        "run_id": working_state["run_id"],
+        "run_dir": working_state["run_dir"],
+        "stage_errors": working_state.get("stage_errors", []),
+        "active_stage_error": working_state.get(
+            "active_stage_error"
+        ),
+        "error": working_state.get("error"),
+        "final_status": working_state.get("final_status"),
+        "artifact_index_path": str(index_path),
+        "run_manifest_path": str(manifest_path),
+        **final_artifact_update,
     }

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "scenario_id": "chat_offline_memory_constraint_and_decision_precision",
+  "job_status": "running",
+  "sources": [
+    {
+      "citation": {
+        "citation_id": "job:current",
+        "source_type": "job",
+        "label": "Current job state"
+      },
+      "content": "status=running; stage=planning",
+      "score": 1000
+    }
+  ],
+  "seed_exchanges": [
+    {
+      "question": "后续只考虑 CPU 环境。",
+      "answer": "已记录 CPU 环境限制。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "可以考虑先跑小数据集。",
+      "answer": "这是一个建议，尚未形成决定。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "当前处于哪个阶段？",
+      "answer": "当前处于 planning。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "是否已经开始训练？",
+      "answer": "没有证据表明训练已经开始。",
+      "citation_ids": ["job:current"]
+    }
+  ],
+  "turns": [
+    {
+      "label": "current-status",
+      "question": "当前任务状态是什么？",
+      "idempotency_key": "offline-memory-1",
+      "scripted_draft": {
+        "answer": "The current job is running in planning.",
+        "citation_ids": ["job:current"],
+        "insufficient_evidence": false
+      }
+    }
+  ],
+  "memory_scripts": [
+    {
+      "draft": {
+        "summary": "The user constrained the discussion to CPU; small data was only suggested.",
+        "user_constraints": [
+          {
+            "text": "Only consider CPU environments.",
+            "source_sequences": [1]
+          }
+        ],
+        "decisions": [],
+        "open_questions": [],
+        "citation_ids_to_preserve": ["job:current"]
+      }
+    }
+  ],
+  "repetitions": 1,
+  "compaction_enabled": true,
+  "recent_messages": 4,
+  "compaction_min_messages": 4,
+  "compaction_max_messages": 40,
+  "compaction_max_input_chars": 20000,
+  "memory_max_chars": 8000,
+  "history_max_chars": 8000,
+  "prompt_max_chars": 40000
+}

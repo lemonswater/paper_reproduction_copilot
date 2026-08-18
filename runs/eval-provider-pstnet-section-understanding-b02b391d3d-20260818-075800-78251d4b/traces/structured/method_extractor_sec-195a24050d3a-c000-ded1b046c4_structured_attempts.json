@@ -1,0 +1,40 @@
+{
+  "node_name": "method_extractor_sec-195a24050d3a-c000-ded1b046c4",
+  "schema_name": "SectionExtractionDraft",
+  "method": "json_schema",
+  "strict": true,
+  "max_retries": 2,
+  "provider_max_retries": 2,
+  "provider_retry_base_seconds": 0.5,
+  "succeeded": true,
+  "fallback_used": false,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt_number": 1,
+      "status": "succeeded",
+      "prompt_kind": "original",
+      "error_type": null,
+      "error_message": null,
+      "raw_preview": "{\n  \"chunk_id\": \"sec-195a24050d3a-c000-ded1b046c4\",\n  \"core_idea_candidates\": [\n    {\n      \"evidence\": {\n        \"block_ids\": [\"p003-b0033-eca4963c46\", \"p003-b0034-ca60ad8c4f\"],\n        \"confidence\": 0.9\n      ,\n      \"summary\": \"卷积神经网络（CNNs）的能力来自通过卷积进行的局部结构建模和通过层次架构进行的全局表示学习。\"\n    },\n    \"value\": \"卷积神经网络（CNNs）的能力来自通过卷积进行的局部结构建模和通过层次架构进行的全局表示学习。\"\n  },\n  {\n    \"evidence\": {\n      \"block_ids\": [\"p003-b0035-a8d17b21ac\", \"p003-b0036-94488f596e\"],\n      \"confidence\": 0.9\n    ,\n    \"summary\": \"给定输入特征图 F ∈ R^{C×L×H×W}，其中 C、L、H、W 分别表示输入特征维度、长度、高度和宽度，3D 卷积用于捕获 F 的时空局部结构。\"\n  },\n  \"value\": \"给定输入特征图 F ∈ R^{C×L×H×W}，其中 C、L、H、W 分别表示输入特征维度、长度、高度和宽度，3D 卷积用于捕获 F 的时空局部结构。\"\n  },\n  {\n    \"evidence\": {\n      \"block_ids\": [\"p003-b0055-349f744b85\", \"p003-b0056-0797f94e8f\", \"p003-b0058-c236cab7d8\", \"p003-b0059-9a40af49b2\", \"p003-b0061-6824bde35c\"],\n      \"confidence\": 0.9\n    ,\n    \"summary\": \"3D 卷积核 W ∈ R^{C′×C×l×h×w}，其中 (l, h, w) 是核大小，C′ 是输出特征维度；W(i,j)_k ∈ R^{C′×C} 是核位置 (k, i, j) 的权重，F(x+i,y+j)_{t+k} ∈ R^{C×1} 是输入位置 (t+k, x+i, y+j) 的像素特征。\"\n  },\n  \"value\": \"3D 卷积核 W ∈ R^{C′×C×l×h×w}，其中 (l, h, w) 是核大小，C′ 是输出特征维度；W(i,j)_k ∈ R^{C′×C} 是核位置 (k, i, j) 的权重，F(x+i,y+j)_{t+k} ∈ R^{C×1} 是输入位置 (t+k, x+i, y+j) 的像素特征。\"\n  },\n  {\n    \"evidence\": {\n      \"block_ids\": [\"p003-b0062-8ca93e27d2\", \"p003-b0063-aab6c39ef9\", \"p003-b0064-18ce2e8947\", \"p003-b0065-dc94d6fb10\"],\n      \"confidence\": 0.9\n    ,\n    \"summary\": \"CNNs 通常使用小核大小（如 (3,3,3)），远小于输入尺寸，以有效建模局部结构；为构建层次 CNN，使用步长 (>1) 在卷积操作中对输入特征图进行下采样，使后续卷积层具有相对更大的感受野。\"\n  }\n  ,\n  \"value\": \"CNNs 通常使用小核大小（如 (3,3,3)），远小于输入尺寸，以有效建模局部结构；为构建层次 CNN，使用步长 (>1) 在卷积操作中对输入特征图进行下采样，使后续卷积层具有相对更大的感受野。\"\n  }\n  ],\n  \"datasets\": [],\n  \"experiment_settings\": [],\n  \"method_modules\": [\n    {\n      \"description\": \"3D 卷积公式：F′(x,y)_t = Σ_{k=-⌊l/2⌋}^{⌊l/2⌋} Σ_{i=-⌊h/2⌋}^{⌊h/2⌋} Σ_{j=-⌊w/2⌋}^{⌊w/2⌋} W(i,j)_k · F(x+i,y+j)_{t+k}，其中 W ∈ R^{C′×C×l×h×w} 是卷积核，(l, h, w) 是核大小，C′ 是输出特征维度，· 是矩阵乘法。\",\n      \"evidence\": {\n        \"block_ids\": [\"p003-b0037-c5fb056dc1\", \"p003-b0038-4b68ab3847\", \"p003-b003",
+      "finish_reason": "stop",
+      "token_usage": {
+        "input_tokens": 1354,
+        "output_tokens": 1788,
+        "total_tokens": 3142,
+        "input_token_details": {},
+        "output_token_details": {}
+      },
+      "output_chars": 3316,
+      "truncated": false
+    }
+  ],
+  "generated_at": "2026-08-18T08:00:19.787389+00:00",
+  "model_routing": {
+    "invocation_id": null,
+    "decision_sha256": "0eb56de2daebdc1ae6e318327d5baa25c437dbdc203573f6f8b60c5f0048dfa0",
+    "executed_profile_id": "legacy_chat",
+    "model_name": "deepseek-v4-flash",
+    "usage_quality": null
+  }
+}

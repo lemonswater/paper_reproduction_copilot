@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "case_id": "provider_pstnet_mapping",
+  "description": "真实 Provider 下的 PSTNet 论文理解和映射质量",
+  "suite": "provider",
+  "runner": "live_graph",
+  "categories": ["schema", "evidence", "quality", "efficiency"],
+  "tags": ["provider", "mapping", "pstnet"],
+  "problem_ids": [2, 7, 8],
+  "input": {
+    "paper_path": "pdf/PSTNet—Point Spatio-Temporal Convolution on Point Cloud Sequences.pdf",
+    "repo_path": "/data/tianshaoqi24/PST-Convolution-main/",
+    "experiment_goal": "复现论文 main result",
+    "scripted_responses": []
+  },
+  "expected": {
+    "required_schemas": [
+      "PaperSummary",
+      "ModuleMapping",
+      "ExperimentPlan"
+    ],
+    "min_schema_success_rate": 1.0,
+    "max_schema_fallbacks": 1,
+    "max_schema_retries": 3,
+    "required_files": [
+      "models/model.py"
+    ],
+    "required_evidence_paths": [
+      "models/model.py"
+    ],
+    "max_llm_calls": 12,
+    "max_human_interventions": 1
+  },
+  "thresholds": {
+    "min_overall_score": 0.8,
+    "max_score_regression": 0.05
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "node_name": "method_extractor_sec-108338ae361c-c000-0ff942dfa7",
+  "schema_name": "SectionExtractionDraft",
+  "method": "json_schema",
+  "strict": true,
+  "max_retries": 2,
+  "provider_max_retries": 2,
+  "provider_retry_base_seconds": 0.5,
+  "succeeded": true,
+  "fallback_used": false,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt_number": 1,
+      "status": "succeeded",
+      "prompt_kind": "original",
+      "error_type": null,
+      "error_message": null,
+      "raw_preview": "{\n  \"chunk_id\": \"sec-108338ae361c-c000-0ff942dfa7\",\n  \"core_idea_candidates\": [],\n  \"datasets\": [],\n  \"experiment_settings\": [],\n  \"method_modules\": [],\n  \"metrics\": [],\n  \"reproduction_risks\": [],\n  \"research_problem_candidates\": [],\n  \"section_id\": \"sec-108338ae361c\",\n  \"summary\": \"该章节片段仅包含标题“Point 4D Transformer Networks for Spatio-Temporal Modeling”，没有提供任何可提取的复现事实。\",\n  \"table_claims_unresolved\": []\n  ,\n  \"unresolved_questions\": []\n}",
+      "finish_reason": "stop",
+      "token_usage": {
+        "input_tokens": 412,
+        "output_tokens": 226,
+        "total_tokens": 638,
+        "input_token_details": {},
+        "output_token_details": {}
+      },
+      "output_chars": 440,
+      "truncated": false
+    }
+  ],
+  "generated_at": "2026-08-18T08:02:21.426095+00:00",
+  "model_routing": {
+    "invocation_id": null,
+    "decision_sha256": "a98f96a84f24885193745bbabcd1df375622629c2786f048b92f9f36b6321599",
+    "executed_profile_id": "legacy_chat",
+    "model_name": "deepseek-v4-flash",
+    "usage_quality": null
+  }
+}

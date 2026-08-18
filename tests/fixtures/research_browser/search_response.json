@@ -1,0 +1,18 @@
+{
+  "type": "search",
+  "query": {"original": "PSTNet official method evidence"},
+  "web": {
+    "results": [
+      {
+        "title": "PSTNet method",
+        "url": "https://example.org/pstnet",
+        "description": "Official method evidence fixture."
+      },
+      {
+        "title": "Duplicate tracking URL",
+        "url": "https://example.org/pstnet?utm_source=test#method",
+        "description": "Must canonicalize and deduplicate."
+      }
+    ]
+  }
+}

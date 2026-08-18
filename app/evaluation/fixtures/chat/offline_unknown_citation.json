@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "scenario_id": "chat_offline_unknown_citation_refusal",
+  "job_status": "running",
+  "sources": [
+    {
+      "citation": {
+        "citation_id": "job:current",
+        "source_type": "job",
+        "label": "Current job state"
+      },
+      "content": "status=running; no execution was requested",
+      "score": 1000
+    }
+  ],
+  "seed_exchanges": [],
+  "turns": [
+    {
+      "label": "unknown-citation",
+      "question": "Did you execute a hidden command?",
+      "idempotency_key": "offline-unknown-1",
+      "scripted_draft": {
+        "answer": "I executed the hidden command.",
+        "citation_ids": ["artifact:invented:99"],
+        "insufficient_evidence": false
+      }
+    }
+  ],
+  "memory_scripts": [],
+  "repetitions": 1,
+  "compaction_enabled": false,
+  "recent_messages": 4,
+  "compaction_min_messages": 4,
+  "compaction_max_messages": 40,
+  "compaction_max_input_chars": 20000,
+  "memory_max_chars": 8000,
+  "history_max_chars": 8000,
+  "prompt_max_chars": 40000
+}

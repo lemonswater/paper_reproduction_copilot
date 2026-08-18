@@ -1,0 +1,12 @@
+{
+  "job_id": null,
+  "thread_id": null,
+  "run_id": "eval-provider-p4transformer-mapping-3e5a4d07b6-20260818-063455-f05d11f2",
+  "task_id": "eval-provider_p4transformer_mapping-3e5a4d07b6",
+  "paper_path": "pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf",
+  "repo_path": "/data/tianshaoqi24/P4Transformer/",
+  "log_path": null,
+  "experiment_goal": "复现论文 main result",
+  "execution_profile_id": "profile-P4Transformer",
+  "run_started_at": "2026-08-18T06:34:55.090029+00:00"
+}

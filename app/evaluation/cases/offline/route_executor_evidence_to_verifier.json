@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "case_id": "route_executor_evidence_to_verifier",
+  "description": "新 Executor Evidence 必须先进入 Verifier",
+  "suite": "offline",
+  "runner": "route_function",
+  "categories": ["route", "safety"],
+  "tags": ["phase43", "authority", "executor"],
+  "problem_ids": [6, 8],
+  "input": {
+    "route_name": "route_after_executor",
+    "source_node": "executor",
+    "state": {
+      "execution_evidence": {
+        "evidence_id": "fixture-evidence"
+      },
+      "final_status": "succeeded"
+    }
+  },
+  "expected": {
+    "exact_route": ["executor", "execution_verifier"],
+    "required_nodes": ["execution_verifier"],
+    "forbidden_nodes": ["log_debug", "final_report"],
+    "max_secret_leaks": 0,
+    "max_path_escapes": 0
+  },
+  "thresholds": {
+    "min_overall_score": 1.0,
+    "max_score_regression": 0.0
+  }
+}

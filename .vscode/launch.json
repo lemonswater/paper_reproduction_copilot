@@ -2,18 +2,46 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug read-paper",
+      "name": "Phase 21: probe embedding",
       "type": "debugpy",
       "request": "launch",
       "module": "app.main",
-      "cwd": "${workspaceFolder}",
-      "args": [
-        "read-paper",
-        "pdf/Point Spatio-Temporal Transformer Networks.pdf"
-      ],
       "console": "integratedTerminal",
       "justMyCode": true,
-      "envFile": "${workspaceFolder}/.env"
+      "args": [
+        "probe-embedding"
+      ]
+    },
+    {
+      "name": "Phase 21: dense PST retrieval",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "app.main",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "args": [
+        "retrieve-code",
+        "/data/tianshaoqi24/PST-Convolution-main/",
+        "locate the block that groups spatial neighbors over consecutive frames and jointly aggregates point features",
+        "--dense",
+        "--require-dense"
+      ]
+    },
+    {
+      "name": "Phase 21: semantic provider eval",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "app.evaluation.run_eval",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "args": [
+        "run",
+        "--suite",
+        "provider",
+        "--case-id",
+        "provider_retrieval_obfuscated_semantics",
+        "--no-fail-on-regression"
+      ]
     }
   ]
 }

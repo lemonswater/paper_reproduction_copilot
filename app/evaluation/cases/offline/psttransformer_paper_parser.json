@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "case_id": "offline_psttransformer_paper_parser",
+  "description": "PST-Transformer PDF 应完整索引正文，并保持高精度章节和父子结构",
+  "suite": "offline",
+  "runner": "paper_parser",
+  "categories": [
+    "route",
+    "quality",
+    "efficiency"
+  ],
+  "tags": [
+    "offline",
+    "paper",
+    "parser",
+    "golden"
+  ],
+  "problem_ids": [],
+  "input": {
+    "paper_path": "pdf/Point Spatio-Temporal Transformer Networks.pdf"
+  },
+  "expected": {
+    "allowed_final_statuses": [
+      "succeeded",
+      "partial"
+    ],
+    "required_section_kinds": [
+      "introduction",
+      "related_work",
+      "method",
+      "experiments",
+      "ablation",
+      "conclusion",
+      "references",
+      "datasets",
+      "results"
+    ],
+    "required_section_titles": [
+      "Introduction",
+      "Related Work",
+      "Point Spatio-Temporal Transformer",
+      "Experiments",
+      "Conclusion"
+    ],
+    "required_exact_section_titles": [
+      "POINT SPATIO-TEMPORAL TRANSFORMER"
+    ],
+    "forbidden_exact_section_titles": [],
+    "forbidden_section_title_terms": [],
+    "min_section_count": 500,
+    "max_section_count": 650,
+    "required_parent_relations": [
+      {
+        "child_number": "3.1",
+        "parent_number": "3"
+      },
+      {
+        "child_number": "3.3",
+        "parent_number": "3"
+      },
+      {
+        "child_number": "3.2.1",
+        "parent_number": "3.2"
+      },
+      {
+        "child_number": "4.1",
+        "parent_number": "4"
+      },
+      {
+        "child_number": "4.1.1",
+        "parent_number": "4.1"
+      },
+      {
+        "child_number": "4.3",
+        "parent_number": "4"
+      },
+      {
+        "child_number": "4.3.1",
+        "parent_number": "4.3"
+      }
+    ],
+    "min_indexed_page_ratio": 1.0,
+    "max_ocr_required_pages": 0,
+    "max_duration_ms": 15000
+  },
+  "thresholds": {
+    "min_overall_score": 1.0,
+    "max_score_regression": 0.0
+  }
+}

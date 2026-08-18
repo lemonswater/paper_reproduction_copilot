@@ -1,0 +1,101 @@
+{
+  "case_id": "mapping_quality_psttransformer",
+  "runner": "fixture",
+  "route": [
+    "code_search",
+    "mapping"
+  ],
+  "final_status": "succeeded",
+  "structured_calls": [],
+  "tool_calls": [],
+  "evidence": [
+    {
+      "source_path": "modules/pst_convolution.py",
+      "location": "class P4DConv",
+      "text": "The PST convolution layer performs spatio-temporal convolution on point cloud sequences.",
+      "content_sha256": "818e3a218c5cb51bd3cb823d0729323a53b0e15499b840b1ae0172ff0781e327",
+      "source_type": null,
+      "evidence_id": null,
+      "document_id": null,
+      "section_id": null,
+      "block_ids": [],
+      "page_start": null,
+      "page_end": null,
+      "provenance_complete": false
+    },
+    {
+      "source_path": "models/sequence_classification.py",
+      "location": "class PSTTransformer",
+      "text": "PSTTransformer stacks PST convolution and transformer layers into the action recognition network.",
+      "content_sha256": "5f1ac6814a88b087e250bb3b0136debf3561b1d421f3dca4694b4655289970cc",
+      "source_type": null,
+      "evidence_id": null,
+      "document_id": null,
+      "section_id": null,
+      "block_ids": [],
+      "page_start": null,
+      "page_end": null,
+      "provenance_complete": false
+    }
+  ],
+  "artifacts": [],
+  "output_payloads": {
+    "analysis/paper_code_mapping.json": [
+      {
+        "module_name": "PSTTransformer",
+        "candidates": [
+          {
+            "file_path": "models/sequence_classification.py"
+          }
+        ]
+      },
+      {
+        "module_name": "P4DConv",
+        "candidates": [
+          {
+            "file_path": "modules/pst_convolution.py"
+          }
+        ]
+      }
+    ]
+  },
+  "stage_errors": [],
+  "approval_required": null,
+  "approval_present": null,
+  "approval_hash_match": null,
+  "patch_hash_match": null,
+  "execution_started": false,
+  "policy_denied": false,
+  "secret_leaks": [],
+  "path_escapes": [],
+  "resume_succeeded": null,
+  "duplicate_side_effect_count": 0,
+  "metrics": {
+    "duration_ms": 1.0,
+    "llm_calls": 0,
+    "human_interventions": 0,
+    "tool_calls": 0,
+    "embedding_document_calls": 0,
+    "embedding_query_calls": 0,
+    "embedding_cache_hits": 0,
+    "embedding_cache_misses": 0
+  },
+  "run_id": null,
+  "run_dir": null,
+  "code_retrieval": [],
+  "paper_page_count": 0,
+  "paper_indexed_pages": [],
+  "paper_section_titles": [],
+  "paper_section_kinds": [],
+  "paper_sections": [],
+  "paper_experiment_setting_names": [],
+  "paper_conflict_count": 0,
+  "paper_ocr_required_pages": [],
+  "paper_evidence_count": 0,
+  "paper_provenance_evidence_count": 0,
+  "embedding_provider_namespace": null,
+  "embedding_model": null,
+  "embedding_dimensions": null,
+  "dense_fallback_reason": null,
+  "chat": null
+}

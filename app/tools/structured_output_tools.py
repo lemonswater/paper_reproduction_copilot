@@ -64,6 +64,8 @@ def _record_token_usage_safe(
     token_usage: dict[str, Any] | None,
     *,
     telemetry: TelemetryPort | None = None,
+    provider_label: str | None = None,
+    model_name: str | None = None,
 ) -> None:
     if not token_usage:
         return
@@ -85,14 +87,25 @@ def _record_token_usage_safe(
                 or token_usage.get("output_tokens")
                 or 0
             )
-        provider = _derive_provider()
-        model_family = _derive_model_family(settings.openai_model)
+        provider = provider_label or _derive_provider()
+        model_family = _derive_model_family(
+            model_name or settings.openai_model
+        )
+        labels = {
+            "provider": provider,
+            "model_family": model_family,
+        }
         if prompt_tokens > 0:
             try:
                 tel.counter(
                     "paper_copilot_prompt_completion_tokens_total",
                     prompt_tokens,
-                    {"provider": provider, "model_family": model_family},
+                    labels,
+                )
+                tel.counter(
+                    "paper_copilot_prompt_tokens_total",
+                    prompt_tokens,
+                    labels,
                 )
             except Exception:
                 pass
@@ -101,7 +114,12 @@ def _record_token_usage_safe(
                 tel.counter(
                     "paper_copilot_prompt_completion_tokens_total",
                     completion_tokens,
-                    {"provider": provider, "model_family": model_family},
+                    labels,
+                )
+                tel.counter(
+                    "paper_copilot_completion_tokens_total",
+                    completion_tokens,
+                    labels,
                 )
             except Exception:
                 pass
@@ -452,6 +470,8 @@ def invoke_structured_with_retry(
     provider_max_retries: int = 2,
     provider_retry_base_seconds: float = 0.5,
     telemetry: TelemetryPort | None = None,
+    telemetry_provider_label: str | None = None,
+    telemetry_model_name: str | None = None,
 ) -> StructuredInvocationResult[SchemaT]:
     """
     使用 Provider 结构化输出能力 + Pydantic 完成有限重试。
@@ -582,7 +602,12 @@ def invoke_structured_with_retry(
                     truncated=truncated,
                 )
             )
-            _record_token_usage_safe(token_usage, telemetry=tel)
+            _record_token_usage_safe(
+                token_usage,
+                telemetry=tel,
+                provider_label=telemetry_provider_label,
+                model_name=telemetry_model_name,
+            )
 
             if attempt_index >= max_retries:
                 break
@@ -656,7 +681,12 @@ def invoke_structured_with_retry(
                     truncated=truncated,
                 )
             )
-            _record_token_usage_safe(token_usage, telemetry=tel)
+            _record_token_usage_safe(
+                token_usage,
+                telemetry=tel,
+                provider_label=telemetry_provider_label,
+                model_name=telemetry_model_name,
+            )
 
             if attempt_index >= max_retries:
                 break
@@ -688,7 +718,12 @@ def invoke_structured_with_retry(
                 output_chars=(len(raw_text) if raw_text is not None else None),
             )
         )
-        _record_token_usage_safe(token_usage, telemetry=tel)
+        _record_token_usage_safe(
+            token_usage,
+            telemetry=tel,
+            provider_label=telemetry_provider_label,
+            model_name=telemetry_model_name,
+        )
         return StructuredInvocationResult(
             value=value,
             attempts=attempts,
@@ -717,6 +752,11 @@ def write_structured_output_trace(
     schema_name: str,
     output_dir: Path,
     fallback_used: bool,
+    model_invocation_id: str | None = None,
+    model_decision_sha256: str | None = None,
+    model_profile_id: str | None = None,
+    model_name: str | None = None,
+    model_usage_quality: str | None = None,
 ) -> Path:
     """把结构化调用过程写成独立 artifact，方便调试和评测。"""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -735,6 +775,13 @@ def write_structured_output_trace(
         "attempt_count": len(result.attempts),
         "attempts": [asdict(item) for item in result.attempts],
         "generated_at": datetime.now(timezone.utc).isoformat(),
+        "model_routing": {
+            "invocation_id": model_invocation_id,
+            "decision_sha256": model_decision_sha256,
+            "executed_profile_id": model_profile_id,
+            "model_name": model_name,
+            "usage_quality": model_usage_quality,
+        },
     }
 
     path.write_text(

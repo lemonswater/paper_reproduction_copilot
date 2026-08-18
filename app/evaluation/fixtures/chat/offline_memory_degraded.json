@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "scenario_id": "chat_offline_memory_provider_degradation",
+  "job_status": "running",
+  "sources": [
+    {
+      "citation": {
+        "citation_id": "job:current",
+        "source_type": "job",
+        "label": "Current job state"
+      },
+      "content": "status=running; stage=planning",
+      "score": 1000
+    }
+  ],
+  "seed_exchanges": [
+    {
+      "question": "constraint one",
+      "answer": "acknowledged",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "constraint two",
+      "answer": "acknowledged",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "recent question",
+      "answer": "recent answer",
+      "citation_ids": ["job:current"]
+    }
+  ],
+  "turns": [
+    {
+      "label": "degraded-answer",
+      "question": "What is the current job status?",
+      "idempotency_key": "offline-degraded-1",
+      "scripted_draft": {
+        "answer": "The job remains running after memory degradation.",
+        "citation_ids": ["job:current"],
+        "insufficient_evidence": false
+      }
+    }
+  ],
+  "memory_scripts": [
+    {
+      "error_code": "provider_unavailable"
+    }
+  ],
+  "repetitions": 1,
+  "compaction_enabled": true,
+  "recent_messages": 2,
+  "compaction_min_messages": 4,
+  "compaction_max_messages": 40,
+  "compaction_max_input_chars": 20000,
+  "memory_max_chars": 8000,
+  "history_max_chars": 8000,
+  "prompt_max_chars": 40000
+}

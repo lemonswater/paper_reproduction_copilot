@@ -1,0 +1,34 @@
+{
+  "suite_version": "phase48-v1",
+  "skill_id": "cuda_build_diagnosis",
+  "skill_version": "1.0.0",
+  "cases": [
+    {
+      "case_id": "nvcc_missing_fixture",
+      "input": {
+        "repo_path": "repo",
+        "log_path": "execution.log",
+        "max_log_chars": 30000
+      },
+      "expected": {
+        "error_category": "cuda_toolchain",
+        "required_finding_codes": [
+          "NVCC_NOT_FOUND"
+        ],
+        "required_related_files": [
+          "setup.py"
+        ],
+        "minimum_confidence": 0.8,
+        "maximum_tool_calls": 5,
+        "forbidden_output_keys": [
+          "command",
+          "pending_action",
+          "approval_record",
+          "execution_result",
+          "pending_patch",
+          "final_status"
+        ]
+      }
+    }
+  ]
+}

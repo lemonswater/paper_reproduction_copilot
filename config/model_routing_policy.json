@@ -1,0 +1,264 @@
+{
+  "schema_version": "phase50-v1",
+  "policy_version": "phase52-local-v1",
+  "profiles": [
+    {
+      "profile_id": "legacy_chat",
+      "workload_kind": "chat",
+      "provider_binding": "primary_chat",
+      "model_name": "$OPENAI_MODEL",
+      "quality_tier": "balanced",
+      "quality_rank": 70,
+      "capabilities": [
+        "structured_json_schema",
+        "structured_function_calling",
+        "structured_json_mode",
+        "long_context",
+        "tool_calling"
+      ],
+      "context_window_tokens": 32768,
+      "max_output_tokens": 4096,
+      "thinking_mode": "disabled",
+      "enabled": true,
+      "pricing": {
+        "pricing_version": "verify-before-active-v1",
+        "billing_mode": "unpriced",
+        "input_micro_usd_per_million": null,
+        "output_micro_usd_per_million": null
+      }
+    },
+    {
+      "profile_id": "economy_chat",
+      "workload_kind": "chat",
+      "provider_binding": "primary_chat",
+      "model_name": "$OPENAI_ECONOMY_MODEL",
+      "quality_tier": "economy",
+      "quality_rank": 60,
+      "capabilities": [
+        "structured_json_schema",
+        "structured_function_calling",
+        "structured_json_mode",
+        "tool_calling"
+      ],
+      "context_window_tokens": 32768,
+      "max_output_tokens": 4096,
+      "thinking_mode": "disabled",
+      "enabled": true,
+      "pricing": {
+        "pricing_version": "verify-before-active-v1",
+        "billing_mode": "unpriced",
+        "input_micro_usd_per_million": null,
+        "output_micro_usd_per_million": null
+      }
+    },
+    {
+      "profile_id": "strong_chat",
+      "workload_kind": "chat",
+      "provider_binding": "primary_chat",
+      "model_name": "$OPENAI_STRONG_MODEL",
+      "quality_tier": "high",
+      "quality_rank": 90,
+      "capabilities": [
+        "structured_json_schema",
+        "structured_function_calling",
+        "structured_json_mode",
+        "long_context"
+      ],
+      "context_window_tokens": 32768,
+      "max_output_tokens": 4096,
+      "thinking_mode": "disabled",
+      "enabled": true,
+      "pricing": {
+        "pricing_version": "verify-before-active-v1",
+        "billing_mode": "unpriced",
+        "input_micro_usd_per_million": null,
+        "output_micro_usd_per_million": null
+      }
+    },
+    {
+      "profile_id": "legacy_embedding",
+      "workload_kind": "embedding",
+      "provider_binding": "primary_embedding",
+      "model_name": "$EMBEDDING_MODEL",
+      "quality_tier": "balanced",
+      "quality_rank": 70,
+      "capabilities": ["embedding"],
+      "context_window_tokens": 8192,
+      "max_output_tokens": 0,
+      "thinking_mode": null,
+      "enabled": true,
+      "pricing": {
+        "pricing_version": "verify-before-active-v1",
+        "billing_mode": "unpriced",
+        "input_micro_usd_per_million": null,
+        "output_micro_usd_per_million": null
+      }
+    }
+  ],
+  "routes": [
+    {
+      "task_kind": "paper_section_extraction",
+      "workload_kind": "chat",
+      "required_capabilities": ["long_context"],
+      "candidate_profile_ids": ["strong_chat", "legacy_chat"],
+      "legacy_profile_id": "legacy_chat",
+      "minimum_quality_rank": 70,
+      "max_input_tokens": 24000,
+      "max_output_tokens": 4096,
+      "validation_max_retries": 2,
+      "provider_max_retries": 2
+    },
+    {
+      "task_kind": "paper_code_mapping",
+      "workload_kind": "chat",
+      "required_capabilities": [],
+      "candidate_profile_ids": ["strong_chat", "legacy_chat"],
+      "legacy_profile_id": "legacy_chat",
+      "minimum_quality_rank": 70,
+      "max_input_tokens": 20000,
+      "max_output_tokens": 4096,
+      "validation_max_retries": 2,
+      "provider_max_retries": 2
+    },
+    {
+      "task_kind": "experiment_plan",
+      "workload_kind": "chat",
+      "required_capabilities": [],
+      "candidate_profile_ids": ["legacy_chat", "strong_chat"],
+      "legacy_profile_id": "legacy_chat",
+      "minimum_quality_rank": 70,
+      "max_input_tokens": 16000,
+      "max_output_tokens": 4096,
+      "validation_max_retries": 2,
+      "provider_max_retries": 2
+    },
+    {
+      "task_kind": "failure_debug",
+      "workload_kind": "chat",
+      "required_capabilities": [],
+      "candidate_profile_ids": ["strong_chat", "legacy_chat"],
+      "legacy_profile_id": "legacy_chat",
+      "minimum_quality_rank": 70,
+      "max_input_tokens": 16000,
+      "max_output_tokens": 4096,
+      "validation_max_retries": 2,
+      "provider_max_retries": 2
+    },
+    {
+      "task_kind": "repair_plan",
+      "workload_kind": "chat",
+      "required_capabilities": [],
+      "candidate_profile_ids": ["strong_chat", "legacy_chat"],
+      "legacy_profile_id": "legacy_chat",
+      "minimum_quality_rank": 80,
+      "max_input_tokens": 16000,
+      "max_output_tokens": 4096,
+      "validation_max_retries": 2,
+      "provider_max_retries": 2
+    },
+    {
+      "task_kind": "file_repair_plan",
+      "workload_kind": "chat",
+      "required_capabilities": [],
+      "candidate_profile_ids": ["strong_chat"],
+      "legacy_profile_id": "legacy_chat",
+      "minimum_quality_rank": 80,
+      "max_input_tokens": 16000,
+      "max_output_tokens": 4096,
+      "validation_max_retries": 1,
+      "provider_max_retries": 2
+    },
+    {
+      "task_kind": "chat_answer",
+      "workload_kind": "chat",
+      "required_capabilities": [],
+      "candidate_profile_ids": ["legacy_chat", "strong_chat"],
+      "legacy_profile_id": "legacy_chat",
+      "minimum_quality_rank": 70,
+      "max_input_tokens": 20000,
+      "max_output_tokens": 4096,
+      "validation_max_retries": 1,
+      "provider_max_retries": 2
+    },
+    {
+      "task_kind": "chat_tool_selection",
+      "workload_kind": "chat",
+      "required_capabilities": ["tool_calling"],
+      "candidate_profile_ids": ["economy_chat", "legacy_chat"],
+      "legacy_profile_id": "legacy_chat",
+      "minimum_quality_rank": 50,
+      "max_input_tokens": 12000,
+      "max_output_tokens": 768,
+      "validation_max_retries": 0,
+      "provider_max_retries": 2
+    },
+    {
+      "task_kind": "chat_memory_compaction",
+      "workload_kind": "chat",
+      "required_capabilities": [],
+      "candidate_profile_ids": ["economy_chat", "legacy_chat"],
+      "legacy_profile_id": "legacy_chat",
+      "minimum_quality_rank": 50,
+      "max_input_tokens": 16000,
+      "max_output_tokens": 2048,
+      "validation_max_retries": 1,
+      "provider_max_retries": 2
+    },
+    {
+      "task_kind": "code_embedding_document",
+      "workload_kind": "embedding",
+      "required_capabilities": ["embedding"],
+      "candidate_profile_ids": ["legacy_embedding"],
+      "legacy_profile_id": "legacy_embedding",
+      "minimum_quality_rank": 60,
+      "max_input_tokens": 8192,
+      "max_output_tokens": 0,
+      "validation_max_retries": 0,
+      "provider_max_retries": 2
+    },
+    {
+      "task_kind": "code_embedding_query",
+      "workload_kind": "embedding",
+      "required_capabilities": ["embedding"],
+      "candidate_profile_ids": ["legacy_embedding"],
+      "legacy_profile_id": "legacy_embedding",
+      "minimum_quality_rank": 60,
+      "max_input_tokens": 8192,
+      "max_output_tokens": 0,
+      "validation_max_retries": 0,
+      "provider_max_retries": 2
+    },
+    {
+      "task_kind": "evaluation_probe",
+      "workload_kind": "chat",
+      "required_capabilities": [],
+      "candidate_profile_ids": ["legacy_chat"],
+      "legacy_profile_id": "legacy_chat",
+      "minimum_quality_rank": 60,
+      "max_input_tokens": 12000,
+      "max_output_tokens": 2048,
+      "validation_max_retries": 1,
+      "provider_max_retries": 1
+    },
+    {
+      "task_kind": "web_research_synthesis",
+      "workload_kind": "chat",
+      "required_capabilities": [],
+      "candidate_profile_ids": ["strong_chat", "legacy_chat"],
+      "legacy_profile_id": "legacy_chat",
+      "minimum_quality_rank": 70,
+      "max_input_tokens": 20000,
+      "max_output_tokens": 4096,
+      "validation_max_retries": 1,
+      "provider_max_retries": 2
+    }
+  ],
+  "budget": {
+    "daily_total_token_limit": 2000000,
+    "daily_cost_limit_micro_usd": null,
+    "per_job_total_token_limit": 500000,
+    "per_job_cost_limit_micro_usd": null,
+    "reservation_ttl_seconds": 900,
+    "allow_unpriced_in_active": false
+  }
+}

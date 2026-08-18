@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "case_id": "chat_offline_memory_provider_degradation",
+  "description": "Memory Provider 失败后仍应使用当前 Grounding 完成回答",
+  "suite": "chat_offline",
+  "runner": "chat_scenario",
+  "categories": ["evidence", "quality", "recovery", "efficiency"],
+  "tags": ["chat", "memory", "degraded", "offline"],
+  "problem_ids": [],
+  "input": {
+    "fixture_path": "fixtures/chat/offline_memory_degraded.json"
+  },
+  "expected": {
+    "chat_turns": [
+      {
+        "label": "degraded-answer",
+        "required_answer_terms": ["running"],
+        "required_citation_ids": ["job:current"],
+        "allowed_citation_ids": ["job:current"],
+        "expected_refusal": false,
+        "expected_unknown_requested_citations": 0
+      }
+    ],
+    "chat_memory": {
+      "expected_available": false,
+      "min_degraded_turns": 1,
+      "max_degraded_turns": 1
+    },
+    "min_chat_pass_rate": 1.0,
+    "max_chat_answer_invocations_per_run": 1,
+    "max_chat_memory_invocations_per_run": 1,
+    "max_chat_prompt_chars": 40000
+  },
+  "thresholds": {
+    "min_overall_score": 1.0,
+    "max_score_regression": 0.0
+  }
+}

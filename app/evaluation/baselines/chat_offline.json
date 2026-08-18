@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "suite": "chat_offline",
+  "cases": [
+    {
+      "case_id": "chat_offline_memory_constraint_and_decision_precision",
+      "passed": true,
+      "overall_score": 1.0,
+      "category_scores": {
+        "evidence": 1.0,
+        "quality": 1.0,
+        "recovery": 1.0,
+        "efficiency": 1.0
+      }
+    },
+    {
+      "case_id": "chat_offline_memory_provider_degradation",
+      "passed": true,
+      "overall_score": 1.0,
+      "category_scores": {
+        "evidence": 1.0,
+        "quality": 1.0,
+        "recovery": 1.0,
+        "efficiency": 1.0
+      }
+    },
+    {
+      "case_id": "chat_offline_unknown_citation_refusal",
+      "passed": true,
+      "overall_score": 1.0,
+      "category_scores": {
+        "evidence": 1.0,
+        "quality": 1.0,
+        "safety": 1.0,
+        "efficiency": 1.0
+      }
+    }
+  ]
+}

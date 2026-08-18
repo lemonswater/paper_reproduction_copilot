@@ -1,0 +1,380 @@
+{
+  "query": "transformer\nTransformer，对嵌入的局部特征执行自注意力，捕捉整个视频的外观和运动信息",
+  "keywords": [
+    "transformer"
+  ],
+  "repo_revision": "b8dcf0677ddf6d9660f285c4eb3ff7670a066552",
+  "repo_fingerprint": "02abaa14a8624abcc455c640aebccbc8e0151139338eaa13ddfa42fe85ac696e",
+  "items": [
+    {
+      "evidence_id": "code-ef26cd3092fd7622bbde",
+      "repo_revision": "b8dcf0677ddf6d9660f285c4eb3ff7670a066552",
+      "repo_fingerprint": "02abaa14a8624abcc455c640aebccbc8e0151139338eaa13ddfa42fe85ac696e",
+      "file_path": "models/sequence_classification.py",
+      "file_sha256": "32ad3908819d00184d6d24ecdbfff88ab773c503673739911562a77e7dc1a312",
+      "start_line": 1,
+      "end_line": 50,
+      "symbol": "P4Transformer",
+      "retrieval_channels": [
+        "symbol",
+        "dense",
+        "keyword",
+        "import_graph",
+        "bm25"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "symbol",
+          "rank": 2,
+          "raw_score": 2.5,
+          "anchor_line": 16,
+          "anchor_end_line": 49,
+          "symbol": "P4Transformer"
+        },
+        {
+          "channel": "dense",
+          "rank": 2,
+          "raw_score": 0.5839342316494404,
+          "anchor_line": 16,
+          "anchor_end_line": 49,
+          "symbol": "P4Transformer"
+        },
+        {
+          "channel": "keyword",
+          "rank": 2,
+          "raw_score": 1.1375,
+          "anchor_line": 14,
+          "anchor_end_line": null,
+          "symbol": null
+        },
+        {
+          "channel": "import_graph",
+          "rank": 1,
+          "raw_score": 1.0,
+          "anchor_line": 14,
+          "anchor_end_line": null,
+          "symbol": null
+        },
+        {
+          "channel": "bm25",
+          "rank": 1,
+          "raw_score": 3.067498687994048,
+          "anchor_line": 1,
+          "anchor_end_line": null,
+          "symbol": null
+        }
+      ],
+      "fused_score": 0.14910100475938656,
+      "content_hash": "0e720645a39c150faae2a9fdaec32bc873fb48a32a3f42dfd842529de29731d5",
+      "text": "1: import torch\n2: import torch.nn.functional as F\n3: from torch import nn\n4: import numpy as np\n5: import sys \n6: import os\n7: \n8: BASE_DIR = os.path.dirname(os.path.abspath(__file__))\n9: ROOT_DIR = os.path.dirname(BASE_DIR)\n10: sys.path.append(ROOT_DIR)\n11: sys.path.append(os.path.join(ROOT_DIR, 'modules'))\n12: \n13: from modules.point_4d_convolution import *\n14: from modules.transformer_v1 import *\n15: \n16: class P4Transformer(nn.Module):\n17:     def __init__(self, radius, nsamples, spatial_stride,                                # P4DConv: spatial\n18:                  temporal_kernel_size, temporal_stride,                                 # P4DConv: temporal\n19:                  dim, depth, heads, dim_head, dropout1,                                 # transformer\n20:                  mlp_dim, num_classes, dropout2):                                       # output\n21:         super().__init__()\n22: \n23:         self.tube_embedding = P4DConv(in_planes=0, mlp_planes=[dim], mlp_batch_norm=[False], mlp_activation=[False],\n24:                                   spatial_kernel_size=[radius, nsamples], spatial_stride=spatial_stride,\n25:                                   temporal_kernel_size=temporal_kernel_size, temporal_stride=temporal_stride, temporal_padding=[1, 0],\n26:                                   operator='+', spatial_pooling='max', temporal_pooling='max')\n27: \n28:         self.transformer = Transformer(dim, depth, heads, dim_head, mlp_dim, dropout=dropout1)\n29: \n30:         self.mlp_head = nn.Sequential(\n31:             nn.LayerNorm(dim),\n32:             nn.Linear(dim, mlp_dim),\n33:             nn.GELU(),\n34:             nn.Dropout(dropout2),\n35:             nn.Linear(mlp_dim, num_classes),\n36:         )\n37: \n38:     def forward(self, input):                                                                                                               # [B, L, N, 3]\n39:         device = input.get_device()\n40:         xyzs, features = self.tube_embedding(input)                                                                                         # [B, L, n, 3], [B, L, C, n] \n41: \n42:         features = features.permute(0, 1, 3, 2)\n43: \n44:         output = self.transformer(xyzs, features)\n45:         output = torch.max(input=output, dim=1, keepdim=False, out=None)[0]\n46:         output = torch.max(input=output, dim=1, keepdim=False, out=None)[0]\n47:         output = self.mlp_head(output)\n48: \n49:         return output\n50: "
+    },
+    {
+      "evidence_id": "code-24c766d6138c855b3763",
+      "repo_revision": "b8dcf0677ddf6d9660f285c4eb3ff7670a066552",
+      "repo_fingerprint": "02abaa14a8624abcc455c640aebccbc8e0151139338eaa13ddfa42fe85ac696e",
+      "file_path": "modules/transformer_v1.py",
+      "file_sha256": "0298f91cf880a58ed4e55c6c948247a3b070d5f1d1be12a1f1637fcd8fc1065c",
+      "start_line": 49,
+      "end_line": 82,
+      "symbol": "Transformer",
+      "retrieval_channels": [
+        "symbol",
+        "dense",
+        "keyword",
+        "path",
+        "bm25"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "symbol",
+          "rank": 1,
+          "raw_score": 4.0,
+          "anchor_line": 69,
+          "anchor_end_line": 82,
+          "symbol": "Transformer"
+        },
+        {
+          "channel": "dense",
+          "rank": 4,
+          "raw_score": 0.5549324404112018,
+          "anchor_line": 69,
+          "anchor_end_line": 82,
+          "symbol": "Transformer"
+        },
+        {
+          "channel": "keyword",
+          "rank": 3,
+          "raw_score": 1.1375,
+          "anchor_line": 69,
+          "anchor_end_line": null,
+          "symbol": null
+        },
+        {
+          "channel": "path",
+          "rank": 1,
+          "raw_score": 1.0,
+          "anchor_line": 1,
+          "anchor_end_line": null,
+          "symbol": null
+        },
+        {
+          "channel": "bm25",
+          "rank": 3,
+          "raw_score": 2.7103772073864385,
+          "anchor_line": 1,
+          "anchor_end_line": null,
+          "symbol": null
+        }
+      ],
+      "fused_score": 0.13944794106167058,
+      "content_hash": "6476b7f9b55deb810428da8f31df0c0e196acbcec9cf7ca7235dd045d2efea94",
+      "text": "49: \n50:         delta_xyzs = torch.unsqueeze(input=xyzs_flatten, dim=1) - torch.unsqueeze(input=xyzs_flatten, dim=2)        # [b, m, m, 3]\n51: \n52:         dots = einsum('b h i d, b h j d -> b h i j', q, k) * self.scale                                             # [b, h, m, m]\n53:         attn = dots.softmax(dim=-1)\n54: \n55:         v = einsum('b h i j, b h j d -> b h i d', attn, v)                                                          # [b, h, m, d]\n56: \n57:         attn = torch.unsqueeze(input=attn, dim=4)                                                                   # [b, h, m, m, 1]\n58:         delta_xyzs = torch.unsqueeze(input=delta_xyzs, dim=1)                                                       # [b, 1, m, m, 3]\n59:         delta_xyzs = torch.sum(input=attn*delta_xyzs, dim=3, keepdim=False)                                         # [b, h, m, 3]\n60: \n61:         displacement_features = self.spatial_op(delta_xyzs)                                                         # [b, h, m, d]\n62: \n63:         out = v + displacement_features\n64:         out = rearrange(out, 'b h m d -> b m (h d)')\n65:         out =  self.to_out(out)\n66:         out = rearrange(out, 'b (l n) d -> b l n d', l=l, n=n)\n67:         return out + features\n68: \n69: class Transformer(nn.Module):\n70:     def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0.):\n71:         super().__init__()\n72:         self.layers = nn.ModuleList([])\n73:         for _ in range(depth):\n74:             self.layers.append(nn.ModuleList([\n75:                 Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout),\n76:                 FeedForward(dim, mlp_dim, dropout = dropout)\n77:             ]))\n78:     def forward(self, xyzs, features):\n79:         for attn, ff in self.layers:\n80:             features = attn(xyzs, features)\n81:             features = ff(features)\n82:         return features"
+    },
+    {
+      "evidence_id": "code-2f7c3ee2d608e1c73111",
+      "repo_revision": "b8dcf0677ddf6d9660f285c4eb3ff7670a066552",
+      "repo_fingerprint": "02abaa14a8624abcc455c640aebccbc8e0151139338eaa13ddfa42fe85ac696e",
+      "file_path": "train-ntu60.py",
+      "file_sha256": "e7d703f506e79a278a5c976ce540e927779a71e48ba38168d9b045333f5ed330",
+      "start_line": 173,
+      "end_line": 258,
+      "symbol": null,
+      "retrieval_channels": [
+        "dense",
+        "keyword",
+        "cli_config",
+        "import_graph",
+        "bm25"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "dense",
+          "rank": 1,
+          "raw_score": 0.5881130805690932,
+          "anchor_line": 193,
+          "anchor_end_line": 258,
+          "symbol": null
+        },
+        {
+          "channel": "keyword",
+          "rank": 5,
+          "raw_score": 1.1375,
+          "anchor_line": 211,
+          "anchor_end_line": null,
+          "symbol": null
+        },
+        {
+          "channel": "cli_config",
+          "rank": 2,
+          "raw_score": 2.0,
+          "anchor_line": 216,
+          "anchor_end_line": null,
+          "symbol": null
+        },
+        {
+          "channel": "import_graph",
+          "rank": 3,
+          "raw_score": 1.0,
+          "anchor_line": 19,
+          "anchor_end_line": null,
+          "symbol": null
+        },
+        {
+          "channel": "bm25",
+          "rank": 4,
+          "raw_score": 2.5263858799147494,
+          "anchor_line": 1,
+          "anchor_end_line": null,
+          "symbol": null
+        }
+      ],
+      "fused_score": 0.1336110388744577,
+      "content_hash": "691bb573f2bd585ef4efc56e8b2785752f9cd87329d641c1d729d4f3a8d4b38d",
+      "text": "173:     if args.resume:\n174:         checkpoint = torch.load(args.resume, map_location='cpu')\n175:         model_without_ddp.load_state_dict(checkpoint['model'])\n176:         optimizer.load_state_dict(checkpoint['optimizer'])\n177:         lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])\n178:         args.start_epoch = checkpoint['epoch'] + 1\n179: \n180: \n181:     print(\"Start training\")\n182:     start_time = time.time()\n183:     acc = 0\n184:     for epoch in range(args.start_epoch, args.epochs):\n185:         train_one_epoch(model, criterion, optimizer, lr_scheduler, data_loader, device, epoch, args.print_freq)\n186: \n187:         acc = max(acc, evaluate(model, criterion, data_loader_test, device=device))\n188: \n189:         if args.output_dir:\n190:             checkpoint = {\n191:                 'model': model_without_ddp.state_dict(),\n192:                 'optimizer': optimizer.state_dict(),\n193:                 'lr_scheduler': lr_scheduler.state_dict(),\n194:                 'epoch': epoch,\n195:                 'args': args}\n196:             utils.save_on_master(\n197:                 checkpoint,\n198:                 os.path.join(args.output_dir, 'model_{}.pth'.format(epoch)))\n199:             utils.save_on_master(\n200:                 checkpoint,\n201:                 os.path.join(args.output_dir, 'checkpoint.pth'))\n202: \n203:     total_time = time.time() - start_time\n204:     total_time_str = str(datetime.timedelta(seconds=int(total_time)))\n205:     print('Training time {}'.format(total_time_str))\n206:     print('Accuracy {}'.format(acc))\n207: \n208: \n209: def parse_args():\n210:     import argparse\n211:     parser = argparse.ArgumentParser(description='P4Transformer Training')\n212: \n213:     parser.add_argument('--data-path', default='/tmp/ntu/video', type=str, help='dataset')\n214:     parser.add_argument('--data-meta', default='/tmp/ntu/ntu60.list', help='dataset')\n215:     parser.add_argument('--seed', default=0, type=int, help='random seed')\n216:     parser.add_argument('--model', default='P4Transformer', type=str, help='model')\n217: \n218:     # input\n219:     parser.add_argument('--clip-len', default=24, type=int, metavar='N', help='number of frames per clip')\n220:     parser.add_argument('--frame-step', default=2, type=int, metavar='N', help='steps between frame sampling')\n221:     parser.add_argument('--num-points', default=2048, type=int, metavar='N', help='number of points per frame')\n222:     # P4D\n223:     parser.add_argument('--radius', default=0.10, type=float, help='radius for the ball query')\n224:     parser.add_argument('--nsamples', default=32, type=int, help='number of neighbors for the ball query')\n225:     parser.add_argument('--spatial-stride', default=32, type=int, help='spatial subsampling rate')\n226:     parser.add_argument('--temporal-kernel-size', default=3, type=int, help='temporal kernel size')\n227:     parser.add_argument('--temporal-stride', default=2, type=int, help='temporal stride')\n228:     # transformer\n229:     parser.add_argument('--dim', default=1024, type=int, help='transformer dim')\n230:     parser.add_argument('--depth', default=5, type=int, help='transformer depth')\n231:     parser.add_argument('--heads', default=8, type=int, help='transformer head')\n232:     parser.add_argument('--dim-head', default=256, type=int, help='transformer dim for each head')\n233:     parser.add_argument('--mlp-dim', default=2048, type=int, help='transformer mlp dim')\n234:     parser.add_argument('--dropout1', default=0.0, type=float, help='transformer dropout')\n235:     # output\n236:     parser.add_argument('--dropout2', default=0.5, type=float, help='classifier dropout')\n237:     # training\n238:     parser.add_argument('-b', '--batch-size', default=24, type=int)\n239:     parser.add_argument('--epochs', default=15, type=int, metavar='N', help='number of total epochs to run')\n240:     parser.add_argument('-j', '--workers', default=16, type=int, metavar='N', help='number of data loading workers (default: 16)')\n241:     parser.add_argument('--lr', default=0.01, type=float, help='initial learning rate')\n242:     parser.add_argument('--momentum', default=0.9, type=float, metavar='M', help='momentum')\n243:     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float, metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')\n244:     parser.add_argument('--lr-milestones', nargs='+', default=[5, 10], type=int, help='decrease lr on milestones')\n245:     parser.add_argument('--lr-gamma', default=0.1, type=float, help='decrease lr by a factor of lr-gamma')\n246:     parser.add_argument('--lr-warmup-epochs', default=10, type=int, help='number of warmup epochs')\n247:     parser.add_argument('--print-freq', default=100, type=int, help='print frequency')\n248:     parser.add_argument('--output-dir', default='', type=str, help='path where to save')\n249:     parser.add_argument('--resume', default='', help='resume from checkpoint')\n250:     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')\n251: \n252:     args = parser.parse_args()\n253: \n254:     return args\n255: \n256: if __name__ == \"__main__\":\n257:     args = parse_args()\n258:     main(args)"
+    },
+    {
+      "evidence_id": "code-29aef5a8ea52c172fee0",
+      "repo_revision": "b8dcf0677ddf6d9660f285c4eb3ff7670a066552",
+      "repo_fingerprint": "02abaa14a8624abcc455c640aebccbc8e0151139338eaa13ddfa42fe85ac696e",
+      "file_path": "train-msr-small.py",
+      "file_sha256": "7d293c19baaba7c5aa55525616d3289403c2b44fb379536d920c9ea4e45d98c4",
+      "start_line": 173,
+      "end_line": 263,
+      "symbol": null,
+      "retrieval_channels": [
+        "dense",
+        "keyword",
+        "cli_config",
+        "import_graph",
+        "bm25"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "dense",
+          "rank": 5,
+          "raw_score": 0.5531273058546885,
+          "anchor_line": 193,
+          "anchor_end_line": 263,
+          "symbol": null
+        },
+        {
+          "channel": "keyword",
+          "rank": 4,
+          "raw_score": 1.1375,
+          "anchor_line": 217,
+          "anchor_end_line": null,
+          "symbol": null
+        },
+        {
+          "channel": "cli_config",
+          "rank": 1,
+          "raw_score": 2.0,
+          "anchor_line": 221,
+          "anchor_end_line": null,
+          "symbol": null
+        },
+        {
+          "channel": "import_graph",
+          "rank": 2,
+          "raw_score": 1.0,
+          "anchor_line": 20,
+          "anchor_end_line": null,
+          "symbol": null
+        },
+        {
+          "channel": "bm25",
+          "rank": 5,
+          "raw_score": 2.5016166930937795,
+          "anchor_line": 1,
+          "anchor_end_line": null,
+          "symbol": null
+        }
+      ],
+      "fused_score": 0.13259117072773868,
+      "content_hash": "86a54a2b635bae542f96d6749e444d011e9856cdc9577984bf4c3a5ddafab466",
+      "text": "173: \n174:     model_without_ddp = model\n175: \n176:     if args.resume:\n177:         checkpoint = torch.load(args.resume, map_location=device)\n178:         model_without_ddp.load_state_dict(checkpoint['model'])\n179:         optimizer.load_state_dict(checkpoint['optimizer'])\n180:         lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])\n181:         args.start_epoch = checkpoint['epoch'] + 1\n182:     print(\"Start training\")\n183:     start_time = time.time()\n184:     acc = 0\n185:     for epoch in range(args.start_epoch, args.epochs):\n186:         train_one_epoch(model, criterion, optimizer, lr_scheduler, data_loader, device, epoch, args.print_freq)\n187: \n188:         acc = max(acc, evaluate(model, criterion, data_loader_test ,device=device))\n189: \n190:         if args.output_dir:\n191:             checkpoint = {\n192:                 'model': model_without_ddp.state_dict(),\n193:                 'optimizer': optimizer.state_dict(),\n194:                 'lr_scheduler': lr_scheduler.state_dict(),\n195:                 'epoch': epoch,\n196:                 'args': args}\n197:             utils.save_on_master(\n198:                 checkpoint,\n199:                 os.path.join(args.output_dir, 'model_{}.pth'.format(epoch)))\n200:             utils.save_on_master(\n201:                 checkpoint,\n202:                 os.path.join(args.output_dir, 'checkpoint.pth'))\n203: \n204:     total_time = time.time() - start_time\n205:     total_time_str = str(datetime.timedelta(seconds=int(total_time)))\n206:     model.eval ()\n207:     input=torch.randn(data_loader.batch_size, dataset.frames_per_clip, dataset.num_points, 3, device=device)\n208:     flops, params = profile(model.module, inputs=(input,))\n209:     with open('logs/log', 'a') as log_file:\n210:         log_file.write(f'Training time: {total_time_str:.3f}')\n211:         log_file.write(f'Accuracy: {acc:.4f}\\n')\n212:         log_file.write(f'参数量: {params/1e6}M\\n')\n213:         log_file.write(f'GFLOPS: {flops/1e9}\\n')\n214: \n215: def parse_args():\n216:     import argparse\n217:     parser = argparse.ArgumentParser(description='P4Transformer Model Training')\n218: \n219:     parser.add_argument('--data-path', default='', type=str, help='dataset')\n220:     parser.add_argument('--seed', default=0, type=int, help='random seed')\n221:     parser.add_argument('--model', default='P4Transformer', type=str, help='model')\n222:     # input\n223:     parser.add_argument('--clip-len', default=24, type=int, metavar='N', help='number of frames per clip')\n224:     parser.add_argument('--num-points', default=2048, type=int, metavar='N', help='number of points per frame')\n225:     # P4D\n226:     parser.add_argument('--radius', default=0.3, type=float, help='radius for the ball query')\n227:     parser.add_argument('--nsamples', default=32, type=int, help='number of neighbors for the ball query')\n228:     parser.add_argument('--spatial-stride', default=32, type=int, help='spatial subsampling rate')\n229:     parser.add_argument('--temporal-kernel-size', default=3, type=int, help='temporal kernel size')\n230:     parser.add_argument('--temporal-stride', default=2, type=int, help='temporal stride')\n231:     # transformer\n232:     parser.add_argument('--dim', default=80, type=int, help='transformer dim')\n233:     parser.add_argument('--depth', default=5, type=int, help='transformer depth')\n234:     parser.add_argument('--heads', default=2, type=int, help='transformer head')\n235:     parser.add_argument('--dim-head', default=40, type=int, help='transformer dim for each head')\n236:     parser.add_argument('--mlp-dim', default=160, type=int, help='transformer mlp dim')\n237:     parser.add_argument('--dropout1', default=0.0, type=float, help='transformer dropout')\n238:     # output\n239:     parser.add_argument('--dropout2', default=0.0, type=float, help='classifier dropout')\n240:     # training\n241:     parser.add_argument('-b', '--batch-size', default=32, type=int)\n242:     parser.add_argument('--epochs', default=50, type=int, metavar='N', help='number of total epochs to run')\n243:     parser.add_argument('-j', '--workers', default=10, type=int, metavar='N', help='number of data loading workers (default: 16)')\n244:     parser.add_argument('--lr', default=0.01, type=float, help='initial learning rate')\n245:     parser.add_argument('--momentum', default=0.9, type=float, metavar='M', help='momentum')\n246:     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float, metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')\n247:     parser.add_argument('--lr-milestones', nargs='+', default=[20, 30], type=int, help='decrease lr on milestones')\n248:     parser.add_argument('--lr-gamma', default=0.1, type=float, help='decrease lr by a factor of lr-gamma')\n249:     parser.add_argument('--lr-warmup-epochs', default=10, type=int, help='number of warmup epochs')\n250:     # output\n251:     parser.add_argument('--print-freq', default=10, type=int, help='print frequency')\n252:     parser.add_argument('--output-dir', default='', type=str, help='path where to save')\n253:     # resume\n254:     parser.add_argument('--resume', default='', help='resume from checkpoint')\n255:     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')\n256: \n257:     args = parser.parse_args()\n258: \n259:     return args\n260: \n261: if __name__ == \"__main__\":\n262:     args = parse_args()\n263:     main(args)"
+    },
+    {
+      "evidence_id": "code-e292e51e371b0a3749bc",
+      "repo_revision": "b8dcf0677ddf6d9660f285c4eb3ff7670a066552",
+      "repo_fingerprint": "02abaa14a8624abcc455c640aebccbc8e0151139338eaa13ddfa42fe85ac696e",
+      "file_path": "README.md",
+      "file_sha256": "d2c06882ecc339c33d0d79dce2a90ac0b21faba3c248c11c6c27049547ffd295",
+      "start_line": 1,
+      "end_line": 13,
+      "symbol": null,
+      "retrieval_channels": [
+        "dense",
+        "keyword",
+        "bm25"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "dense",
+          "rank": 3,
+          "raw_score": 0.5808240950253344,
+          "anchor_line": 1,
+          "anchor_end_line": 13,
+          "symbol": null
+        },
+        {
+          "channel": "keyword",
+          "rank": 1,
+          "raw_score": 1.1375,
+          "anchor_line": 1,
+          "anchor_end_line": null,
+          "symbol": null
+        },
+        {
+          "channel": "bm25",
+          "rank": 2,
+          "raw_score": 2.9465405860025857,
+          "anchor_line": 1,
+          "anchor_end_line": null,
+          "symbol": null
+        }
+      ],
+      "fused_score": 0.08224925083729949,
+      "content_hash": "b31678fddc40dc933db1694761637aecf0fe9a6fdb6a612632bb327ac51d78d6",
+      "text": "1: # Point Spatio-Temporal Transformer Networks for Point Cloud Video Modeling\n2: \n3: ## Introduction\n4: Due to the inherent unorderliness and irregularity of point cloud, points emerge inconsistently across different frames in a point cloud video. To capture the dynamics in point cloud videos, tracking points and limiting temporal modeling range are usually employed to preserve spatio-temporal structure. However, as points may flow in and out across frames, computing accurate point trajectories is extremely difficult, especially for long videos. Moreover, when points move fast, even in a small temporal window, points may still escape from a region. Besides, using the same temporal range for different motions may not accurately capture the temporal structure. In this paper, we propose a Point Spatio-Temporal Transformer (PST-Transformer). To preserve the spatio-temporal structure, PST-Transformer adaptively searches related or similar points across the  entire video by performing self-attention on point features. Moreover, our PST-Transformer is equipped with an ability to encode spatio-temporal structure. Because point coordinates are irregular and unordered but point timestamps exhibit regularities and order, the spatio-temporal encoding is decoupled to reduce the impact of the spatial irregularity on the temporal modeling. By properly preserving and encoding spatio-temporal structure, our PST-Transformer effectively models point cloud videos and shows superior performance on 3D action recognition and 4D semantic segmentation.\n5: \n6: ## Installation\n7: The code is tested with Red Hat Enterprise Linux Workstation release 7.7 (Maipo), g++ (GCC) 9.4.0, PyTorch (v1.10.2), CUDA 11.3.1 and cuDNN v8.2.0.\n8: \n9: Compile the CUDA layers for [PointNet++](http://arxiv.org/abs/1706.02413), which we used for furthest point sampling (FPS) and radius neighbouring search:\n10: ```\n11: cd modules\n12: python setup.py install\n13: ```"
+    },
+    {
+      "evidence_id": "code-5de6b655e312c37d6100",
+      "repo_revision": "b8dcf0677ddf6d9660f285c4eb3ff7670a066552",
+      "repo_fingerprint": "02abaa14a8624abcc455c640aebccbc8e0151139338eaa13ddfa42fe85ac696e",
+      "file_path": "modules/point_4d_convolution.py",
+      "file_sha256": "9e56be48956da38b40905fece84c40c30f378943155918d927467dc8813b91a2",
+      "start_line": 60,
+      "end_line": 179,
+      "symbol": "P4DConv",
+      "retrieval_channels": [
+        "dense"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "dense",
+          "rank": 6,
+          "raw_score": 0.520399119761733,
+          "anchor_line": 80,
+          "anchor_end_line": 159,
+          "symbol": "P4DConv"
+        }
+      ],
+      "fused_score": 0.03181818181818182,
+      "content_hash": "ac66415dc3c52ff03f0f4b1e628edb6d53662056c4de28c320de44c49610437d",
+      "text": "60:             conv_f = [nn.Conv2d(in_channels=in_planes, out_channels=mlp_planes[0], kernel_size=1, stride=1, padding=0, bias=bias)]\n61:             if mlp_batch_norm[0]:\n62:                 conv_f.append(nn.BatchNorm2d(num_features=mlp_planes[0]))\n63:             if mlp_activation[0]:\n64:                 conv_f.append(nn.ReLU(inplace=True))\n65:             self.conv_f = nn.Sequential(*conv_f)\n66: \n67:         mlp = []\n68:         for i in range(1, len(mlp_planes)):\n69:             if mlp_planes[i] != 0:\n70:                 mlp.append(nn.Conv2d(in_channels=mlp_planes[i-1], out_channels=mlp_planes[i], kernel_size=1, stride=1, padding=0, bias=bias))\n71:             if mlp_batch_norm[i]:\n72:                 mlp.append(nn.BatchNorm2d(num_features=mlp_planes[i]))\n73:             if mlp_activation[i]:\n74:                 mlp.append(nn.ReLU(inplace=True))\n75:         self.mlp = nn.Sequential(*mlp)\n76: \n77: \n78:     def forward(self, xyzs: torch.Tensor, features: torch.Tensor = None) -> (torch.Tensor, torch.Tensor): # type: ignore\n79:         \"\"\"\n80:         Args:\n81:             xyzs: torch.Tensor\n82:                  (B, T, N, 3) tensor of sequence of the xyz coordinates\n83:             features: torch.Tensor\n84:                  (B, T, C, N) tensor of sequence of the features\n85:         \"\"\"\n86:         device = xyzs.get_device()\n87: \n88:         nframes = xyzs.size(1)\n89:         npoints = xyzs.size(2)\n90: \n91:         assert (self.temporal_kernel_size % 2 == 1), \"P4DConv: Temporal kernel size should be odd!\"\n92:         assert ((nframes + sum(self.temporal_padding) - self.temporal_kernel_size) % self.temporal_stride == 0), \"P4DConv: Temporal length error!\"\n93: \n94:         xyzs = torch.split(tensor=xyzs, split_size_or_sections=1, dim=1)\n95:         xyzs = [torch.squeeze(input=xyz, dim=1).contiguous() for xyz in xyzs]\n96: \n97:         if self.temporal_padding_mode == 'zeros':\n98:             xyz_padding = torch.zeros(xyzs[0].size(), dtype=torch.float32, device=device)\n99:             for i in range(self.temporal_padding[0]):\n100:                 xyzs = [xyz_padding] + xyzs\n101:             for i in range(self.temporal_padding[1]):\n102:                 xyzs = xyzs + [xyz_padding]\n103:         else:\n104:             for i in range(self.temporal_padding[0]):\n105:                 xyzs = [xyzs[0]] + xyzs\n106:             for i in range(self.temporal_padding[1]):\n107:                 xyzs = xyzs + [xyzs[-1]]\n108: \n109:         if self.in_planes != 0:\n110:             features = torch.split(tensor=features, split_size_or_sections=1, dim=1)\n111:             features = [torch.squeeze(input=feature, dim=1).contiguous() for feature in features]\n112: \n113:             if self.temporal_padding_mode == 'zeros':\n114:                 feature_padding = torch.zeros(features[0].size(), dtype=torch.float32, device=device)\n115:                 for i in range(self.temporal_padding[0]):\n116:                     features = [feature_padding] + features\n117:                 for i in range(self.temporal_padding[1]):\n118:                     features = features + [feature_padding]\n119:             else:\n120:                 for i in range(self.temporal_padding[0]):\n121:                     features = [features[0]] + features\n122:                 for i in range(self.temporal_padding[1]):\n123:                     features = features + [features[-1]]\n124: \n125:         new_xyzs = []\n126:         new_features = []\n127:         for t in range(self.temporal_kernel_size//2, len(xyzs)-self.temporal_kernel_size//2, self.temporal_stride):                 # temporal anchor frames\n128:             # spatial anchor point subsampling by FPS\n129:             anchor_idx = pointnet2_utils.furthest_point_sample(xyzs[t], npoints//self.spatial_stride)                               # (B, N//self.spatial_stride)\n130:             anchor_xyz_flipped = pointnet2_utils.gather_operation(xyzs[t].transpose(1, 2).contiguous(), anchor_idx)                 # (B, 3, N//self.spatial_stride)\n131:             anchor_xyz_expanded = torch.unsqueeze(anchor_xyz_flipped, 3)                                                            # (B, 3, N//spatial_stride, 1)\n132:             anchor_xyz = anchor_xyz_flipped.transpose(1, 2).contiguous()                                                            # (B, N//spatial_stride, 3)\n133: \n134:             new_feature = []\n135:             for i in range(t-self.temporal_kernel_size//2, t+self.temporal_kernel_size//2+1):\n136:                 neighbor_xyz = xyzs[i]\n137: \n138:                 idx = pointnet2_utils.ball_query(self.r, self.k, neighbor_xyz, anchor_xyz)\n139: \n140:                 neighbor_xyz_flipped = neighbor_xyz.transpose(1, 2).contiguous()                                                    # (B, 3, N)\n141:                 neighbor_xyz_grouped = pointnet2_utils.grouping_operation(neighbor_xyz_flipped, idx)                                # (B, 3, N//spatial_stride, k)\n142: \n143:                 xyz_displacement = neighbor_xyz_grouped - anchor_xyz_expanded                                                       # (B, 3, N//spatial_stride, k)\n144:                 t_displacement = torch.ones((xyz_displacement.size()[0], 1, xyz_displacement.size()[2], xyz_displacement.size()[3]), dtype=torch.float32, device=device) * (i-t)\n145:                 displacement = torch.cat(tensors=(xyz_displacement, t_displacement), dim=1, out=None)                               # (B, 4, N//spatial_stride, k)\n146:                 displacement = self.conv_d(displacement)\n147: \n148:                 if self.in_planes != 0:\n149:                     neighbor_feature_grouped = pointnet2_utils.grouping_operation(features[i], idx)                                 # (B, in_planes, N//spatial_stride, k)\n150:                     feature = self.conv_f(neighbor_feature_grouped)\n151:                     if self.operator == '+':\n152:                         feature = feature + displacement\n153:                     else:\n154:                         feature = feature * displacement\n155:                 else:\n156:                     feature = displacement\n157: \n158:                 feature = self.mlp(feature)\n159:                 if self.spatial_pooling == 'max':\n160:                     feature = torch.max(input=feature, dim=-1, keepdim=False)[0]                                                        # (B, out_planes, n)\n161:                 elif self.spatial_pooling == 'sum':\n162:                     feature = torch.sum(input=feature, dim=-1, keepdim=False)\n163:                 else:\n164:                     feature = torch.mean(input=feature, dim=-1, keepdim=False)\n165: \n166:                 new_feature.append(feature)\n167:             new_feature = torch.stack(tensors=new_feature, dim=1)\n168:             if self.temporal_pooling == 'max':\n169:                 new_feature = torch.max(input=new_feature, dim=1, keepdim=False)[0]\n170:             elif self.temporal_pooling == 'sum':\n171:                 new_feature = torch.sum(input=new_feature, dim=1, keepdim=False)\n172:             else:\n173:                 new_feature = torch.mean(input=new_feature, dim=1, keepdim=False)\n174:             new_xyzs.append(anchor_xyz)\n175:             new_features.append(new_feature)\n176: \n177:         new_xyzs = torch.stack(tensors=new_xyzs, dim=1)\n178:         new_features = torch.stack(tensors=new_features, dim=1)\n179: "
+    },
+    {
+      "evidence_id": "code-6e60c7ed72474cf9a093",
+      "repo_revision": "b8dcf0677ddf6d9660f285c4eb3ff7670a066552",
+      "repo_fingerprint": "02abaa14a8624abcc455c640aebccbc8e0151139338eaa13ddfa42fe85ac696e",
+      "file_path": "datasets/ntu60.py",
+      "file_sha256": "b9928c1aab24824bd4edc8cdebfcc175bfbaf756fc68b1420a0a486e93ab131f",
+      "start_line": 1,
+      "end_line": 34,
+      "symbol": "clip_normalize",
+      "retrieval_channels": [
+        "dense"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "dense",
+          "rank": 7,
+          "raw_score": 0.5015020816206864,
+          "anchor_line": 8,
+          "anchor_end_line": 14,
+          "symbol": "clip_normalize"
+        }
+      ],
+      "fused_score": 0.03134328358208956,
+      "content_hash": "74e7792dba0a85f84e3dba380d3da82bd6a8440f91a20df5498e5042ff897b4d",
+      "text": "1: import os\n2: import sys\n3: import numpy as np\n4: from torch.utils.data import Dataset\n5: \n6: Cross_Subject = [1, 2, 4, 5, 8, 9, 13, 14, 15, 16, 17, 18, 19, 25, 27, 28, 31, 34, 35, 38]\n7: \n8: def clip_normalize(clip):\n9:     pc = np.reshape(a=clip, newshape=[-1, 3])\n10:     centroid = np.mean(pc, axis=0)\n11:     pc = pc - centroid\n12:     m = np.max(np.sqrt(np.sum(pc**2, axis=1)))\n13:     clip = (clip - centroid) / m\n14:     return clip\n15: \n16: class NTU60Subject(Dataset):\n17:     def __init__(self, root, meta, frames_per_clip=23, step_between_clips=2, num_points=2048, train=True):\n18:         super(NTU60Subject, self).__init__()\n19: \n20:         self.videos = []\n21:         self.labels = []\n22:         self.index_map = []\n23:         index = 0\n24: \n25:         with open(meta, 'r') as f:\n26:             for line in f:\n27:                 name, nframes = line.split()\n28:                 subject = int(name[9:12])\n29:                 if train:\n30:                     if subject in Cross_Subject:\n31:                         label = int(name[-3:]) - 1\n32:                         nframes = int(nframes)\n33:                         for t in range(0, nframes-step_between_clips*(frames_per_clip-1), step_between_clips):\n34:                             self.index_map.append((index, t))"
+    },
+    {
+      "evidence_id": "code-d13932bf15f586e56219",
+      "repo_revision": "b8dcf0677ddf6d9660f285c4eb3ff7670a066552",
+      "repo_fingerprint": "02abaa14a8624abcc455c640aebccbc8e0151139338eaa13ddfa42fe85ac696e",
+      "file_path": "datasets/msr.py",
+      "file_sha256": "63bf2e20d2bc15cced50f5e27cdb1d2bffdff938c2b1fcfbdc1e8136ec891c1f",
+      "start_line": 25,
+      "end_line": 67,
+      "symbol": "MSRAction3D.get_video",
+      "retrieval_channels": [
+        "dense"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "dense",
+          "rank": 8,
+          "raw_score": 0.47556289994226036,
+          "anchor_line": 45,
+          "anchor_end_line": 47,
+          "symbol": "MSRAction3D.get_video"
+        }
+      ],
+      "fused_score": 0.030882352941176472,
+      "content_hash": "33e48b2deb2e5da14bc8e88cb9abee68415fbfe53b09263c3bb07c0b4fa6a06d",
+      "text": "25:                 index += 1\n26: \n27:             if not train and (int(video_name.split('_')[1].split('s')[1]) > 5):\n28:                 video = np.load(os.path.join(root, video_name), allow_pickle=True)['point_clouds']\n29:                 self.videos.append(video)\n30:                 label = int(video_name.split('_')[0][1:])-1\n31:                 self.labels.append(label)\n32: \n33:                 nframes = video.shape[0]\n34:                 for t in range(0, nframes-step_between_clips*(frames_per_clip-1), step_between_clips):\n35:                     self.index_map.append((index, t))\n36:                 index += 1\n37: \n38:         self.frames_per_clip = frames_per_clip\n39:         self.step_between_clips = step_between_clips\n40:         self.num_points = num_points\n41:         self.train = train\n42:         self.num_classes = max(self.labels) + 1\n43: \n44:     @functools.lru_cache(100)\n45:     def get_video(self, root, video_name):\n46:         m=np.load(os.path.join(root, video_name))\n47:         return np.load(os.path.join(root, video_name), allow_pickle=True)['point_clouds']\n48:     def __len__(self):\n49:         return len(self.index_map)\n50: \n51:     def __getitem__(self, idx):\n52:         index, t = self.index_map[idx]\n53: \n54:         video = self.videos[index]\n55:         label = self.labels[index]\n56: \n57:         clip = [video[t+i*self.step_between_clips] for i in range(self.frames_per_clip)]\n58:         for i, p in enumerate(clip):\n59:             if p.shape[0] > self.num_points:\n60:                 r = np.random.choice(p.shape[0], size=self.num_points, replace=False)\n61:             else:\n62:                 repeat, residue = self.num_points // p.shape[0], self.num_points % p.shape[0]\n63:                 r = np.random.choice(p.shape[0], size=residue, replace=False)\n64:                 r = np.concatenate([np.arange(p.shape[0]) for _ in range(repeat)] + [r], axis=0)\n65:             clip[i] = p[r, :]\n66:         clip = np.array(clip)\n67: "
+    }
+  ]
+}

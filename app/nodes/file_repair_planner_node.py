@@ -5,7 +5,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from app.config import settings
-from app.model import get_chat_model
+from app.model_routing.factory import build_model_gateway
 from app.prompts.file_repair_prompt import FILE_REPAIR_PROMPT
 from app.schemas import FileRepairProposal
 from app.tools.artifact_tools import (
@@ -18,7 +18,6 @@ from app.tools.error_tools import structured_failure_update
 from app.tools.log_tools import extract_traceback, read_log
 from app.tools.patch_tools import collect_source_context, resolve_patch_target
 from app.tools.structured_output_tools import (
-    invoke_structured_with_retry,
     write_structured_output_trace,
 )
 
@@ -193,18 +192,14 @@ def file_repair_planner_node(state: dict) -> dict:
         repo_path=repo_path,
     )
 
-    invocation = invoke_structured_with_retry(
-        llm=get_chat_model(temperature=0),
+    invocation = build_model_gateway().invoke_structured(
+        task_kind="file_repair_plan",
         schema=FileRepairProposal,
         prompt=prompt,
-        method=settings.structured_output_method,
-        strict=settings.structured_output_strict,
-        max_retries=settings.structured_output_max_retries,
-        raw_preview_chars=settings.structured_output_raw_preview_chars,
-        provider_max_retries=settings.provider_max_retries,
-        provider_retry_base_seconds=(
-            settings.provider_retry_base_seconds
-        ),
+        node_name="file_repair_planner",
+        job_id=state.get("job_id"),
+        run_id=state.get("run_id"),
+        quality_tier="high",
     )
 
     if invocation.value is None:
@@ -245,7 +240,7 @@ def file_repair_planner_node(state: dict) -> dict:
             )
 
     trace_path = write_structured_output_trace(
-        result=invocation,
+        result=invocation.result,
         node_name="file_repair_planner",
         schema_name="FileRepairProposal",
         output_dir=artifact_dir(
@@ -254,6 +249,21 @@ def file_repair_planner_node(state: dict) -> dict:
             "structured",
         ),
         fallback_used=invocation.value is None,
+        model_invocation_id=invocation.invocation_id,
+        model_decision_sha256=(
+            invocation.decision.decision_sha256
+        ),
+        model_profile_id=(
+            invocation.decision.executed_profile_id
+        ),
+        model_name=(
+            invocation.decision.executed_model_name
+        ),
+        model_usage_quality=(
+            invocation.ledger_record.usage_quality
+            if invocation.ledger_record is not None
+            else None
+        ),
     )
 
     return _proposal_state_update(

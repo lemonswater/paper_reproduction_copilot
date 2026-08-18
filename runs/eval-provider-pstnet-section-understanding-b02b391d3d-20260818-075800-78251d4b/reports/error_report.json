@@ -1,0 +1,76 @@
+{
+  "run_id": "eval-provider-pstnet-section-understanding-b02b391d3d-20260818-075800-78251d4b",
+  "error_count": 4,
+  "errors": [
+    {
+      "error_id": "error_6a177658a7a0476b",
+      "code": "PAPER_SECTION_EVIDENCE_INVALID",
+      "category": "agent",
+      "stage": "method_extractor",
+      "message": "Unknown evidence block_ids: ['p016-b0086-6bd8ca2f050']",
+      "retryable": false,
+      "terminal": false,
+      "exception_type": null,
+      "traceback_artifact_path": null,
+      "context": {
+        "section_id": "sec-254b22b38ae4",
+        "chunk_id": "sec-254b22b38ae4-c000-0548af81bd"
+      },
+      "occurred_at": "2026-08-18T07:59:42.845428+00:00"
+    },
+    {
+      "error_id": "error_382c8470149643fd",
+      "code": "PROVIDER_INVOKE_FAILED",
+      "category": "provider",
+      "stage": "method_extractor",
+      "message": "Could not parse response content as the length limit was reached - CompletionUsage(completion_tokens=<redacted>, prompt_tokens=<redacted>, total_tokens=<redacted>, completion_tokens_details=<redacted>, prompt_tokens_details=<redacted>",
+      "retryable": false,
+      "terminal": false,
+      "exception_type": "LengthFinishReasonError",
+      "traceback_artifact_path": null,
+      "context": {
+        "attempt_count": 1,
+        "method": "json_schema",
+        "strict": true,
+        "truncated": false,
+        "section_id": "sec-fb61d38a0743",
+        "chunk_id": "sec-fb61d38a0743-c000-752b93f948",
+        "pages": [
+          4,
+          5
+        ]
+      },
+      "occurred_at": "2026-08-18T08:01:00.277180+00:00"
+    },
+    {
+      "error_id": "error_1b96e0db73864103",
+      "code": "PAPER_SECTION_EVIDENCE_INVALID",
+      "category": "agent",
+      "stage": "method_extractor",
+      "message": "Unknown evidence block_ids: ['p005-b0079-2bc54e2f46']",
+      "retryable": false,
+      "terminal": false,
+      "exception_type": null,
+      "traceback_artifact_path": null,
+      "context": {
+        "section_id": "sec-fb61d38a0743",
+        "chunk_id": "sec-fb61d38a0743-c001-85101da643"
+      },
+      "occurred_at": "2026-08-18T08:01:16.380562+00:00"
+    },
+    {
+      "error_id": "error_561e812dff4d4711",
+      "code": "PROVIDER_ERROR",
+      "category": "provider",
+      "stage": "mapping",
+      "message": "MODEL_ROUTE_INPUT_LIMIT_EXCEEDED",
+      "retryable": false,
+      "terminal": true,
+      "exception_type": "ModelRouteUnavailable",
+      "traceback_artifact_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-section-understanding-b02b391d3d-20260818-075800-78251d4b/traces/errors/error_561e812dff4d4711.traceback.txt",
+      "context": {},
+      "occurred_at": "2026-08-18T08:01:22.451278+00:00"
+    }
+  ],
+  "generated_at": "2026-08-18T08:01:22.487198+00:00"
+}

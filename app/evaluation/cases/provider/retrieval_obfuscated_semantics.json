@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "case_id": "provider_retrieval_obfuscated_semantics",
+  "description": "Dense Retrieval 应在命名不一致时召回局部时空点特征算子",
+  "suite": "provider",
+  "runner": "semantic_code_retrieval",
+  "categories": [
+    "evidence",
+    "efficiency"
+  ],
+  "tags": [
+    "provider",
+    "embedding",
+    "retrieval",
+    "phase21",
+    "semantic-gap"
+  ],
+  "problem_ids": [],
+  "input": {
+    "repo_path": "fixtures/retrieval_repo",
+    "retrieval_query": "Locate the paper module that forms neighborhoods of 3D points over consecutive frames, models motion between adjacent frames, and jointly aggregates spatial and temporal point features.",
+    "retrieval_keywords": []
+  },
+  "expected": {
+    "required_retrieval_paths": [
+      "obfuscated/operator_core.py"
+    ],
+    "max_retrieval_rank_by_path": {
+      "obfuscated/operator_core.py": 2
+    },
+    "required_retrieval_channels": [
+      "dense"
+    ],
+    "min_retrieval_provenance_ratio": 1.0,
+    "max_duration_ms": 120000,
+    "max_llm_calls": 0,
+    "max_embedding_document_calls": 10,
+    "max_embedding_query_calls": 1
+  },
+  "thresholds": {
+    "min_overall_score": 1.0,
+    "max_score_regression": 0.0
+  }
+}

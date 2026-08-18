@@ -1,0 +1,44 @@
+{
+  "manifest_version": "phase48-v1",
+  "skill_id": "cuda_build_diagnosis",
+  "skill_version": "1.0.0",
+  "display_name": "CUDA Build Diagnosis",
+  "summary": "Use bounded read-only tools to diagnose CUDA extension build failures.",
+  "implementation_id": "builtin.cuda_build_diagnosis.v1",
+  "input_schema_id": "skill.cuda_build_diagnosis.input.v1",
+  "output_schema_id": "skill.cuda_build_diagnosis.output.v1",
+  "required_tools": [
+    {
+      "name": "log.read_log",
+      "version": "phase40-v1"
+    },
+    {
+      "name": "log.extract_traceback",
+      "version": "phase40-v1"
+    },
+    {
+      "name": "log.classify_error_heuristic",
+      "version": "phase40-v1"
+    },
+    {
+      "name": "log.extract_repo_traceback_paths",
+      "version": "phase40-v1"
+    },
+    {
+      "name": "search.search_keywords",
+      "version": "phase40-v1"
+    }
+  ],
+  "required_capabilities": [
+    "filesystem.read.run",
+    "filesystem.read.workspace",
+    "process.spawn.rg"
+  ],
+  "side_effect_level": "proposal_only",
+  "prompt_or_policy_version": "cuda-build-rules-v1",
+  "eval_suite": "cuda_build_diagnosis_offline_v1",
+  "feature_flag": "skill.cuda_build_diagnosis",
+  "max_tool_calls": 5,
+  "max_duration_ms": 65000,
+  "resources": []
+}

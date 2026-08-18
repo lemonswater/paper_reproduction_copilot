@@ -6,6 +6,7 @@ from app.config import settings
 from app.nodes.file_repair_planner_node import file_repair_planner_node
 from app.schemas import FileRepairProposal
 from app.tools.structured_output_tools import StructuredInvocationResult
+from tests.helpers.model_routing import ScriptedModelGateway
 
 
 def _make_state(tmp_path) -> tuple[dict, str, str]:
@@ -103,12 +104,10 @@ def test_file_repair_adds_pytest_target_from_pending_action(
     monkeypatch.setattr(settings, "enable_file_repair", True)
     monkeypatch.setattr(settings, "max_file_repair_attempts", 1)
 
-    with (
-        patch(
-            "app.nodes.file_repair_planner_node.invoke_structured_with_retry",
-            return_value=_invocation(proposal),
-        ),
-        patch("app.nodes.file_repair_planner_node.get_chat_model"),
+    gateway = ScriptedModelGateway([_invocation(proposal)])
+    with patch(
+        "app.nodes.file_repair_planner_node.build_model_gateway",
+        return_value=gateway,
     ):
         result = file_repair_planner_node(state)
 
@@ -149,12 +148,10 @@ def test_file_repair_rejects_test_file_edit(
     monkeypatch.setattr(settings, "enable_file_repair", True)
     monkeypatch.setattr(settings, "max_file_repair_attempts", 1)
 
-    with (
-        patch(
-            "app.nodes.file_repair_planner_node.invoke_structured_with_retry",
-            return_value=_invocation(proposal),
-        ),
-        patch("app.nodes.file_repair_planner_node.get_chat_model"),
+    gateway = ScriptedModelGateway([_invocation(proposal)])
+    with patch(
+        "app.nodes.file_repair_planner_node.build_model_gateway",
+        return_value=gateway,
     ):
         result = file_repair_planner_node(state)
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 import fitz
@@ -6,7 +8,7 @@ import fitz
 def read_pdf(path: str) -> str:
     pdf_path = Path(path)
     if not pdf_path.exists():
-        raise FileNotFoundError(f"paper not found: {path}")
+        raise FileNotFoundError(f"未找到论文文件：{path}")
 
     chunks: list[str] = []
     with fitz.open(pdf_path) as doc:
@@ -20,7 +22,7 @@ def read_pdf(path: str) -> str:
 def read_text_file(path: str) -> str:
     file_path = Path(path)
     if not file_path.exists():
-        raise FileNotFoundError(f"paper not found: {path}")
+        raise FileNotFoundError(f"未找到论文文件：{path}")
     return file_path.read_text(encoding="utf-8", errors="ignore")
 
 
@@ -30,12 +32,12 @@ def read_paper(path: str) -> str:
         return read_pdf(path)
     if suffix in {".md", ".txt"}:
         return read_text_file(path)
-    raise ValueError(f"unsupported paper format: {suffix}")
+    raise ValueError(f"不支持的论文格式：{suffix}")
 
 
 def split_text(text: str, chunk_size: int = 5000, overlap: int = 500) -> list[dict]:
     if chunk_size <= overlap:
-        raise ValueError("chunk_size must be greater than overlap")
+        raise ValueError("chunk_size 必须大于 overlap")
 
     chunks: list[dict] = []
     start = 0
@@ -52,8 +54,7 @@ def split_text(text: str, chunk_size: int = 5000, overlap: int = 500) -> list[di
         )
         chunk_id += 1
         start = end - overlap
-        if start < 0:
-            start = 0
+        start = max(start, 0)
         if end == len(text):
             break
     return chunks

@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "case_id": "offline_pstnet_paper_parser",
+  "description": "PSTNet PDF 应完整索引正文，并保持高精度章节和父子结构",
+  "suite": "offline",
+  "runner": "paper_parser",
+  "categories": [
+    "route",
+    "quality",
+    "efficiency"
+  ],
+  "tags": [
+    "offline",
+    "paper",
+    "parser",
+    "phase19",
+    "golden"
+  ],
+  "problem_ids": [],
+  "input": {
+    "paper_path": "pdf/PSTNet—Point Spatio-Temporal Convolution on Point Cloud Sequences.pdf"
+  },
+  "expected": {
+    "allowed_final_statuses": [
+      "succeeded",
+      "partial"
+    ],
+    "required_section_kinds": [
+      "abstract",
+      "method",
+      "experiments",
+      "implementation",
+      "ablation",
+      "conclusion"
+    ],
+    "required_section_titles": [
+      "Abstract",
+      "Introduction",
+      "Related Work",
+      "Point Tube",
+      "Experiments",
+      "Implementation Details",
+      "Ablation Study",
+      "Limitation"
+    ],
+    "required_exact_section_titles": [
+      "PSTNET: POINT SPATIO-TEMPORAL CONVOLUTION ON POINT CLOUD SEQUENCES",
+      "VISUALIZATION OF THE OUTPUT OF EACH PST CONVOLUTION LAYER IN PSTNET"
+    ],
+    "forbidden_exact_section_titles": [
+      "W",
+      "T",
+      "S",
+      "PSTNET",
+      "′(x,y,z)",
+      "′′(x,y,z)",
+      "(x,y,z)"
+    ],
+    "forbidden_section_title_terms": [
+      "and pooling techniques",
+      "converts a point cloud sequence",
+      "frames with N = 8 points per frame",
+      "CPU 2205 GPU",
+      "89.39 97.68",
+      "0.00 44.61",
+      "PSTConv1: N=1024"
+    ],
+    "min_section_count": 35,
+    "max_section_count": 45,
+    "required_parent_relations": [
+      {
+        "child_number": "3.1",
+        "parent_number": "3"
+      },
+      {
+        "child_number": "3.2.1",
+        "parent_number": "3.2"
+      },
+      {
+        "child_number": "3.2.2",
+        "parent_number": "3.2"
+      },
+      {
+        "child_number": "3.3",
+        "parent_number": "3"
+      },
+      {
+        "child_number": "3.4",
+        "parent_number": "3"
+      },
+      {
+        "child_number": "4.1.1",
+        "parent_number": "4.1"
+      },
+      {
+        "child_number": "4.1.2",
+        "parent_number": "4.1"
+      },
+      {
+        "child_number": "B.1",
+        "parent_number": "B"
+      },
+      {
+        "child_number": "B.2",
+        "parent_number": "B"
+      }
+    ],
+    "min_indexed_page_ratio": 1.0,
+    "max_ocr_required_pages": 0,
+    "max_duration_ms": 15000
+  },
+  "thresholds": {
+    "min_overall_score": 1.0,
+    "max_score_regression": 0.0
+  }
+}

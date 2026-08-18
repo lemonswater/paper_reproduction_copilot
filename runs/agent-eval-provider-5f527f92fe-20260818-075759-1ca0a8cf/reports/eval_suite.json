@@ -1,0 +1,620 @@
+{
+  "schema_version": 1,
+  "eval_id": "agent-eval-provider-5f527f92fe",
+  "suite": "provider",
+  "passed": false,
+  "overall_score": 0.5963541666666666,
+  "case_results": [
+    {
+      "case_id": "provider_pstnet_mapping",
+      "suite": "provider",
+      "runner": "live_graph",
+      "passed": false,
+      "overall_score": 0.3333333333333333,
+      "scorer_results": [
+        {
+          "category": "schema",
+          "score": 0.3333333333333333,
+          "passed": false,
+          "assertions": [
+            {
+              "code": "SCHEMA_REQUIRED:PaperSummary",
+              "passed": false,
+              "message": "必须观察到指定 Schema",
+              "expected": "PaperSummary",
+              "actual": []
+            },
+            {
+              "code": "SCHEMA_REQUIRED:ModuleMapping",
+              "passed": false,
+              "message": "必须观察到指定 Schema",
+              "expected": "ModuleMapping",
+              "actual": []
+            },
+            {
+              "code": "SCHEMA_REQUIRED:ExperimentPlan",
+              "passed": false,
+              "message": "必须观察到指定 Schema",
+              "expected": "ExperimentPlan",
+              "actual": []
+            },
+            {
+              "code": "SCHEMA_SUCCESS_RATE",
+              "passed": false,
+              "message": "Schema 成功率达到下限",
+              "expected": 1.0,
+              "actual": 0.0
+            },
+            {
+              "code": "SCHEMA_FALLBACK_COUNT",
+              "passed": true,
+              "message": "fallback 不超过预算",
+              "expected": 1,
+              "actual": 0
+            },
+            {
+              "code": "SCHEMA_RETRY_COUNT",
+              "passed": true,
+              "message": "重试不超过预算",
+              "expected": 3,
+              "actual": 0
+            }
+          ]
+        },
+        {
+          "category": "evidence",
+          "score": 0.0,
+          "passed": false,
+          "assertions": [
+            {
+              "code": "EVIDENCE_PATH:models/model.py",
+              "passed": false,
+              "message": "必须存在来源路径",
+              "expected": "models/model.py",
+              "actual": []
+            }
+          ]
+        },
+        {
+          "category": "quality",
+          "score": 0.0,
+          "passed": false,
+          "assertions": [
+            {
+              "code": "QUALITY_FILE:models/model.py",
+              "passed": false,
+              "message": "必须找到文件",
+              "expected": "models/model.py",
+              "actual": false
+            }
+          ]
+        },
+        {
+          "category": "efficiency",
+          "score": 1.0,
+          "passed": true,
+          "assertions": [
+            {
+              "code": "EFFICIENCY_LLM_CALLS",
+              "passed": true,
+              "message": "效率指标不超过预算",
+              "expected": 12,
+              "actual": 0
+            },
+            {
+              "code": "EFFICIENCY_HUMAN",
+              "passed": true,
+              "message": "效率指标不超过预算",
+              "expected": 1,
+              "actual": 0
+            }
+          ]
+        }
+      ],
+      "observation_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-provider-5f527f92fe-20260818-075759-1ca0a8cf/traces/eval_cases/provider_pstnet_mapping/observation.json",
+      "error": null
+    },
+    {
+      "case_id": "provider_pstnet_section_understanding",
+      "suite": "provider",
+      "runner": "live_graph",
+      "passed": false,
+      "overall_score": 0.71875,
+      "scorer_results": [
+        {
+          "category": "schema",
+          "score": 0.75,
+          "passed": false,
+          "assertions": [
+            {
+              "code": "SCHEMA_REQUIRED:SectionExtractionDraft",
+              "passed": true,
+              "message": "必须观察到指定 Schema",
+              "expected": "SectionExtractionDraft",
+              "actual": [
+                "SectionExtractionDraft"
+              ]
+            },
+            {
+              "code": "SCHEMA_SUCCESS_RATE",
+              "passed": true,
+              "message": "Schema 成功率达到下限",
+              "expected": 0.9,
+              "actual": 0.9166666666666666
+            },
+            {
+              "code": "SCHEMA_FALLBACK_COUNT",
+              "passed": false,
+              "message": "fallback 不超过预算",
+              "expected": 0,
+              "actual": 1
+            },
+            {
+              "code": "SCHEMA_RETRY_COUNT",
+              "passed": true,
+              "message": "重试不超过预算",
+              "expected": 6,
+              "actual": 0
+            }
+          ]
+        },
+        {
+          "category": "evidence",
+          "score": 1.0,
+          "passed": true,
+          "assertions": [
+            {
+              "code": "ARTIFACT_REQUIRED:analysis/paper_document.json",
+              "passed": true,
+              "message": "必须生成 Artifact",
+              "expected": true,
+              "actual": true
+            },
+            {
+              "code": "ARTIFACT_HASH:analysis/paper_document.json",
+              "passed": true,
+              "message": "hash 必须有效",
+              "expected": "current",
+              "actual": "current"
+            },
+            {
+              "code": "ARTIFACT_REQUIRED:analysis/paper_blocks.json",
+              "passed": true,
+              "message": "必须生成 Artifact",
+              "expected": true,
+              "actual": true
+            },
+            {
+              "code": "ARTIFACT_HASH:analysis/paper_blocks.json",
+              "passed": true,
+              "message": "hash 必须有效",
+              "expected": "current",
+              "actual": "current"
+            },
+            {
+              "code": "ARTIFACT_REQUIRED:analysis/paper_sections.json",
+              "passed": true,
+              "message": "必须生成 Artifact",
+              "expected": true,
+              "actual": true
+            },
+            {
+              "code": "ARTIFACT_HASH:analysis/paper_sections.json",
+              "passed": true,
+              "message": "hash 必须有效",
+              "expected": "current",
+              "actual": "current"
+            },
+            {
+              "code": "ARTIFACT_REQUIRED:analysis/paper_parse_report.json",
+              "passed": true,
+              "message": "必须生成 Artifact",
+              "expected": true,
+              "actual": true
+            },
+            {
+              "code": "ARTIFACT_HASH:analysis/paper_parse_report.json",
+              "passed": true,
+              "message": "hash 必须有效",
+              "expected": "current",
+              "actual": "current"
+            },
+            {
+              "code": "ARTIFACT_REQUIRED:analysis/paper_fact_index.json",
+              "passed": true,
+              "message": "必须生成 Artifact",
+              "expected": true,
+              "actual": true
+            },
+            {
+              "code": "ARTIFACT_HASH:analysis/paper_fact_index.json",
+              "passed": true,
+              "message": "hash 必须有效",
+              "expected": "current",
+              "actual": "current"
+            },
+            {
+              "code": "ARTIFACT_REQUIRED:analysis/paper_conflicts.json",
+              "passed": true,
+              "message": "必须生成 Artifact",
+              "expected": true,
+              "actual": true
+            },
+            {
+              "code": "ARTIFACT_HASH:analysis/paper_conflicts.json",
+              "passed": true,
+              "message": "hash 必须有效",
+              "expected": "current",
+              "actual": "current"
+            },
+            {
+              "code": "EVIDENCE_PAPER_PROVENANCE_RATIO",
+              "passed": true,
+              "message": "论文 Evidence provenance 完整度达到下限",
+              "expected": 0.95,
+              "actual": 1.0
+            }
+          ]
+        },
+        {
+          "category": "quality",
+          "score": 0.125,
+          "passed": false,
+          "assertions": [
+            {
+              "code": "QUALITY_PAPER_SETTING:training epochs",
+              "passed": false,
+              "message": "必须抽取指定实验设置",
+              "expected": "training epochs",
+              "actual": [
+                "MSR-Action3D片段长度",
+                "MSR-Action3D时间核大小l=1",
+                "MSR-Action3D时间核大小l≥3"
+              ]
+            },
+            {
+              "code": "QUALITY_PAPER_SETTING:optimizer",
+              "passed": false,
+              "message": "必须抽取指定实验设置",
+              "expected": "optimizer",
+              "actual": [
+                "MSR-Action3D片段长度",
+                "MSR-Action3D时间核大小l=1",
+                "MSR-Action3D时间核大小l≥3"
+              ]
+            },
+            {
+              "code": "QUALITY_PAPER_SETTING:initial learning rate",
+              "passed": false,
+              "message": "必须抽取指定实验设置",
+              "expected": "initial learning rate",
+              "actual": [
+                "MSR-Action3D片段长度",
+                "MSR-Action3D时间核大小l=1",
+                "MSR-Action3D时间核大小l≥3"
+              ]
+            },
+            {
+              "code": "QUALITY_PAPER_SETTING:learning rate decay epochs",
+              "passed": false,
+              "message": "必须抽取指定实验设置",
+              "expected": "learning rate decay epochs",
+              "actual": [
+                "MSR-Action3D片段长度",
+                "MSR-Action3D时间核大小l=1",
+                "MSR-Action3D时间核大小l≥3"
+              ]
+            },
+            {
+              "code": "QUALITY_PAPER_SETTING:MSR-Action3D batch size",
+              "passed": false,
+              "message": "必须抽取指定实验设置",
+              "expected": "MSR-Action3D batch size",
+              "actual": [
+                "MSR-Action3D片段长度",
+                "MSR-Action3D时间核大小l=1",
+                "MSR-Action3D时间核大小l≥3"
+              ]
+            },
+            {
+              "code": "QUALITY_PAPER_SETTING:NTU batch size",
+              "passed": false,
+              "message": "必须抽取指定实验设置",
+              "expected": "NTU batch size",
+              "actual": [
+                "MSR-Action3D片段长度",
+                "MSR-Action3D时间核大小l=1",
+                "MSR-Action3D时间核大小l≥3"
+              ]
+            },
+            {
+              "code": "QUALITY_PAPER_SETTING:Synthia batch size",
+              "passed": false,
+              "message": "必须抽取指定实验设置",
+              "expected": "Synthia batch size",
+              "actual": [
+                "MSR-Action3D片段长度",
+                "MSR-Action3D时间核大小l=1",
+                "MSR-Action3D时间核大小l≥3"
+              ]
+            },
+            {
+              "code": "QUALITY_PAPER_CONFLICTS",
+              "passed": true,
+              "message": "论文事实冲突不超过阈值",
+              "expected": 0,
+              "actual": 0
+            }
+          ]
+        },
+        {
+          "category": "efficiency",
+          "score": 1.0,
+          "passed": true,
+          "assertions": [
+            {
+              "code": "EFFICIENCY_LLM_CALLS",
+              "passed": true,
+              "message": "效率指标不超过预算",
+              "expected": 30,
+              "actual": 12
+            },
+            {
+              "code": "EFFICIENCY_HUMAN",
+              "passed": true,
+              "message": "效率指标不超过预算",
+              "expected": 1,
+              "actual": 0
+            }
+          ]
+        }
+      ],
+      "observation_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-provider-5f527f92fe-20260818-075759-1ca0a8cf/traces/eval_cases/provider_pstnet_section_understanding/observation.json",
+      "error": null
+    },
+    {
+      "case_id": "provider_p4transformer_mapping",
+      "suite": "provider",
+      "runner": "live_graph",
+      "passed": false,
+      "overall_score": 0.3333333333333333,
+      "scorer_results": [
+        {
+          "category": "schema",
+          "score": 0.3333333333333333,
+          "passed": false,
+          "assertions": [
+            {
+              "code": "SCHEMA_REQUIRED:PaperSummary",
+              "passed": false,
+              "message": "必须观察到指定 Schema",
+              "expected": "PaperSummary",
+              "actual": [
+                "SectionExtractionDraft"
+              ]
+            },
+            {
+              "code": "SCHEMA_REQUIRED:ModuleMapping",
+              "passed": false,
+              "message": "必须观察到指定 Schema",
+              "expected": "ModuleMapping",
+              "actual": [
+                "SectionExtractionDraft"
+              ]
+            },
+            {
+              "code": "SCHEMA_REQUIRED:ExperimentPlan",
+              "passed": false,
+              "message": "必须观察到指定 Schema",
+              "expected": "ExperimentPlan",
+              "actual": [
+                "SectionExtractionDraft"
+              ]
+            },
+            {
+              "code": "SCHEMA_SUCCESS_RATE",
+              "passed": false,
+              "message": "Schema 成功率达到下限",
+              "expected": 1.0,
+              "actual": 0.9166666666666666
+            },
+            {
+              "code": "SCHEMA_FALLBACK_COUNT",
+              "passed": true,
+              "message": "fallback 不超过预算",
+              "expected": 1,
+              "actual": 1
+            },
+            {
+              "code": "SCHEMA_RETRY_COUNT",
+              "passed": true,
+              "message": "重试不超过预算",
+              "expected": 3,
+              "actual": 0
+            }
+          ]
+        },
+        {
+          "category": "evidence",
+          "score": 0.0,
+          "passed": false,
+          "assertions": [
+            {
+              "code": "EVIDENCE_PATH:models/model.py",
+              "passed": false,
+              "message": "必须存在来源路径",
+              "expected": "models/model.py",
+              "actual": [
+                "/data/tianshaoqi24/agent/paper_reproduction_copilot/pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf",
+                "/data/tianshaoqi24/agent/paper_reproduction_copilot/pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf",
+                "/data/tianshaoqi24/agent/paper_reproduction_copilot/pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf",
+                "/data/tianshaoqi24/agent/paper_reproduction_copilot/pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf",
+                "/data/tianshaoqi24/agent/paper_reproduction_copilot/pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf",
+                "paper-8624859bf40594eb",
+                "paper-8624859bf40594eb",
+                "paper-8624859bf40594eb",
+                "paper-8624859bf40594eb",
+                "paper-8624859bf40594eb",
+                "paper-8624859bf40594eb",
+                "/data/tianshaoqi24/agent/paper_reproduction_copilot/pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf",
+                "/data/tianshaoqi24/agent/paper_reproduction_copilot/pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf",
+                "/data/tianshaoqi24/agent/paper_reproduction_copilot/pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf"
+              ]
+            }
+          ]
+        },
+        {
+          "category": "quality",
+          "score": 0.0,
+          "passed": false,
+          "assertions": [
+            {
+              "code": "QUALITY_FILE:models/model.py",
+              "passed": false,
+              "message": "必须找到文件",
+              "expected": "models/model.py",
+              "actual": false
+            }
+          ]
+        },
+        {
+          "category": "efficiency",
+          "score": 1.0,
+          "passed": true,
+          "assertions": [
+            {
+              "code": "EFFICIENCY_LLM_CALLS",
+              "passed": true,
+              "message": "效率指标不超过预算",
+              "expected": 12,
+              "actual": 12
+            },
+            {
+              "code": "EFFICIENCY_HUMAN",
+              "passed": true,
+              "message": "效率指标不超过预算",
+              "expected": 1,
+              "actual": 0
+            }
+          ]
+        }
+      ],
+      "observation_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-provider-5f527f92fe-20260818-075759-1ca0a8cf/traces/eval_cases/provider_p4transformer_mapping/observation.json",
+      "error": null
+    },
+    {
+      "case_id": "provider_retrieval_obfuscated_semantics",
+      "suite": "provider",
+      "runner": "semantic_code_retrieval",
+      "passed": true,
+      "overall_score": 1.0,
+      "scorer_results": [
+        {
+          "category": "evidence",
+          "score": 1.0,
+          "passed": true,
+          "assertions": [
+            {
+              "code": "EVIDENCE_RETRIEVAL_PATH:obfuscated/operator_core.py",
+              "passed": true,
+              "message": "目标文件必须进入检索 top-k",
+              "expected": "obfuscated/operator_core.py",
+              "actual": [
+                "obfuscated/operator_core.py",
+                "modules/pst_convolutions.py",
+                "models/sequence_classification.py",
+                "notes/pstconv_overview.md",
+                "train_msr.py",
+                "obfuscated/image_filter.py",
+                "datasets/msr.py"
+              ]
+            },
+            {
+              "code": "EVIDENCE_RETRIEVAL_RANK:obfuscated/operator_core.py",
+              "passed": true,
+              "message": "目标文件排名必须达到上限",
+              "expected": 2,
+              "actual": 1
+            },
+            {
+              "code": "EVIDENCE_RETRIEVAL_CHANNEL:dense",
+              "passed": true,
+              "message": "必须观察到指定检索通道",
+              "expected": "dense",
+              "actual": [
+                "dense"
+              ]
+            },
+            {
+              "code": "EVIDENCE_RETRIEVAL_PROVENANCE_RATIO",
+              "passed": true,
+              "message": "Code Evidence provenance 达到下限",
+              "expected": 1.0,
+              "actual": 1.0
+            }
+          ]
+        },
+        {
+          "category": "efficiency",
+          "score": 1.0,
+          "passed": true,
+          "assertions": [
+            {
+              "code": "EFFICIENCY_DURATION",
+              "passed": true,
+              "message": "效率指标不超过预算",
+              "expected": 120000.0,
+              "actual": 246.1782320169732
+            },
+            {
+              "code": "EFFICIENCY_LLM_CALLS",
+              "passed": true,
+              "message": "效率指标不超过预算",
+              "expected": 0,
+              "actual": 0
+            },
+            {
+              "code": "EFFICIENCY_EMBEDDING_DOCUMENT_CALLS",
+              "passed": true,
+              "message": "效率指标不超过预算",
+              "expected": 10,
+              "actual": 0
+            },
+            {
+              "code": "EFFICIENCY_EMBEDDING_QUERY_CALLS",
+              "passed": true,
+              "message": "效率指标不超过预算",
+              "expected": 1,
+              "actual": 0
+            }
+          ]
+        }
+      ],
+      "observation_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/agent-eval-provider-5f527f92fe-20260818-075759-1ca0a8cf/traces/eval_cases/provider_retrieval_obfuscated_semantics/observation.json",
+      "error": null
+    }
+  ],
+  "category_scores": {
+    "schema": 0.47222222222222215,
+    "evidence": 0.5,
+    "quality": 0.041666666666666664,
+    "efficiency": 1.0
+  },
+  "problem_coverage": {
+    "2": [
+      "provider_pstnet_mapping",
+      "provider_p4transformer_mapping"
+    ],
+    "7": [
+      "provider_pstnet_mapping",
+      "provider_p4transformer_mapping"
+    ],
+    "8": [
+      "provider_pstnet_mapping",
+      "provider_p4transformer_mapping"
+    ]
+  },
+  "generated_at": "2026-08-18T08:05:35.518009+00:00",
+  "revision": "239441e26eb044e38a3a5a2ffa131464c66bda9d",
+  "dirty_worktree": true
+}

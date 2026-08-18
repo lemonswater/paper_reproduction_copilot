@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import re
 from pathlib import Path
 
 ERROR_KEYWORDS = [
@@ -15,7 +18,7 @@ ERROR_KEYWORDS = [
 def read_log(path: str, max_chars: int = 30000) -> str:
     log_path = Path(path)
     if not log_path.exists():
-        raise FileNotFoundError(f"log not found: {path}")
+        raise FileNotFoundError(f"未找到日志文件：{path}")
     text = log_path.read_text(encoding="utf-8", errors="ignore")
     return text[-max_chars:]
 
@@ -42,3 +45,64 @@ def classify_error_heuristic(traceback: str) -> str:
     if "permission denied" in lower:
         return "permission_error"
     return "unknown"
+
+
+def extract_repo_traceback_paths(
+    traceback: str,
+    *,
+    repo_path: str | None,
+) -> list[str]:
+    """
+    从 Python/pytest traceback 中提取真实存在的仓库相对路径。
+
+    模型可以补充语义关联，但不能成为错误文件白名单的唯一来源。这里只接受
+    resolve 后仍位于 repo_path 内的已有 Python 普通文件，并按首次出现顺序去重。
+    """
+
+    if not repo_path or not traceback.strip():
+        return []
+
+    patterns = (
+        re.compile(
+            r"""File\s+["'](?P<path>[^"']+?\.py)["'],\s+line\s+\d+"""
+        ),
+        re.compile(
+            r"""(?m)^\s*(?P<path>[^:\n]*?\.py):\d+(?::[^\n]*)?$"""
+        ),
+    )
+
+    candidates: list[str] = []
+    for pattern in patterns:
+        candidates.extend(
+            match.group("path").strip()
+            for match in pattern.finditer(traceback)
+        )
+
+    repo = Path(repo_path).resolve()
+    related_paths: list[str] = []
+    seen: set[str] = set()
+
+    for raw_path in candidates:
+        candidate = Path(raw_path)
+        unresolved = candidate if candidate.is_absolute() else repo / candidate
+
+        try:
+            target = unresolved.resolve()
+        except OSError:
+            continue
+
+        if target == repo or repo not in target.parents:
+            continue
+        if not target.exists() or not target.is_file():
+            continue
+        if target.suffix.lower() != ".py" or unresolved.is_symlink():
+            continue
+
+        relative = target.relative_to(repo).as_posix()
+        if relative in seen:
+            continue
+
+        seen.add(relative)
+        related_paths.append(relative)
+
+    return related_paths

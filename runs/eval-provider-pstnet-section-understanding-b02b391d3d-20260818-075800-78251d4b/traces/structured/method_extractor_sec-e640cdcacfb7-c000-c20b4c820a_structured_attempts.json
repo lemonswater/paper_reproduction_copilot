@@ -1,0 +1,40 @@
+{
+  "node_name": "method_extractor_sec-e640cdcacfb7-c000-c20b4c820a",
+  "schema_name": "SectionExtractionDraft",
+  "method": "json_schema",
+  "strict": true,
+  "max_retries": 2,
+  "provider_max_retries": 2,
+  "provider_retry_base_seconds": 0.5,
+  "succeeded": true,
+  "fallback_used": false,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt_number": 1,
+      "status": "succeeded",
+      "prompt_kind": "original",
+      "error_type": null,
+      "error_message": null,
+      "raw_preview": "{\n  \"chunk_id\": \"sec-e640cdcacfb7-c000-c20b4c820a\",\n  \"core_idea_candidates\": [],\n  \"datasets\": [],\n  \"experiment_settings\": [],\n  \"method_modules\": [],\n  \"metrics\": [],\n  \"reproduction_risks\": [],\n  \"research_problem_candidates\": [],\n  \"section_id\": \"sec-e640cdcacfb7\",\n  \"summary\": \"该章节片段仅包含论文标题、作者和单位信息，未提供任何方法、实验设置或结果内容。\",\n  \"table_claims_unresolved\": []\n  ,\n  \"unresolved_questions\": []\n}",
+      "finish_reason": "stop",
+      "token_usage": {
+        "input_tokens": 578,
+        "output_tokens": 192,
+        "total_tokens": 770,
+        "input_token_details": {},
+        "output_token_details": {}
+      },
+      "output_chars": 393,
+      "truncated": false
+    }
+  ],
+  "generated_at": "2026-08-18T07:59:48.922734+00:00",
+  "model_routing": {
+    "invocation_id": null,
+    "decision_sha256": "d662b59280e441e34b1f4becf0950367baa457d6303b3b6698a345ecfb1d9183",
+    "executed_profile_id": "legacy_chat",
+    "model_name": "deepseek-v4-flash",
+    "usage_quality": null
+  }
+}

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 REPAIR_PROMPT = """
 你是一个深度学习实验 repair planner。
 
@@ -38,7 +40,17 @@ REPAIR_PROMPT = """
    - `risks`: 字符串数组
    - `bounded`: 必须为 true
 10. 每个 RepairStep 只能包含 `step_type`、`target`、`change`、`reason`、`risk`。
-11. 不允许输出 `diagnosis`、`fix`、`analysis` 等额外字段。
+11. RepairStep 的 `step_type` 只能是：
+    - `edit_command`
+    - `manual_check`
+    - `rerun_smoke`
+    - `rerun_full`
+    不允许使用 `manual_review`、`manual_modification` 或其他近义词。
+12. RepairStep 的 `risk` 只能是 `low`、`medium` 或 `high`，
+    不能把风险说明文字直接写入 `risk`；详细说明应写入顶层 `risks`。
+13. `kind=manual_only` 时，`repaired_command` 必须为 null，
+    `changed_arguments` 必须为空数组。
+14. 不允许输出 `diagnosis`、`fix`、`analysis` 等额外字段。
 
 当前执行模式：
 {execution_mode}
@@ -46,12 +58,12 @@ REPAIR_PROMPT = """
 当前动作：
 {pending_action}
 
-Preflight Report：
+预检报告（Preflight Report）：
 {preflight_report}
 
-Smoke Test Report：
+冒烟测试报告（Smoke Test Report）：
 {smoke_test_report}
 
-Debug Report：
+调试报告（Debug Report）：
 {debug_report}
 """

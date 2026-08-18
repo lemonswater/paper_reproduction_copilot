@@ -1,0 +1,227 @@
+{
+  "query": "deep hierarchical networks\n深度分层网络",
+  "keywords": [
+    "deep hierarchical networks"
+  ],
+  "repo_revision": "ef0907571a6007472efef380b33baa00859d1b7d",
+  "repo_fingerprint": "9a7d15d84e7f242816dfd9f5064692e5280ff068a921f26607f6110dc829e535",
+  "items": [
+    {
+      "evidence_id": "code-a273ce34f15ebdb23f73",
+      "repo_revision": "ef0907571a6007472efef380b33baa00859d1b7d",
+      "repo_fingerprint": "9a7d15d84e7f242816dfd9f5064692e5280ff068a921f26607f6110dc829e535",
+      "file_path": "README.md",
+      "file_sha256": "785be992fc58b6c7249cf7dd457d5594879cb71053e30aa0b7fbf3c8e8c861d1",
+      "start_line": 1,
+      "end_line": 48,
+      "symbol": null,
+      "retrieval_channels": [
+        "dense",
+        "bm25"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "dense",
+          "rank": 1,
+          "raw_score": 0.6491388528604679,
+          "anchor_line": 1,
+          "anchor_end_line": 48,
+          "symbol": null
+        },
+        {
+          "channel": "bm25",
+          "rank": 1,
+          "raw_score": 5.776937005882322,
+          "anchor_line": 1,
+          "anchor_end_line": null,
+          "symbol": null
+        }
+      ],
+      "fused_score": 0.05081967213114755,
+      "content_hash": "ee2831887eb03fb35cf3975cf45e49956139d6bcc12cc9980e01ee23b8a40127",
+      "text": "1: # [PSTNet: Point Spatio-Temporal Convolution on Point Cloud Sequences](https://openreview.net/pdf?id=O3bqkf_Puys)\n2: ![](https://github.com/hehefan/Point-Spatio-Temporal-Convolution/blob/main/imgs/intro.png)\n3: \n4: ![](https://github.com/hehefan/Point-Spatio-Temporal-Convolution/blob/main/imgs/equation.png)\n5: \n6: ## Introduction\n7: Point cloud sequences are irregular and unordered in the spatial dimension while exhibiting regularities and order in the temporal dimension. Therefore, existing grid based convolutions for conventional video processing cannot be directly applied to spatio-temporal modeling of raw point cloud sequences. In the paper, we propose a point spatio-temporal (PST) convolution to achieve informative representations of point cloud sequences. The proposed PST convolution first disentangles space and time in point cloud sequences. Then, a spatial convolution is employed to capture the local structure of points in the 3D space, and a temporal convolution is used to model the dynamics of the spatial regions along the time dimension. \n8: ![](https://github.com/hehefan/Point-Spatio-Temporal-Convolution/blob/main/imgs/pstconv.png)\n9: Furthermore, we incorporate the proposed PST convolution into a deep network, namely PSTNet, to extract features of 3D point cloud sequences in a spatio-temporally hierarchical manner. \n10: ![](https://github.com/hehefan/Point-Spatio-Temporal-Convolution/blob/main/imgs/arch.png)\n11: \n12: ## Installation\n13: \n14: The code is tested with Red Hat Enterprise Linux Workstation release 7.7 (Maipo), g++ (GCC) 8.3.1, PyTorch v1.2, CUDA 10.2 and cuDNN v7.6.\n15: \n16: Install PyTorch v1.2:\n17: ```\n18: pip install torch==1.2.0 torchvision==0.4.0\n19: ```\n20: \n21: Compile the CUDA layers for [PointNet++](http://arxiv.org/abs/1706.02413), which we used for furthest point sampling (FPS) and radius neighbouring search:\n22: ```\n23: cd modules\n24: python setup.py install\n25: ```\n26: To see if the compilation is successful, try to run `python modules/pst_convolutions.py` to see if a forward pass works.\n27: \n28: Install [Mayavi](https://docs.enthought.com/mayavi/mayavi/installation.html) for point cloud visualization (optional). Desktop is required.\n29: \n30: ## Citation\n31: If you find our work useful in your research, please consider citing:\n32: ```\n33: @inproceedings{fan2021pstnet,\n34:     title={PSTNet: Point Spatio-Temporal Convolution on Point Cloud Sequences},\n35:     author={Hehe Fan and Xin Yu and Yuhang Ding and Yi Yang and Mohan Kankanhalli},\n36:     booktitle={International Conference on Learning Representations},\n37:     year={2021}\n38: }\n39: ```\n40: \n41: ## Related Repos\n42: 1. PointNet++ PyTorch implementation: https://github.com/facebookresearch/votenet/tree/master/pointnet2\n43: 2. MeteorNet: https://github.com/xingyul/meteornet\n44: 3. 3DV: https://github.com/3huo/3DV-Action\n45: 4. P4Transformer: https://github.com/hehefan/P4Transformer\n46: 5. PointRNN (TensorFlow implementation): https://github.com/hehefan/PointRNN\n47: 6. PointRNN (PyTorch implementation): https://github.com/hehefan/PointRNN-PyTorch\n48: 7. Awesome Dynamic Point Cloud / Point Cloud Video / Point Cloud Sequence / 4D Point Cloud Analysis: https://github.com/hehefan/Awesome-Dynamic-Point-Cloud-Analysis"
+    },
+    {
+      "evidence_id": "code-03681097d0e09668a6e4",
+      "repo_revision": "ef0907571a6007472efef380b33baa00859d1b7d",
+      "repo_fingerprint": "9a7d15d84e7f242816dfd9f5064692e5280ff068a921f26607f6110dc829e535",
+      "file_path": "modules/pst_convolutions.py",
+      "file_sha256": "de71b2152ed6c72c1c41070393109d5a89a543916b28aee7f34da94955bea34d",
+      "start_line": 365,
+      "end_line": 409,
+      "symbol": null,
+      "retrieval_channels": [
+        "dense"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "dense",
+          "rank": 2,
+          "raw_score": 0.6150687346062138,
+          "anchor_line": 385,
+          "anchor_end_line": 409,
+          "symbol": null
+        }
+      ],
+      "fused_score": 0.03387096774193549,
+      "content_hash": "77e26aad9c6697bfbbf8b06bb839eb2950b914c616a95cd14d694a935eca7358",
+      "text": "365:             new_features.append(new_feature)\n366: \n367:         new_features = torch.stack(tensors=new_features, dim=1)\n368: \n369:         return new_xyzs, new_features\n370: \n371: if __name__ == '__main__':\n372:     xyzs = torch.zeros(4, 8, 512, 3).cuda()\n373:     features = torch.zeros(4, 8, 16, 512).cuda()\n374: \n375:     conv = PSTConv(in_planes=16,\n376:                    mid_planes=32,\n377:                    out_planes=64,\n378:                    spatial_kernel_size=[1.0, 3],\n379:                    temporal_kernel_size=3,\n380:                    spatial_stride=2,\n381:                    temporal_stride=3,\n382:                    temporal_padding=[1, 0],\n383:                    padding_mode=\"replicate\").cuda()\n384: \n385:     new_xyzs, new_features = conv(xyzs, features)\n386: \n387:     deconv =  PSTConvTranspose(in_planes=64,\n388:                                mid_planes=128,\n389:                                out_planes=256,\n390:                                temporal_kernel_size=3,\n391:                                temporal_stride=3,\n392:                                temporal_padding=[-1, 0],\n393:                                original_in_planes=16).cuda()\n394: \n395:     out_xyzs, out_features = deconv(new_xyzs, xyzs, new_features, features)\n396: \n397:     print(\"-----------------------------\")\n398:     print(\"Input:\")\n399:     print(xyzs.shape)\n400:     print(features.shape)\n401:     print(\"-----------------------------\")\n402:     print(\"PST convolution:\")\n403:     print(new_xyzs.shape)\n404:     print(new_features.shape)\n405:     print(\"-----------------------------\")\n406:     print(\"PST transposed convolution:\")\n407:     print(out_xyzs.shape)\n408:     print(out_features.shape)\n409:     print(\"-----------------------------\")"
+    },
+    {
+      "evidence_id": "code-b93080c0894d69d3c1c9",
+      "repo_revision": "ef0907571a6007472efef380b33baa00859d1b7d",
+      "repo_fingerprint": "9a7d15d84e7f242816dfd9f5064692e5280ff068a921f26607f6110dc829e535",
+      "file_path": "models/sequence_classification.py",
+      "file_sha256": "1bc40db7abe113b83fd1bbabf8e04bf3ed11ba8bacba45ced6efa275fa717df5",
+      "start_line": 1,
+      "end_line": 114,
+      "symbol": "MSRAction",
+      "retrieval_channels": [
+        "dense"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "dense",
+          "rank": 3,
+          "raw_score": 0.6142193360734436,
+          "anchor_line": 15,
+          "anchor_end_line": 94,
+          "symbol": "MSRAction"
+        }
+      ],
+      "fused_score": 0.03333333333333333,
+      "content_hash": "59d8c987843045c16db3d9f0588c7021e3e1a8cdad3b446b00d7b85b1867b39c",
+      "text": "1: import torch\n2: import torch.nn as nn\n3: import torch.nn.functional as F\n4: import numpy as np\n5: import sys\n6: import os\n7: \n8: BASE_DIR = os.path.dirname(os.path.abspath(__file__))\n9: ROOT_DIR = os.path.dirname(BASE_DIR)\n10: sys.path.append(ROOT_DIR)\n11: sys.path.append(os.path.join(ROOT_DIR, 'modules'))\n12: \n13: from modules.pst_convolutions import PSTConv\n14: \n15: class MSRAction(nn.Module):\n16:     def __init__(self, radius=1.5, nsamples=3*3, num_classes=20):\n17:         super(MSRAction, self).__init__()\n18: \n19:         self.conv1 =  PSTConv(in_planes=0,\n20:                               mid_planes=45,\n21:                               out_planes=64,\n22:                               spatial_kernel_size=[radius, nsamples],\n23:                               temporal_kernel_size=1,\n24:                               spatial_stride=2,\n25:                               temporal_stride=1,\n26:                               temporal_padding=[0,0],\n27:                               spatial_aggregation=\"multiplication\",\n28:                               spatial_pooling=\"sum\")\n29: \n30:         self.conv2a = PSTConv(in_planes=64,\n31:                               mid_planes=96,\n32:                               out_planes=128,\n33:                               spatial_kernel_size=[2*radius, nsamples],\n34:                               temporal_kernel_size=3,\n35:                               spatial_stride=2,\n36:                               temporal_stride=2,\n37:                               temporal_padding=[1,0],\n38:                               spatial_aggregation=\"multiplication\",\n39:                               spatial_pooling=\"sum\")\n40: \n41:         self.conv2b = PSTConv(in_planes=128,\n42:                               mid_planes=192,\n43:                               out_planes=256,\n44:                               spatial_kernel_size=[2*radius, nsamples],\n45:                               temporal_kernel_size=3,\n46:                               spatial_stride=1,\n47:                               temporal_stride=1,\n48:                               temporal_padding=[1,1],\n49:                               spatial_aggregation=\"multiplication\",\n50:                               spatial_pooling=\"sum\")\n51: \n52:         self.conv3a = PSTConv(in_planes=256,\n53:                               mid_planes=284,\n54:                               out_planes=512,\n55:                               spatial_kernel_size=[2*2*radius, nsamples],\n56:                               temporal_kernel_size=3,\n57:                               spatial_stride=2,\n58:                               temporal_stride=2,\n59:                               temporal_padding=[1,0],\n60:                               spatial_aggregation=\"multiplication\",\n61:                               spatial_pooling=\"sum\")\n62: \n63:         self.conv3b = PSTConv(in_planes=512,\n64:                               mid_planes=768,\n65:                               out_planes=1024,\n66:                               spatial_kernel_size=[2*2*radius, nsamples],\n67:                               temporal_kernel_size=3,\n68:                               spatial_stride=1,\n69:                               temporal_stride=1,\n70:                               temporal_padding=[1,1],\n71:                               spatial_aggregation=\"multiplication\",\n72:                               spatial_pooling=\"sum\")\n73: \n74:         self.conv4 =  PSTConv(in_planes=1024,\n75:                               mid_planes=1536,\n76:                               out_planes=2048,\n77:                               spatial_kernel_size=[2*2*radius, nsamples],\n78:                               temporal_kernel_size=1,\n79:                               spatial_stride=2,\n80:                               temporal_stride=1,\n81:                               temporal_padding=[0,0],\n82:                               spatial_aggregation=\"multiplication\",\n83:                               spatial_pooling=\"sum\")\n84: \n85:         self.fc = nn.Linear(2048, num_classes)\n86: \n87:     def forward(self, xyzs):\n88: \n89:         new_xys, new_features = self.conv1(xyzs, None)\n90:         new_features = F.relu(new_features)\n91: \n92:         new_xys, new_features = self.conv2a(new_xys, new_features)\n93:         new_features = F.relu(new_features)\n94: \n95:         new_xys, new_features = self.conv2b(new_xys, new_features)\n96:         new_features = F.relu(new_features)\n97: \n98:         new_xys, new_features = self.conv3a(new_xys, new_features)\n99:         new_features = F.relu(new_features)\n100: \n101:         new_xys, new_features = self.conv3b(new_xys, new_features)\n102:         new_features = F.relu(new_features)\n103: \n104:         new_xys, new_features = self.conv4(new_xys, new_features)               # (B, L, C, N)\n105: \n106:         new_features = torch.mean(input=new_features, dim=-1, keepdim=False)    # (B, L, C)\n107: \n108:         new_feature = torch.max(input=new_features, dim=1, keepdim=False)[0]    # (B, C)\n109: \n110:         out = self.fc(new_feature)\n111: \n112:         return out\n113: \n114: class NTU(nn.Module):"
+    },
+    {
+      "evidence_id": "code-d76d6dd89acee96a28bf",
+      "repo_revision": "ef0907571a6007472efef380b33baa00859d1b7d",
+      "repo_fingerprint": "9a7d15d84e7f242816dfd9f5064692e5280ff068a921f26607f6110dc829e535",
+      "file_path": "train-msr.py",
+      "file_sha256": "0750bad9756b614e58f1097a684ea251c27ce326b2ef97db3d59b40ab6b49942",
+      "start_line": 173,
+      "end_line": 236,
+      "symbol": null,
+      "retrieval_channels": [
+        "dense"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "dense",
+          "rank": 4,
+          "raw_score": 0.5148962548507445,
+          "anchor_line": 193,
+          "anchor_end_line": 236,
+          "symbol": null
+        }
+      ],
+      "fused_score": 0.0328125,
+      "content_hash": "f74a70f91e22981c6247b438edf2d6a3501f07f91042f7fb97f43f7c081dd71b",
+      "text": "173: \n174: \n175:     print(\"Start training\")\n176:     start_time = time.time()\n177:     acc = 0\n178:     for epoch in range(args.start_epoch, args.epochs):\n179:         train_one_epoch(model, criterion, optimizer, lr_scheduler, data_loader, device, epoch, args.print_freq)\n180: \n181:         acc = max(acc, evaluate(model, criterion, data_loader_test, device=device))\n182: \n183:         if args.output_dir:\n184:             checkpoint = {\n185:                 'model': model_without_ddp.state_dict(),\n186:                 'optimizer': optimizer.state_dict(),\n187:                 'lr_scheduler': lr_scheduler.state_dict(),\n188:                 'epoch': epoch,\n189:                 'args': args}\n190:             utils.save_on_master(\n191:                 checkpoint,\n192:                 os.path.join(args.output_dir, 'model_{}.pth'.format(epoch)))\n193:             utils.save_on_master(\n194:                 checkpoint,\n195:                 os.path.join(args.output_dir, 'checkpoint.pth'))\n196: \n197:     total_time = time.time() - start_time\n198:     total_time_str = str(datetime.timedelta(seconds=int(total_time)))\n199:     print('Training time {}'.format(total_time_str))\n200:     print('Accuracy {}'.format(acc))\n201: \n202: \n203: def parse_args():\n204:     import argparse\n205:     parser = argparse.ArgumentParser(description='PSTNet Training')\n206: \n207:     parser.add_argument('--data-path', default='data/MSR-Action3D', type=str, help='dataset')\n208:     parser.add_argument('--seed', default=0, type=int, help='random seed')\n209:     parser.add_argument('--model', default='MSRAction', type=str, help='model')\n210:     parser.add_argument('--radius', default=0.5, type=float, help='radius for the ball query')\n211:     parser.add_argument('--nsamples', default=9, type=int, help='number of neighbors for the ball query')\n212:     parser.add_argument('--clip-len', default=16, type=int, metavar='N', help='number of frames per clip')\n213:     parser.add_argument('--frame-interval', default=1, type=int, metavar='N', help='interval between sampled frames')\n214:     parser.add_argument('--num-points', default=2048, type=int, metavar='N', help='number of points per frame')\n215:     parser.add_argument('-b', '--batch-size', default=16, type=int)\n216:     parser.add_argument('--epochs', default=35, type=int, metavar='N', help='number of total epochs to run')\n217:     parser.add_argument('-j', '--workers', default=10, type=int, metavar='N', help='number of data loading workers (default: 16)')\n218:     parser.add_argument('--lr', default=0.01, type=float, help='initial learning rate')\n219:     parser.add_argument('--momentum', default=0.9, type=float, metavar='M', help='momentum')\n220:     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float, metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')\n221:     parser.add_argument('--lr-milestones', nargs='+', default=[20, 30], type=int, help='decrease lr on milestones')\n222:     parser.add_argument('--lr-gamma', default=0.1, type=float, help='decrease lr by a factor of lr-gamma')\n223:     parser.add_argument('--lr-warmup-epochs', default=10, type=int, help='number of warmup epochs')\n224:     parser.add_argument('--print-freq', default=10, type=int, help='print frequency')\n225:     parser.add_argument('--output-dir', default='output/MAR-Action3D', type=str, help='path where to save')\n226:     parser.add_argument('--resume', default='', help='resume from checkpoint')\n227:     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')\n228: \n229:     args = parser.parse_args()\n230: \n231:     return args\n232: \n233: \n234: if __name__ == \"__main__\":\n235:     args = parse_args()\n236:     main(args)"
+    },
+    {
+      "evidence_id": "code-a49c2431c722fca6276d",
+      "repo_revision": "ef0907571a6007472efef380b33baa00859d1b7d",
+      "repo_fingerprint": "9a7d15d84e7f242816dfd9f5064692e5280ff068a921f26607f6110dc829e535",
+      "file_path": "train-ntu.py",
+      "file_sha256": "db5f36f57ee53434945f30a2965849da380fdb2490537606d65d01fdcd83cf39",
+      "start_line": 173,
+      "end_line": 238,
+      "symbol": null,
+      "retrieval_channels": [
+        "dense"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "dense",
+          "rank": 5,
+          "raw_score": 0.5126412679864366,
+          "anchor_line": 193,
+          "anchor_end_line": 238,
+          "symbol": null
+        }
+      ],
+      "fused_score": 0.03230769230769231,
+      "content_hash": "7c531d3fda6d0d9c8acb386e36ecf53f995ad80f2d4fc6c7e003b316d910faba",
+      "text": "173:         args.start_epoch = checkpoint['epoch'] + 1\n174: \n175: \n176:     print(\"Start training\")\n177:     start_time = time.time()\n178:     acc = 0\n179:     for epoch in range(args.start_epoch, args.epochs):\n180:         train_one_epoch(model, criterion, optimizer, lr_scheduler, data_loader, device, epoch, args.print_freq)\n181: \n182:         acc = max(acc, evaluate(model, criterion, data_loader_test, device=device))\n183: \n184:         if args.output_dir:\n185:             checkpoint = {\n186:                 'model': model_without_ddp.state_dict(),\n187:                 'optimizer': optimizer.state_dict(),\n188:                 'lr_scheduler': lr_scheduler.state_dict(),\n189:                 'epoch': epoch,\n190:                 'args': args}\n191:             utils.save_on_master(\n192:                 checkpoint,\n193:                 os.path.join(args.output_dir, 'model_{}.pth'.format(epoch)))\n194:             utils.save_on_master(\n195:                 checkpoint,\n196:                 os.path.join(args.output_dir, 'checkpoint.pth'))\n197: \n198:     total_time = time.time() - start_time\n199:     total_time_str = str(datetime.timedelta(seconds=int(total_time)))\n200:     print('Training time {}'.format(total_time_str))\n201:     print('Accuracy {}'.format(acc))\n202: \n203: \n204: def parse_args():\n205:     import argparse\n206:     parser = argparse.ArgumentParser(description='PSTNet Training')\n207: \n208:     parser.add_argument('--data-path', default='data/video', type=str, help='dataset')\n209:     parser.add_argument('--data-meta', default='data/ntu60.list', help='dataset')\n210:     parser.add_argument('--seed', default=0, type=int, help='random seed')\n211:     parser.add_argument('--model', default='NTU', type=str, help='model')\n212:     parser.add_argument('--radius', default=0.1, type=float, help='radius for the ball query')\n213:     parser.add_argument('--nsamples', default=9, type=int, help='number of neighbors for the ball query')\n214:     parser.add_argument('--clip-len', default=23, type=int, metavar='N', help='number of frames per clip')\n215:     parser.add_argument('--frame-step', default=2, type=int, metavar='N', help='steps between frame sampling')\n216:     parser.add_argument('--num-points', default=2048, type=int, metavar='N', help='number of points per frame')\n217:     parser.add_argument('-b', '--batch-size', default=16, type=int)\n218:     parser.add_argument('--epochs', default=20, type=int, metavar='N', help='number of total epochs to run')\n219:     parser.add_argument('-j', '--workers', default=16, type=int, metavar='N', help='number of data loading workers (default: 16)')\n220:     parser.add_argument('--lr', default=0.01, type=float, help='initial learning rate')\n221:     parser.add_argument('--momentum', default=0.9, type=float, metavar='M', help='momentum')\n222:     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float, metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')\n223:     parser.add_argument('--lr-milestones', nargs='+', default=[5, 10], type=int, help='decrease lr on milestones')\n224:     parser.add_argument('--lr-gamma', default=0.1, type=float, help='decrease lr by a factor of lr-gamma')\n225:     parser.add_argument('--lr-warmup-epochs', default=10, type=int, help='number of warmup epochs')\n226:     parser.add_argument('--print-freq', default=100, type=int, help='print frequency')\n227:     parser.add_argument('--output-dir', default='', type=str, help='path where to save')\n228:     parser.add_argument('--resume', default='', help='resume from checkpoint')\n229:     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')\n230: \n231:     args = parser.parse_args()\n232: \n233:     return args\n234: \n235: \n236: if __name__ == \"__main__\":\n237:     args = parse_args()\n238:     main(args)"
+    },
+    {
+      "evidence_id": "code-ba407eaa080a3d8b9ad5",
+      "repo_revision": "ef0907571a6007472efef380b33baa00859d1b7d",
+      "repo_fingerprint": "9a7d15d84e7f242816dfd9f5064692e5280ff068a921f26607f6110dc829e535",
+      "file_path": "modules/pointnet2_utils.py",
+      "file_sha256": "4de29bf08b90301969c1a7119ad87562afeaee224c4742d32a81ce971147e584",
+      "start_line": 109,
+      "end_line": 228,
+      "symbol": null,
+      "retrieval_channels": [
+        "dense"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "dense",
+          "rank": 6,
+          "raw_score": 0.5121083115216638,
+          "anchor_line": 129,
+          "anchor_end_line": 208,
+          "symbol": null
+        }
+      ],
+      "fused_score": 0.03181818181818182,
+      "content_hash": "81005f226165b21e83a4ca1834b0a791d697237b064ffc1a51e93564544652be",
+      "text": "109:     def forward(ctx, unknown, known):\n110:         # type: (Any, torch.Tensor, torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]\n111:         r\"\"\"\n112:             Find the three nearest neighbors of unknown in known\n113:         Parameters\n114:         ----------\n115:         unknown : torch.Tensor\n116:             (B, n, 3) tensor of known features\n117:         known : torch.Tensor\n118:             (B, m, 3) tensor of unknown features\n119: \n120:         Returns\n121:         -------\n122:         dist : torch.Tensor\n123:             (B, n, 3) l2 distance to the three nearest neighbors\n124:         idx : torch.Tensor\n125:             (B, n, 3) index of 3 nearest neighbors\n126:         \"\"\"\n127:         dist2, idx = _ext.three_nn(unknown, known)\n128: \n129:         return torch.sqrt(dist2), idx\n130: \n131:     @staticmethod\n132:     def backward(ctx, a=None, b=None):\n133:         return None, None\n134: \n135: \n136: three_nn = ThreeNN.apply\n137: \n138: \n139: class ThreeInterpolate(Function):\n140:     @staticmethod\n141:     def forward(ctx, features, idx, weight):\n142:         # type(Any, torch.Tensor, torch.Tensor, torch.Tensor) -> Torch.Tensor\n143:         r\"\"\"\n144:             Performs weight linear interpolation on 3 features\n145:         Parameters\n146:         ----------\n147:         features : torch.Tensor\n148:             (B, c, m) Features descriptors to be interpolated from\n149:         idx : torch.Tensor\n150:             (B, n, 3) three nearest neighbors of the target features in features\n151:         weight : torch.Tensor\n152:             (B, n, 3) weights\n153: \n154:         Returns\n155:         -------\n156:         torch.Tensor\n157:             (B, c, n) tensor of the interpolated features\n158:         \"\"\"\n159:         B, c, m = features.size()\n160:         n = idx.size(1)\n161: \n162:         ctx.three_interpolate_for_backward = (idx, weight, m)\n163: \n164:         return _ext.three_interpolate(features, idx, weight)\n165: \n166:     @staticmethod\n167:     def backward(ctx, grad_out):\n168:         # type: (Any, torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]\n169:         r\"\"\"\n170:         Parameters\n171:         ----------\n172:         grad_out : torch.Tensor\n173:             (B, c, n) tensor with gradients of ouputs\n174: \n175:         Returns\n176:         -------\n177:         grad_features : torch.Tensor\n178:             (B, c, m) tensor with gradients of features\n179: \n180:         None\n181: \n182:         None\n183:         \"\"\"\n184:         idx, weight, m = ctx.three_interpolate_for_backward\n185: \n186:         grad_features = _ext.three_interpolate_grad(\n187:             grad_out.contiguous(), idx, weight, m\n188:         )\n189: \n190:         return grad_features, None, None\n191: \n192: \n193: three_interpolate = ThreeInterpolate.apply\n194: \n195: \n196: class GroupingOperation(Function):\n197:     @staticmethod\n198:     def forward(ctx, features, idx):\n199:         # type: (Any, torch.Tensor, torch.Tensor) -> torch.Tensor\n200:         r\"\"\"\n201: \n202:         Parameters\n203:         ----------\n204:         features : torch.Tensor\n205:             (B, C, N) tensor of features to group\n206:         idx : torch.Tensor\n207:             (B, npoint, nsample) tensor containing the indicies of features to group with\n208: \n209:         Returns\n210:         -------\n211:         torch.Tensor\n212:             (B, C, npoint, nsample) tensor\n213:         \"\"\"\n214:         B, nfeatures, nsample = idx.size()\n215:         _, C, N = features.size()\n216: \n217:         ctx.for_backwards = (idx, N)\n218: \n219:         return _ext.group_points(features, idx)\n220: \n221:     @staticmethod\n222:     def backward(ctx, grad_out):\n223:         # type: (Any, torch.tensor) -> Tuple[torch.Tensor, torch.Tensor]\n224:         r\"\"\"\n225: \n226:         Parameters\n227:         ----------\n228:         grad_out : torch.Tensor"
+    },
+    {
+      "evidence_id": "code-8751af0270e83f98473f",
+      "repo_revision": "ef0907571a6007472efef380b33baa00859d1b7d",
+      "repo_fingerprint": "9a7d15d84e7f242816dfd9f5064692e5280ff068a921f26607f6110dc829e535",
+      "file_path": "scripts/depth2point4ntu.py",
+      "file_sha256": "9f26d04b77361c6f9874232787ac700652b89f8e8a67593bb00d26c18fddad5d",
+      "start_line": 1,
+      "end_line": 51,
+      "symbol": null,
+      "retrieval_channels": [
+        "dense"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "dense",
+          "rank": 7,
+          "raw_score": 0.5118613658291153,
+          "anchor_line": 1,
+          "anchor_end_line": 51,
+          "symbol": null
+        }
+      ],
+      "fused_score": 0.03134328358208956,
+      "content_hash": "c53a81422a42c3f1aa1d89ffde6300a5339f44ac04d51b7297f093aaa6573839",
+      "text": "1: import os\n2: import numpy as np\n3: import argparse\n4: from matplotlib.image import imread\n5: from glob import glob\n6: import argparse\n7: parser = argparse.ArgumentParser(description='Depth to Point Cloud')\n8: \n9: parser.add_argument('--input', default='/home/hehefan/Data/ntu/nturgb+d_depth_masked', type=str)\n10: parser.add_argument('--output', default='/scratch/ntu/video', type=str)\n11: parser.add_argument('-n', '--action', type=int)\n12: \n13: args = parser.parse_args()\n14: \n15: \n16: W = 512\n17: H = 424\n18: \n19: '''\n20: def mkdir(directory):\n21:     if not os.path.exists(directory):\n22:         os.makedirs(directory)\n23: \n24: mkdir(args.output)\n25: '''\n26: \n27: xx, yy = np.meshgrid(np.arange(W), np.arange(H))\n28: focal = 280\n29: \n30: for video_path in sorted(glob('%s/*A0%02d'%(args.input, args.action))):\n31:     video_name = video_path.split('/')[-1]\n32: \n33:     point_clouds = []\n34:     for img_name in sorted(os.listdir(video_path)):\n35:         img_path = os.path.join(video_path, img_name)\n36:         img = imread(img_path) # (H, W)\n37: \n38:         depth_min = img[img > 0].min()\n39:         depth_map = img\n40: \n41:         x = xx[depth_map > 0]\n42:         y = yy[depth_map > 0]\n43:         z = depth_map[depth_map > 0]\n44:         x = (x - W / 2) / focal * z\n45:         y = (y - H / 2) / focal * z\n46: \n47:         points = np.stack([x, y, z], axis=-1)\n48:         point_clouds.append(points)\n49: \n50:     np.savez_compressed(os.path.join(args.output, video_name + '.npz'), data=point_clouds)\n51: print('Action %02d finished!'%args.action)"
+    },
+    {
+      "evidence_id": "code-270cbcfe25b6214f92fd",
+      "repo_revision": "ef0907571a6007472efef380b33baa00859d1b7d",
+      "repo_fingerprint": "9a7d15d84e7f242816dfd9f5064692e5280ff068a921f26607f6110dc829e535",
+      "file_path": "modules/pointnet2_test.py",
+      "file_sha256": "699f2a75bafa83be0e951966679f574322603be9631e8207002e1fda8bf9f464",
+      "start_line": 4,
+      "end_line": 33,
+      "symbol": "interpolate_func",
+      "retrieval_channels": [
+        "dense"
+      ],
+      "retrieval_signals": [
+        {
+          "channel": "dense",
+          "rank": 8,
+          "raw_score": 0.49663860218421185,
+          "anchor_line": 24,
+          "anchor_end_line": 28,
+          "symbol": "interpolate_func"
+        }
+      ],
+      "fused_score": 0.030882352941176472,
+      "content_hash": "39739772245880bf6fd8c85b230dffa8d0d7a7e1c0cca844b7a30c17dcfdcc75",
+      "text": "4: # LICENSE file in the root directory of this source tree.\n5: \n6: ''' Testing customized ops. '''\n7: \n8: import torch\n9: from torch.autograd import gradcheck\n10: import numpy as np\n11: \n12: import os\n13: import sys\n14: BASE_DIR = os.path.dirname(os.path.abspath(__file__))\n15: sys.path.append(BASE_DIR)\n16: import pointnet2_utils\n17: \n18: def test_interpolation_grad():\n19:     batch_size = 1\n20:     feat_dim = 2\n21:     m = 4\n22:     feats = torch.randn(batch_size, feat_dim, m, requires_grad=True).float().cuda()\n23:     \n24:     def interpolate_func(inputs):\n25:         idx = torch.from_numpy(np.array([[[0,1,2],[1,2,3]]])).int().cuda()\n26:         weight = torch.from_numpy(np.array([[[1,1,1],[2,2,2]]])).float().cuda()\n27:         interpolated_feats = pointnet2_utils.three_interpolate(inputs, idx, weight)\n28:         return interpolated_feats\n29:     \n30:     assert (gradcheck(interpolate_func, feats, atol=1e-1, rtol=1e-1))\n31: \n32: if __name__=='__main__':\n33:     test_interpolation_grad()"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "case_id": "offline_retrieval_training_config",
+  "description": "训练配置查询应定位 argparse 入口和数据集定义",
+  "suite": "offline",
+  "runner": "code_retrieval",
+  "categories": [
+    "evidence",
+    "efficiency"
+  ],
+  "tags": [
+    "offline",
+    "retrieval",
+    "cli",
+    "phase20"
+  ],
+  "problem_ids": [],
+  "input": {
+    "repo_path": "fixtures/retrieval_repo",
+    "retrieval_query": "MSRAction3D training epochs batch size dataset path",
+    "retrieval_keywords": [
+      "MSRAction3D",
+      "--epochs",
+      "--batch-size",
+      "--dataset-path"
+    ]
+  },
+  "expected": {
+    "required_retrieval_paths": [
+      "train_msr.py",
+      "datasets/msr.py"
+    ],
+    "max_retrieval_rank_by_path": {
+      "train_msr.py": 2,
+      "datasets/msr.py": 4
+    },
+    "required_retrieval_channels": [
+      "cli_config",
+      "symbol",
+      "bm25"
+    ],
+    "min_retrieval_provenance_ratio": 1.0,
+    "max_duration_ms": 3000
+  },
+  "thresholds": {
+    "min_overall_score": 1.0,
+    "max_score_regression": 0.0
+  }
+}

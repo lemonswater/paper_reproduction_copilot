@@ -1,0 +1,31 @@
+{
+  "baseline_sha256": "a386e7207399e15d4d08b5b0b4594da0e8c70d4c2457c8940cb8702677749b73",
+  "eval_id": "mcpeval_8498edc5201346b8",
+  "generated_at": "2026-08-16T09:16:50.738623+00:00",
+  "mode": "offline",
+  "passed": true,
+  "profile_results": [
+    {
+      "findings": [],
+      "profile_id": "in-memory-modern",
+      "protocol_version": "2026-07-28",
+      "status": "passed",
+      "surface_sha256": "6888f3b4a84f8f09b6ff33610cfae233a611f563ecdd8593cebd8a5e00c7d78f"
+    },
+    {
+      "findings": [],
+      "profile_id": "in-memory-legacy",
+      "protocol_version": "2025-11-25",
+      "status": "passed",
+      "surface_sha256": "6888f3b4a84f8f09b6ff33610cfae233a611f563ecdd8593cebd8a5e00c7d78f"
+    },
+    {
+      "findings": [],
+      "profile_id": "loopback-http",
+      "protocol_version": null,
+      "status": "skipped",
+      "surface_sha256": null
+    }
+  ],
+  "report_sha256": "0e8ed9dbb6444d8f49ceced5cfb6e0c6b0b29bfc0a1ac66415a780278abeb2e0"
+}

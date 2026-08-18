@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "case_id": "chat_provider_unsupported_metric_refusal",
+  "description": "没有 final metric Evidence 时真实模型必须触发确定性拒答",
+  "suite": "chat_provider",
+  "runner": "chat_provider",
+  "categories": ["evidence", "quality", "efficiency"],
+  "tags": ["chat", "provider", "refusal", "unsupported-claim"],
+  "problem_ids": [],
+  "input": {
+    "fixture_path": "fixtures/chat/provider_unsupported_metric.json"
+  },
+  "expected": {
+    "chat_turns": [
+      {
+        "label": "unsupported-metric",
+        "forbidden_answer_terms": ["91.2", "准确率是"],
+        "forbidden_citation_ids": ["job:current"],
+        "allowed_citation_ids": [],
+        "expected_refusal": true,
+        "expected_unknown_requested_citations": 0
+      }
+    ],
+    "min_chat_pass_rate": 0.66,
+    "max_chat_answer_invocations_per_run": 1,
+    "max_chat_memory_invocations_per_run": 0,
+    "max_chat_prompt_chars": 40000
+  },
+  "thresholds": {
+    "min_overall_score": 0.9,
+    "max_score_regression": 0.1
+  }
+}

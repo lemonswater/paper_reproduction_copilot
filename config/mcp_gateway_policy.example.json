@@ -1,0 +1,27 @@
+{
+  "schema_version": "phase53-v1",
+  "policy_version": "phase53-example-v1",
+  "servers": [
+    {
+      "server_id": "mcpserver_scholar_local",
+      "transport": "streamable_http",
+      "endpoint": "http://127.0.0.1:8765/mcp",
+      "allowed_protocol_versions": [
+        "2026-07-28"
+      ],
+      "connect_timeout_seconds": 3.0,
+      "read_timeout_seconds": 10.0,
+      "enabled": false,
+      "bindings": [
+        {
+          "binding_id": "mcpbind_scholar_search_v1",
+          "provider_alias": "search_external_paper_evidence",
+          "internal_tool_name": "mcp.search_external_paper_evidence",
+          "remote_tool_name": "search_paper_evidence",
+          "expected_input_schema_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "expected_output_schema_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      ]
+    }
+  ]
+}

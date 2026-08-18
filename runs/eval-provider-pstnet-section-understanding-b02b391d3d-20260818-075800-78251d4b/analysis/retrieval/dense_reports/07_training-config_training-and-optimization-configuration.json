@@ -1,0 +1,128 @@
+{
+  "enabled": true,
+  "required": false,
+  "provider_namespace": "openai-compatible:47ddbfce8ac394e9",
+  "model": "qwen-text-embedding-v4",
+  "embedding_dimensions": 1024,
+  "query_hash": "23c91cabf1151c60a83704ee21e669622d0cb5b271e1772f63a0c79ef03f6971",
+  "chunk_count": 140,
+  "cache_hits": 140,
+  "cache_misses": 1,
+  "embedding_document_calls": 0,
+  "embedding_query_calls": 1,
+  "hits": [
+    {
+      "channel": "dense",
+      "file_path": "train-msr.py",
+      "raw_score": 0.7112958109117001,
+      "anchor_line": 193,
+      "anchor_end_line": 236,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "models/sequence_classification.py",
+      "raw_score": 0.6668503623310137,
+      "anchor_line": 15,
+      "anchor_end_line": 94,
+      "symbol": "MSRAction"
+    },
+    {
+      "channel": "dense",
+      "file_path": "train-ntu.py",
+      "raw_score": 0.6062339041666959,
+      "anchor_line": 193,
+      "anchor_end_line": 238,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "datasets/msr.py",
+      "raw_score": 0.6049323907460736,
+      "anchor_line": 44,
+      "anchor_end_line": 45,
+      "symbol": "MSRAction3D.__len__"
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/pst_convolutions.py",
+      "raw_score": 0.5371091795208225,
+      "anchor_line": 321,
+      "anchor_end_line": 400,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "README.md",
+      "raw_score": 0.5081664135804846,
+      "anchor_line": 1,
+      "anchor_end_line": 48,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "datasets/ntu60.py",
+      "raw_score": 0.46457480742474205,
+      "anchor_line": 65,
+      "anchor_end_line": 85,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/pointnet2_utils.py",
+      "raw_score": 0.4573754451856762,
+      "anchor_line": 132,
+      "anchor_end_line": 133,
+      "symbol": "ThreeNN.backward"
+    },
+    {
+      "channel": "dense",
+      "file_path": "scripts/depth2point4ntu.py",
+      "raw_score": 0.44521766649240485,
+      "anchor_line": 1,
+      "anchor_end_line": 51,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/pointnet2_test.py",
+      "raw_score": 0.41982810554339783,
+      "anchor_line": 24,
+      "anchor_end_line": 28,
+      "symbol": "interpolate_func"
+    },
+    {
+      "channel": "dense",
+      "file_path": "utils.py",
+      "raw_score": 0.3436878408756091,
+      "anchor_line": 12,
+      "anchor_end_line": 54,
+      "symbol": "WarmupMultiStepLR"
+    },
+    {
+      "channel": "dense",
+      "file_path": "phase14_demo.py",
+      "raw_score": 0.3380763549485618,
+      "anchor_line": 1,
+      "anchor_end_line": 4,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "modules/setup.py",
+      "raw_score": 0.3020193671829426,
+      "anchor_line": 1,
+      "anchor_end_line": 31,
+      "symbol": null
+    },
+    {
+      "channel": "dense",
+      "file_path": "tests/test_phase14_demo.py",
+      "raw_score": 0.2254125263234746,
+      "anchor_line": 1,
+      "anchor_end_line": 5,
+      "symbol": null
+    }
+  ],
+  "fallback_reason": null
+}

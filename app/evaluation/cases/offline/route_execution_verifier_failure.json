@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "case_id": "route_execution_verifier_failure_to_debug",
+  "description": "Verifier 确认的论文程序失败进入日志诊断",
+  "suite": "offline",
+  "runner": "route_function",
+  "categories": ["route"],
+  "tags": ["phase43", "authority", "verifier"],
+  "problem_ids": [6, 8],
+  "input": {
+    "route_name": "route_after_execution_verifier",
+    "source_node": "execution_verifier",
+    "state": {
+      "final_status": "failed",
+      "log_path": "runs/fixture/execution/combined.log",
+      "execution_verification": {
+        "verdict": "failed"
+      }
+    }
+  },
+  "expected": {
+    "exact_route": ["execution_verifier", "log_debug"],
+    "required_nodes": ["log_debug"],
+    "forbidden_nodes": ["executor", "human_review"]
+  },
+  "thresholds": {
+    "min_overall_score": 1.0,
+    "max_score_regression": 0.0
+  }
+}

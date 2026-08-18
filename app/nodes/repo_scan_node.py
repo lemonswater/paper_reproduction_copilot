@@ -1,12 +1,28 @@
+from __future__ import annotations
+
 import json
-from app.config import settings
+
 from app.schemas import RepoMap
+from app.tools.artifact_tools import (
+    artifact_state_update,
+    write_json_artifact,
+    write_text_artifact,
+)
+from app.tools.error_tools import stage_error_result
 from app.tools.repo_tools import classify_repo_file, get_file_tree
+
 
 def repo_scan_node(state: dict) -> dict:
     repo_path = state.get("repo_path")
     if not repo_path:
-        return {"error": "repo_path is required"}
+        return stage_error_result(
+            state=state,
+            stage="repo_scan",
+            code="REPO_PATH_REQUIRED",
+            category="user",
+            message="必须提供 repo_path",
+            extra_update={"repo_map": {}},
+        )
 
     tree = get_file_tree(repo_path)
     classified = classify_repo_file(repo_path)
@@ -27,27 +43,34 @@ def repo_scan_node(state: dict) -> dict:
         **classified
     )
 
-    settings.output_dir.mkdir(parents=True, exist_ok=True)
-    repo_map_path = settings.output_dir / "repo_map.json"
-    repo_summary_path = settings.output_dir / "repo_summary.md"
-
-    repo_map_path.write_text(repo_map.model_dump_json(indent=2), encoding="utf-8")
-    repo_summary_path.write_text(
-        "# Repo Summary\n\n"
-        "## File Tree\n\n"
-        f"```text\n{tree}\n```\n\n"
-        "## Important Files\n\n"
-        f"```json\n{json.dumps(repo_map.model_dump(), ensure_ascii=False, indent=2)}\n```\n",
-        encoding="utf-8",
+    _, repo_map_record = write_json_artifact(
+        state=state,
+        relative_path="analysis/repo_map.json",
+        payload=repo_map.model_dump(),
+        producer_node="repo_scan",
     )
-
+    summary_text = (
+        "# 仓库摘要\n\n"
+        "## 文件树\n\n"
+        f"```text\n{tree}\n```\n\n"
+        "## 重要文件\n\n"
+        "```json\n"
+        f"{json.dumps(repo_map.model_dump(), ensure_ascii=False, indent=2)}"
+        "\n```\n"
+    )
+    _, summary_record = write_text_artifact(
+        state=state,
+        relative_path="analysis/repo_summary.md",
+        text=summary_text,
+        producer_node="repo_scan",
+        media_type="text/markdown",
+    )
 
     return {
         "repo_tree": tree,
         "repo_map": repo_map.model_dump(),
-        "output_files": [
-            *state.get("output_files", []),
-            str(repo_map_path),
-            str(repo_summary_path)
-        ]
+        **artifact_state_update(
+            state,
+            [repo_map_record, summary_record],
+        ),
     }

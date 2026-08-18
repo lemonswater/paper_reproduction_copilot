@@ -1,10 +1,11 @@
-from datetime import datetime, timezone
+from __future__ import annotations
+
 import shlex
+from datetime import datetime, timezone
 from typing import Any
 
 from app.config import settings
 from app.schemas import SmokeTestReport
-
 
 # 这些是“常见而相对安全”的收缩参数。
 # 原则：
@@ -85,7 +86,7 @@ def derive_smoke_test_action(action: dict[str, Any]) -> tuple[dict[str, Any] | N
     args = list(action.get("args", []))
 
     if program not in SUPPORTED_SMOKE_PROGRAMS:
-        return None, [], f"program not supported for smoke reduction: {program}"
+        return None, [], f"该程序不支持冒烟测试参数缩减：{program}"
 
     updated_args = list(args)
     overrides: list[str] = []
@@ -96,14 +97,14 @@ def derive_smoke_test_action(action: dict[str, Any]) -> tuple[dict[str, Any] | N
             overrides.append(f"{flag} -> {value}")
 
     if not overrides:
-        return None, [], "no known safe reductions found in command arguments"
+        return None, [], "命令参数中没有可用的已知安全缩减项"
 
     smoke_action = {
         **action,
         # 给 smoke action 一个新的 action_id，避免和 full action 混淆。
         "action_id": f"{action.get('action_id', 'action')}_smoke",
         "args": updated_args,
-        "reason": f"smoke test derived from: {action.get('reason', 'unknown reason')}",
+        "reason": f"冒烟测试派生自：{action.get('reason', '未知原因')}",
         # smoke timeout 必须明显更短。
         "timeout_seconds": min(
             int(action.get("timeout_seconds", 300)),
@@ -111,7 +112,7 @@ def derive_smoke_test_action(action: dict[str, Any]) -> tuple[dict[str, Any] | N
         ),
     }
 
-    return smoke_action, overrides, "derived smoke action with bounded argument reductions"
+    return smoke_action, overrides, "已通过有界参数缩减生成冒烟测试操作"
 
 def build_smoke_test_report(
     *,
@@ -136,23 +137,23 @@ def build_smoke_test_report(
     )
 
 def render_smoke_test_report_md(report: SmokeTestReport) -> str:
-    lines = ["# Smoke Test Report", ""]
+    lines = ["# 冒烟测试报告", ""]
 
     lines += [
-        "## Summary",
+        "## 摘要",
         "",
-        f"- Action ID: `{report.action_id or 'N/A'}`",
-        f"- Action Hash: `{report.action_hash or 'N/A'}`",
-        f"- Status: `{report.status}`",
-        f"- Summary: {report.summary}",
-        f"- Command Preview: `{report.command_preview or 'N/A'}`",
-        f"- Log Path: `{report.log_path or 'N/A'}`",
+        f"- 操作 ID：`{report.action_id or '不适用'}`",
+        f"- 操作哈希：`{report.action_hash or '不适用'}`",
+        f"- 状态：`{report.status}`",
+        f"- 摘要：{report.summary}",
+        f"- 命令预览：`{report.command_preview or '不适用'}`",
+        f"- 日志路径：`{report.log_path or '不适用'}`",
         "",
     ]
 
-    lines += ["## Applied Overrides", ""]
+    lines += ["## 已应用的参数覆盖", ""]
     if not report.applied_overrides:
-        lines.append("- None")
+        lines.append("- 无")
     else:
         for item in report.applied_overrides:
             lines.append(f"- {item}")
@@ -160,10 +161,10 @@ def render_smoke_test_report_md(report: SmokeTestReport) -> str:
 
     if report.result:
         lines += [
-            "## Result",
+            "## 结果",
             "",
-            f"- OK: `{report.result.get('ok')}`",
-            f"- Return Code: `{report.result.get('returncode')}`",
+            f"- 是否成功：`{report.result.get('ok')}`",
+            f"- 返回码：`{report.result.get('returncode')}`",
             "",
         ]
 

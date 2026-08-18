@@ -1,0 +1,12 @@
+{
+  "job_id": null,
+  "thread_id": null,
+  "run_id": "eval-provider-pstnet-section-understanding-deeecce3b4-20260818-063021-73cd1cbe",
+  "task_id": "eval-provider_pstnet_section_understanding-deeecce3b4",
+  "paper_path": "pdf/PSTNet—Point Spatio-Temporal Convolution on Point Cloud Sequences.pdf",
+  "repo_path": "/data/tianshaoqi24/PST-Convolution-main/",
+  "log_path": null,
+  "experiment_goal": "复现论文 main result",
+  "execution_profile_id": "pstnet-local-supervised",
+  "run_started_at": "2026-08-18T06:30:21.007884+00:00"
+}

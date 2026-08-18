@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "case_id": "chat_offline_memory_constraint_and_decision_precision",
+  "description": "Memory 必须保留 CPU 约束且不能把小数据建议升级成决定",
+  "suite": "chat_offline",
+  "runner": "chat_scenario",
+  "categories": ["evidence", "quality", "recovery", "efficiency"],
+  "tags": ["chat", "memory", "constraint", "decision", "offline"],
+  "problem_ids": [],
+  "input": {
+    "fixture_path": "fixtures/chat/offline_memory_constraint.json"
+  },
+  "expected": {
+    "chat_turns": [
+      {
+        "label": "current-status",
+        "required_answer_any_groups": [["running", "运行中"]],
+        "required_citation_ids": ["job:current"],
+        "allowed_citation_ids": ["job:current"],
+        "expected_refusal": false,
+        "expected_unknown_requested_citations": 0
+      }
+    ],
+    "chat_memory": {
+      "expected_available": true,
+      "min_version": 1,
+      "required_summary_terms": ["CPU"],
+      "required_constraint_terms": ["CPU"],
+      "forbidden_decision_terms": ["small data", "小数据"],
+      "required_citation_ids": ["job:current"],
+      "require_hash_valid": true,
+      "min_source_sequence_valid_ratio": 1.0,
+      "min_degraded_turns": 0,
+      "max_degraded_turns": 0
+    },
+    "min_chat_pass_rate": 1.0,
+    "max_chat_answer_invocations_per_run": 1,
+    "max_chat_memory_invocations_per_run": 1,
+    "max_chat_prompt_chars": 40000
+  },
+  "thresholds": {
+    "min_overall_score": 1.0,
+    "max_score_regression": 0.0
+  }
+}

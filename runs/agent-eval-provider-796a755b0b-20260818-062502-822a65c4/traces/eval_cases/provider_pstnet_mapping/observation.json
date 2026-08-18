@@ -1,0 +1,504 @@
+{
+  "case_id": "provider_pstnet_mapping",
+  "runner": "live_graph",
+  "route": [
+    "run_context",
+    "input_validation",
+    "final_report",
+    "run_manifest"
+  ],
+  "final_status": "environment_blocked",
+  "structured_calls": [],
+  "tool_calls": [],
+  "evidence": [],
+  "artifacts": [
+    {
+      "artifact_id": "artifact_9769a4096acec440f23f",
+      "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+      "layer": "inputs",
+      "relative_path": "inputs/run_request.json",
+      "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/inputs/run_request.json",
+      "media_type": "application/json",
+      "sha256": "451a6fcbc7159dfb94e826aeac2c02e1a97d1060153346eda0986e473c033738",
+      "size_bytes": 508,
+      "producer_node": "run_context",
+      "created_at": "2026-08-18T06:25:03.068819+00:00"
+    },
+    {
+      "artifact_id": "artifact_75853ae7ec62f9afd29d",
+      "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+      "layer": "inputs",
+      "relative_path": "inputs/input_validation_report.json",
+      "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/inputs/input_validation_report.json",
+      "media_type": "application/json",
+      "sha256": "eab687be304c9479402a4c289e2ac0362ba80e4416643ccdba4b374cf0d36599",
+      "size_bytes": 1440,
+      "producer_node": "input_validation",
+      "created_at": "2026-08-18T06:25:03.101777+00:00"
+    },
+    {
+      "artifact_id": "artifact_e5b989898ea40b2c229f",
+      "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+      "layer": "reports",
+      "relative_path": "reports/error_report.json",
+      "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/reports/error_report.json",
+      "media_type": "application/json",
+      "sha256": "809f5d30ed0d655b71dbc7c60b3a72e2b01bfdc80009e63c4b9f336458377efe",
+      "size_bytes": 781,
+      "producer_node": "error_report",
+      "created_at": "2026-08-18T06:25:03.135674+00:00"
+    },
+    {
+      "artifact_id": "artifact_d034e9ffdd61d1fb85e1",
+      "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+      "layer": "reports",
+      "relative_path": "reports/error_report.md",
+      "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/reports/error_report.md",
+      "media_type": "text/markdown",
+      "sha256": "1faa24e70a8bbe5f73df138120563aeb38a6020415d3f3ebc386f85dca668d40",
+      "size_bytes": 421,
+      "producer_node": "error_report",
+      "created_at": "2026-08-18T06:25:03.169218+00:00"
+    },
+    {
+      "artifact_id": "artifact_366a82ff7cfa6d3974a1",
+      "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+      "layer": "reports",
+      "relative_path": "reports/final_report.md",
+      "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/reports/final_report.md",
+      "media_type": "text/markdown",
+      "sha256": "037224349a09a95d9ba04b9ef377224d7cd442436097c0d0aa895ec940ab914a",
+      "size_bytes": 1867,
+      "producer_node": "final_report",
+      "created_at": "2026-08-18T06:25:03.202579+00:00"
+    },
+    {
+      "artifact_id": "artifact_5ce1eadbeefe599c0826",
+      "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+      "layer": "reports",
+      "relative_path": "reports/artifact_index.json",
+      "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/reports/artifact_index.json",
+      "media_type": "application/json",
+      "sha256": "eba23242464127b76ea9a81b331a8c41e5544ecd18530601b6d6395deea2d9a7",
+      "size_bytes": 3697,
+      "producer_node": "run_manifest",
+      "created_at": "2026-08-18T06:25:03.244485+00:00"
+    },
+    {
+      "artifact_id": "artifact_75d317c3ecc8fe2eea24",
+      "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+      "layer": "reports",
+      "relative_path": "reports/run_manifest.json",
+      "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/reports/run_manifest.json",
+      "media_type": "application/json",
+      "sha256": "882237dd6e68eebea8625c99fdd9a65f4085fd7094244a56d3d1bba9a37e8ee0",
+      "size_bytes": 7455,
+      "producer_node": "run_manifest",
+      "created_at": "2026-08-18T06:25:03.286219+00:00"
+    }
+  ],
+  "output_payloads": {
+    "inputs/run_request.json": {
+      "job_id": null,
+      "thread_id": null,
+      "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+      "task_id": "eval-provider_pstnet_mapping-8d59495988",
+      "paper_path": "pdf/PSTNet—Point Spatio-Temporal Convolution on Point Cloud Sequences.pdf",
+      "repo_path": "/data/tianshaoqi24/PST-Convolution-main/",
+      "log_path": null,
+      "experiment_goal": "复现论文 main result",
+      "execution_profile_id": "profile-P4Transformer",
+      "run_started_at": "2026-08-18T06:25:03.035126+00:00"
+    },
+    "inputs/input_validation_report.json": {
+      "valid": false,
+      "checks": [
+        {
+          "name": "paper_path",
+          "status": "passed",
+          "category": "user",
+          "code": "OK",
+          "message": "paper_path 可读取",
+          "path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/pdf/PSTNet—Point Spatio-Temporal Convolution on Point Cloud Sequences.pdf"
+        },
+        {
+          "name": "paper_format",
+          "status": "passed",
+          "category": "user",
+          "code": "OK",
+          "message": "论文格式受支持：.pdf",
+          "path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/pdf/PSTNet—Point Spatio-Temporal Convolution on Point Cloud Sequences.pdf"
+        },
+        {
+          "name": "repo_path",
+          "status": "passed",
+          "category": "user",
+          "code": "OK",
+          "message": "代码仓库目录存在",
+          "path": "/data/tianshaoqi24/PST-Convolution-main"
+        },
+        {
+          "name": "log_path",
+          "status": "passed",
+          "category": "user",
+          "code": "NOT_PROVIDED",
+          "message": "本次未提供外部日志",
+          "path": null
+        },
+        {
+          "name": "execution_profile",
+          "status": "failed",
+          "category": "environment",
+          "code": "EXECUTION_PROFILE_INVALID",
+          "message": "未找到执行环境配置文件：/data/tianshaoqi24/agent/paper_reproduction_copilot/manual_acceptance/thread-P4Transformer/execution_profiles.json",
+          "path": null
+        }
+      ],
+      "generated_at": "2026-08-18T06:25:03.070464+00:00"
+    },
+    "reports/error_report.json": {
+      "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+      "error_count": 1,
+      "errors": [
+        {
+          "error_id": "error_a7d152d006e940cf",
+          "code": "EXECUTION_PROFILE_INVALID",
+          "category": "environment",
+          "stage": "input_validation",
+          "message": "未找到执行环境配置文件：/data/tianshaoqi24/agent/paper_reproduction_copilot/manual_acceptance/thread-P4Transformer/execution_profiles.json",
+          "retryable": false,
+          "terminal": true,
+          "exception_type": null,
+          "traceback_artifact_path": null,
+          "context": {
+            "check_name": "execution_profile",
+            "path": null
+          },
+          "occurred_at": "2026-08-18T06:25:03.102389+00:00"
+        }
+      ],
+      "generated_at": "2026-08-18T06:25:03.102438+00:00"
+    },
+    "reports/artifact_index.json": {
+      "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+      "artifact_count": 5,
+      "artifacts": [
+        {
+          "artifact_id": "artifact_9769a4096acec440f23f",
+          "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+          "layer": "inputs",
+          "relative_path": "inputs/run_request.json",
+          "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/inputs/run_request.json",
+          "media_type": "application/json",
+          "sha256": "451a6fcbc7159dfb94e826aeac2c02e1a97d1060153346eda0986e473c033738",
+          "size_bytes": 508,
+          "producer_node": "run_context",
+          "created_at": "2026-08-18T06:25:03.068819+00:00",
+          "integrity_status": "current",
+          "integrity_detail": ""
+        },
+        {
+          "artifact_id": "artifact_75853ae7ec62f9afd29d",
+          "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+          "layer": "inputs",
+          "relative_path": "inputs/input_validation_report.json",
+          "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/inputs/input_validation_report.json",
+          "media_type": "application/json",
+          "sha256": "eab687be304c9479402a4c289e2ac0362ba80e4416643ccdba4b374cf0d36599",
+          "size_bytes": 1440,
+          "producer_node": "input_validation",
+          "created_at": "2026-08-18T06:25:03.101777+00:00",
+          "integrity_status": "current",
+          "integrity_detail": ""
+        },
+        {
+          "artifact_id": "artifact_e5b989898ea40b2c229f",
+          "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+          "layer": "reports",
+          "relative_path": "reports/error_report.json",
+          "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/reports/error_report.json",
+          "media_type": "application/json",
+          "sha256": "809f5d30ed0d655b71dbc7c60b3a72e2b01bfdc80009e63c4b9f336458377efe",
+          "size_bytes": 781,
+          "producer_node": "error_report",
+          "created_at": "2026-08-18T06:25:03.135674+00:00",
+          "integrity_status": "current",
+          "integrity_detail": ""
+        },
+        {
+          "artifact_id": "artifact_d034e9ffdd61d1fb85e1",
+          "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+          "layer": "reports",
+          "relative_path": "reports/error_report.md",
+          "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/reports/error_report.md",
+          "media_type": "text/markdown",
+          "sha256": "1faa24e70a8bbe5f73df138120563aeb38a6020415d3f3ebc386f85dca668d40",
+          "size_bytes": 421,
+          "producer_node": "error_report",
+          "created_at": "2026-08-18T06:25:03.169218+00:00",
+          "integrity_status": "current",
+          "integrity_detail": ""
+        },
+        {
+          "artifact_id": "artifact_366a82ff7cfa6d3974a1",
+          "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+          "layer": "reports",
+          "relative_path": "reports/final_report.md",
+          "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/reports/final_report.md",
+          "media_type": "text/markdown",
+          "sha256": "037224349a09a95d9ba04b9ef377224d7cd442436097c0d0aa895ec940ab914a",
+          "size_bytes": 1867,
+          "producer_node": "final_report",
+          "created_at": "2026-08-18T06:25:03.202579+00:00",
+          "integrity_status": "current",
+          "integrity_detail": ""
+        }
+      ]
+    },
+    "reports/run_manifest.json": {
+      "manifest_version": 5,
+      "job_id": null,
+      "thread_id": null,
+      "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+      "task_id": "eval-provider_pstnet_mapping-8d59495988",
+      "run_dir": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+      "run_started_at": "2026-08-18T06:25:03.035126+00:00",
+      "manifest_generated_at": "2026-08-18T06:25:03.244588+00:00",
+      "paper_path": "pdf/PSTNet—Point Spatio-Temporal Convolution on Point Cloud Sequences.pdf",
+      "repo_path": "/data/tianshaoqi24/PST-Convolution-main/",
+      "repo_git_commit": "ef0907571a6007472efef380b33baa00859d1b7d",
+      "experiment_goal": "复现论文 main result",
+      "final_status": "environment_blocked",
+      "inputs_validated": false,
+      "execution_profile": {
+        "profile_id": "profile-P4Transformer",
+        "fingerprint": null
+      },
+      "capability_policy": {
+        "decision": null,
+        "report_path": null
+      },
+      "execution_supervision": {
+        "execution_id": null,
+        "process_record_path": null,
+        "end_reason": null,
+        "resource_usage": null,
+        "cancellation_requested": false,
+        "cancellation_reason": null,
+        "security_semantics": {
+          "process_group_supervised": true,
+          "minimal_environment": true,
+          "network_os_enforced": false,
+          "writable_paths_os_enforced": false
+        }
+      },
+      "selected_run_command_index": null,
+      "selected_run_command": null,
+      "command_selection_record": null,
+      "pending_action_hash": null,
+      "approval": {
+        "decision": null,
+        "feedback": null,
+        "record": null
+      },
+      "execution": {
+        "log_path": null,
+        "result": null,
+        "evidence": null,
+        "verification": null,
+        "verification_sha256": null
+      },
+      "errors": {
+        "count": 1,
+        "terminal_count": 1,
+        "items": [
+          {
+            "error_id": "error_a7d152d006e940cf",
+            "code": "EXECUTION_PROFILE_INVALID",
+            "category": "environment",
+            "stage": "input_validation",
+            "message": "未找到执行环境配置文件：/data/tianshaoqi24/agent/paper_reproduction_copilot/manual_acceptance/thread-P4Transformer/execution_profiles.json",
+            "retryable": false,
+            "terminal": true,
+            "exception_type": null,
+            "traceback_artifact_path": null,
+            "context": {
+              "check_name": "execution_profile",
+              "path": null
+            },
+            "occurred_at": "2026-08-18T06:25:03.102389+00:00"
+          }
+        ]
+      },
+      "artifacts": {
+        "count": 6,
+        "current_count": 6,
+        "issue_count": 0,
+        "items": [
+          {
+            "artifact_id": "artifact_9769a4096acec440f23f",
+            "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+            "layer": "inputs",
+            "relative_path": "inputs/run_request.json",
+            "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/inputs/run_request.json",
+            "media_type": "application/json",
+            "sha256": "451a6fcbc7159dfb94e826aeac2c02e1a97d1060153346eda0986e473c033738",
+            "size_bytes": 508,
+            "producer_node": "run_context",
+            "created_at": "2026-08-18T06:25:03.068819+00:00",
+            "integrity_status": "current",
+            "integrity_detail": ""
+          },
+          {
+            "artifact_id": "artifact_75853ae7ec62f9afd29d",
+            "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+            "layer": "inputs",
+            "relative_path": "inputs/input_validation_report.json",
+            "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/inputs/input_validation_report.json",
+            "media_type": "application/json",
+            "sha256": "eab687be304c9479402a4c289e2ac0362ba80e4416643ccdba4b374cf0d36599",
+            "size_bytes": 1440,
+            "producer_node": "input_validation",
+            "created_at": "2026-08-18T06:25:03.101777+00:00",
+            "integrity_status": "current",
+            "integrity_detail": ""
+          },
+          {
+            "artifact_id": "artifact_e5b989898ea40b2c229f",
+            "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+            "layer": "reports",
+            "relative_path": "reports/error_report.json",
+            "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/reports/error_report.json",
+            "media_type": "application/json",
+            "sha256": "809f5d30ed0d655b71dbc7c60b3a72e2b01bfdc80009e63c4b9f336458377efe",
+            "size_bytes": 781,
+            "producer_node": "error_report",
+            "created_at": "2026-08-18T06:25:03.135674+00:00",
+            "integrity_status": "current",
+            "integrity_detail": ""
+          },
+          {
+            "artifact_id": "artifact_d034e9ffdd61d1fb85e1",
+            "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+            "layer": "reports",
+            "relative_path": "reports/error_report.md",
+            "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/reports/error_report.md",
+            "media_type": "text/markdown",
+            "sha256": "1faa24e70a8bbe5f73df138120563aeb38a6020415d3f3ebc386f85dca668d40",
+            "size_bytes": 421,
+            "producer_node": "error_report",
+            "created_at": "2026-08-18T06:25:03.169218+00:00",
+            "integrity_status": "current",
+            "integrity_detail": ""
+          },
+          {
+            "artifact_id": "artifact_366a82ff7cfa6d3974a1",
+            "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+            "layer": "reports",
+            "relative_path": "reports/final_report.md",
+            "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/reports/final_report.md",
+            "media_type": "text/markdown",
+            "sha256": "037224349a09a95d9ba04b9ef377224d7cd442436097c0d0aa895ec940ab914a",
+            "size_bytes": 1867,
+            "producer_node": "final_report",
+            "created_at": "2026-08-18T06:25:03.202579+00:00",
+            "integrity_status": "current",
+            "integrity_detail": ""
+          },
+          {
+            "artifact_id": "artifact_5ce1eadbeefe599c0826",
+            "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+            "layer": "reports",
+            "relative_path": "reports/artifact_index.json",
+            "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99/reports/artifact_index.json",
+            "media_type": "application/json",
+            "sha256": "eba23242464127b76ea9a81b331a8c41e5544ecd18530601b6d6395deea2d9a7",
+            "size_bytes": 3697,
+            "producer_node": "run_manifest",
+            "created_at": "2026-08-18T06:25:03.244485+00:00",
+            "integrity_status": "current",
+            "integrity_detail": ""
+          }
+        ]
+      },
+      "smoke_test": {
+        "status": null,
+        "passed": null,
+        "log_path": null,
+        "report": null
+      },
+      "repair": {
+        "attempt_count": 0,
+        "history": [],
+        "proposal": null
+      },
+      "file_repair": {
+        "attempt_count": 0,
+        "history": [],
+        "proposal": null,
+        "pending_patch": null,
+        "patch_approval": null,
+        "verification_evidence": null,
+        "verification": null,
+        "promotion": null,
+        "application": null
+      }
+    }
+  },
+  "stage_errors": [
+    {
+      "error_id": "error_a7d152d006e940cf",
+      "code": "EXECUTION_PROFILE_INVALID",
+      "category": "environment",
+      "stage": "input_validation",
+      "message": "未找到执行环境配置文件：/data/tianshaoqi24/agent/paper_reproduction_copilot/manual_acceptance/thread-P4Transformer/execution_profiles.json",
+      "retryable": false,
+      "terminal": true,
+      "exception_type": null,
+      "traceback_artifact_path": null,
+      "context": {
+        "check_name": "execution_profile",
+        "path": null
+      },
+      "occurred_at": "2026-08-18T06:25:03.102389+00:00"
+    }
+  ],
+  "approval_required": null,
+  "approval_present": false,
+  "approval_hash_match": null,
+  "patch_hash_match": null,
+  "execution_started": false,
+  "policy_denied": false,
+  "secret_leaks": [],
+  "path_escapes": [],
+  "resume_succeeded": false,
+  "duplicate_side_effect_count": 0,
+  "metrics": {
+    "duration_ms": 259.3239869456738,
+    "llm_calls": 0,
+    "human_interventions": 0,
+    "tool_calls": 0,
+    "embedding_document_calls": 0,
+    "embedding_query_calls": 0,
+    "embedding_cache_hits": 0,
+    "embedding_cache_misses": 0
+  },
+  "run_id": "eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+  "run_dir": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-pstnet-mapping-8d59495988-20260818-062503-cdce2f99",
+  "code_retrieval": [],
+  "paper_page_count": 0,
+  "paper_indexed_pages": [],
+  "paper_section_titles": [],
+  "paper_section_kinds": [],
+  "paper_sections": [],
+  "paper_experiment_setting_names": [],
+  "paper_conflict_count": 0,
+  "paper_ocr_required_pages": [],
+  "paper_evidence_count": 0,
+  "paper_provenance_evidence_count": 0,
+  "embedding_provider_namespace": null,
+  "embedding_model": null,
+  "embedding_dimensions": null,
+  "dense_fallback_reason": null,
+  "chat": null
+}

@@ -1,19 +1,15 @@
+from __future__ import annotations
+
 import os
 import shlex
-import shutil
-import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable
 from uuid import uuid4
 
-from app.schemas import ExecutableAction, PreflightItem, PreflightReport
 from app.execution.base import ExecutionRunner
-from app.execution.profile_store import (
-    compute_execution_profile_fingerprint,
-    get_execution_profile
-)
+from app.execution.profile_store import compute_execution_profile_fingerprint, get_execution_profile
 from app.execution.registry import build_execution_runner
+from app.schemas import ExecutableAction, PreflightItem, PreflightReport
 
 PLACEHOLDER_MARKERS = (
     "<path",
@@ -24,16 +20,16 @@ PLACEHOLDER_MARKERS = (
 )
 
 PATH_LIKE_FLAGS = {
-    "--dataset_path": "dataset path",
-    "--data_root": "data root",
-    "--data-dir": "data directory",
-    "--config": "config file",
-    "--cfg": "config file",
-    "--weights": "weights file",
-    "--pretrained": "pretrained weights",
-    "--checkpoint": "checkpoint file",
-    "--ckpt": "checkpoint file",
-    "--resume": "checkpoint file",
+    "--dataset_path": "数据集路径",
+    "--data_root": "数据根目录",
+    "--data-dir": "数据目录",
+    "--config": "配置文件",
+    "--cfg": "配置文件",
+    "--weights": "权重文件",
+    "--pretrained": "预训练权重",
+    "--checkpoint": "checkpoint 文件",
+    "--ckpt": "checkpoint 文件",
+    "--resume": "checkpoint 文件",
 }
 
 UNSUPPORTED_PREFLIGHT_TEXT_MARKERS = (
@@ -56,7 +52,7 @@ def _resolve_action_runner(action: dict) -> tuple[ExecutionRunner, str]:
     current_fingerprint = compute_execution_profile_fingerprint(profile)
     expected_fingerprint = action.get("execution_profile_fingerprint")
     if expected_fingerprint != current_fingerprint:
-        raise ValueError("execution profile fingerprint 不匹配")
+        raise ValueError("执行环境配置指纹不匹配")
 
     return build_execution_runner(profile), current_fingerprint
 
@@ -186,20 +182,24 @@ def _run_probe(
     runner: ExecutionRunner,
     command: list[str],
     *,
-    cwd: Path | None = None,
+    cwd: Path,
+    run_dir: str,
+    stage: str,
     timeout_seconds: int = 8,
-) -> tuple[bool, str]:
+) -> tuple[bool, str, dict]:
     if not command:
-        return False, "empty probe command"
+        raise ValueError("探测命令不能为空")
 
     result = runner.probe(
         program=command[0],
         args=command[1:],
         cwd=str(cwd),
+        run_dir=run_dir,
+        stage=stage,
         timeout_seconds=timeout_seconds,
     )
+    return result["ok"], result["combined_output"], result
 
-    return result["ok"], result["combined_output"]
 
 def build_preflight_action_from_command(
     *,
@@ -221,10 +221,10 @@ def build_preflight_action_from_command(
     try:
         tokens = shlex.split(normalized_command)
     except ValueError as exc:
-        raise ValueError(f"invalid shell quoting: {exc}") from exc
+        raise ValueError(f"无效的 shell 引号：{exc}") from exc
 
     if not tokens:
-        raise ValueError("empty preflight command")
+        raise ValueError("预检命令不能为空")
 
     if any(token in UNSUPPORTED_PREFLIGHT_TEXT_MARKERS for token in tokens):
         raise ValueError(
@@ -247,7 +247,14 @@ def build_preflight_action_from_command(
 
     return action.model_dump()
 
-def collect_static_preflight_items(runner: ExecutionRunner, action: dict, repo_path: str | None) -> list[PreflightItem]:
+def collect_static_preflight_items(
+    runner: ExecutionRunner,
+    action: dict,
+    repo_path: str | None,
+    *,
+    run_dir: str,
+    probe_results: list[dict],
+) -> list[PreflightItem]:
     items: list[PreflightItem] = []
 
     program = action.get("program", "")
@@ -260,7 +267,7 @@ def collect_static_preflight_items(runner: ExecutionRunner, action: dict, repo_p
             name="working_directory_exists",
             category="static",
             status="passed",
-            evidence=f"working directory exists: {cwd}",
+            evidence=f"工作目录存在：{cwd}",
         )
     else:
         _add_item(
@@ -268,7 +275,7 @@ def collect_static_preflight_items(runner: ExecutionRunner, action: dict, repo_p
             name="working_directory_exists",
             category="static",
             status="failed",
-            evidence=f"working directory missing: {cwd}",
+            evidence=f"工作目录不存在：{cwd}",
             recommendation="请确认 repo_path / cwd 是否正确。",
         )
 
@@ -279,7 +286,7 @@ def collect_static_preflight_items(runner: ExecutionRunner, action: dict, repo_p
                 name="working_directory_writable",
                 category="static",
                 status="passed",
-                evidence=f"working directory is writable: {cwd}",
+                evidence=f"工作目录可写：{cwd}",
             )
         else:
             _add_item(
@@ -287,18 +294,23 @@ def collect_static_preflight_items(runner: ExecutionRunner, action: dict, repo_p
                 name="working_directory_writable",
                 category="static",
                 status="failed",
-                evidence=f"working directory is not writable: {cwd}",
+                evidence=f"工作目录不可写：{cwd}",
                 recommendation="请确认目录权限，或把动作切到可写目录。",
             )
 
-    resolved_program = runner.which(str(program), str(cwd))
+    resolved_program, which_result = runner.which(
+        str(program),
+        str(cwd),
+        run_dir=run_dir,
+    )
+    probe_results.append(which_result)
     if resolved_program:
         _add_item(
             items,
             name="program_in_path",
             category="static",
             status="passed",
-            evidence=f"program resolved to: {resolved_program}",
+            evidence=f"程序解析结果：{resolved_program}",
         )
     else:
         _add_item(
@@ -306,7 +318,7 @@ def collect_static_preflight_items(runner: ExecutionRunner, action: dict, repo_p
             name="program_in_path",
             category="static",
             status="failed",
-            evidence=f"program not found in PATH: {program}",
+            evidence=f"在 PATH 中未找到程序：{program}",
             recommendation="请确认虚拟环境是否激活，或确认命令程序是否已安装。",
         )
 
@@ -317,7 +329,7 @@ def collect_static_preflight_items(runner: ExecutionRunner, action: dict, repo_p
             name="command_placeholders_resolved",
             category="static",
             status="failed",
-            evidence=f"command still contains placeholders: {joined}",
+            evidence=f"命令仍包含占位符：{joined}",
             recommendation="请把 <path> / TODO / [需要确认参数] 替换成真实值。",
         )
     else:
@@ -326,7 +338,7 @@ def collect_static_preflight_items(runner: ExecutionRunner, action: dict, repo_p
             name="command_placeholders_resolved",
             category="static",
             status="passed",
-            evidence="no unresolved placeholders detected in command arguments",
+            evidence="命令参数中没有检测到未解决的占位符",
         )
 
     entry_script = _detect_entry_script(program, args, cwd)
@@ -337,7 +349,7 @@ def collect_static_preflight_items(runner: ExecutionRunner, action: dict, repo_p
                 name="entry_script_exists",
                 category="static",
                 status="passed",
-                evidence=f"entry script exists: {entry_script}",
+                evidence=f"入口脚本存在：{entry_script}",
             )
         else:
             _add_item(
@@ -345,7 +357,7 @@ def collect_static_preflight_items(runner: ExecutionRunner, action: dict, repo_p
                 name="entry_script_exists",
                 category="static",
                 status="failed",
-                evidence=f"entry script missing: {entry_script}",
+                evidence=f"入口脚本不存在：{entry_script}",
                 recommendation="请确认命令里的脚本路径是否正确。",
             )
 
@@ -358,7 +370,7 @@ def collect_static_preflight_items(runner: ExecutionRunner, action: dict, repo_p
                 name=f"{flag}_resolved",
                 category="static",
                 status="failed",
-                evidence=f"{label} still contains placeholder: {raw_value}",
+                evidence=f"{label}仍包含占位符：{raw_value}",
                 recommendation=f"把 {flag} 替换成真实路径。",
             )
             continue
@@ -370,7 +382,7 @@ def collect_static_preflight_items(runner: ExecutionRunner, action: dict, repo_p
                 name=f"{flag}_exists",
                 category="static",
                 status="passed",
-                evidence=f"{label} exists: {target_path}",
+                evidence=f"{label}存在：{target_path}",
             )
         else:
             _add_item(
@@ -378,7 +390,7 @@ def collect_static_preflight_items(runner: ExecutionRunner, action: dict, repo_p
                 name=f"{flag}_exists",
                 category="static",
                 status="failed",
-                evidence=f"{label} missing: {target_path}",
+                evidence=f"{label}不存在：{target_path}",
                 recommendation=f"请确认 {flag} 指向的路径存在。",
             )
 
@@ -389,7 +401,7 @@ def collect_static_preflight_items(runner: ExecutionRunner, action: dict, repo_p
             name="dependency_manifest_detected",
             category="static",
             status="passed",
-            evidence="detected dependency files: "
+            evidence="检测到依赖文件："
             + ", ".join(str(path.name) for path in dependency_files),
         )
     else:
@@ -398,94 +410,160 @@ def collect_static_preflight_items(runner: ExecutionRunner, action: dict, repo_p
             name="dependency_manifest_detected",
             category="static",
             status="warning",
-            evidence="no requirements.txt / pyproject.toml / environment.yml detected",
+            evidence="未检测到 requirements.txt、pyproject.toml 或 environment.yml",
             recommendation="后续可以从 README 或安装脚本中补充依赖来源。",
         )
 
     return items
 
-def collect_runtime_preflight_items(action: dict, runner: ExecutionRunner) -> list[PreflightItem]:
+def collect_runtime_preflight_items(
+    action: dict,
+    runner: ExecutionRunner,
+    *,
+    run_dir: str,
+    probe_results: list[dict],
+) -> list[PreflightItem]:
     items: list[PreflightItem] = []
 
-    program = action.get("program", "")
+    program = str(action.get("program", ""))
     cwd = Path(action.get("cwd") or ".")
 
-    if not runner.which(str(program), str(cwd)):
+    resolved, which_result = runner.which(
+        program,
+        str(cwd),
+        run_dir=run_dir,
+    )
+    probe_results.append(which_result)
+    if not resolved:
         return items
 
-    if program == "python":
-        ok, evidence = _run_probe(
+    if program in {"python", "python3"}:
+        ok, evidence, result = _run_probe(
             runner,
-            ["python", "--version"],
-            cwd=cwd
+            [program, "--version"],
+            cwd=cwd,
+            run_dir=run_dir,
+            stage="preflight_python_version",
+            timeout_seconds=15,
         )
+        probe_results.append(result)
         _add_item(
             items,
             name="python_version_probe",
             category="runtime",
             status="passed" if ok else "failed",
             evidence=evidence,
-            recommendation=None if ok else "确认 python 可执行程序是否可用。",
+            recommendation=(
+                None if ok else "确认 python 可执行程序是否可用。"
+            ),
         )
 
-        ok, evidence = _run_probe(
+        ok, evidence, result = _run_probe(
             runner,
-            ["python", "-c", "import torch; print(torch.__version__)"],
+            [
+                program,
+                "-c",
+                "import torch; print(torch.__version__)",
+            ],
             cwd=cwd,
+            run_dir=run_dir,
+            stage="preflight_torch_import",
+            timeout_seconds=15,
         )
+        probe_results.append(result)
         _add_item(
             items,
             name="torch_import_probe",
             category="runtime",
             status="passed" if ok else "failed",
             evidence=evidence,
-            recommendation=None if ok else "确认当前环境已安装可导入的 PyTorch。",
+            recommendation=(
+                None
+                if ok
+                else "确认当前环境已安装可导入的 PyTorch。"
+            ),
         )
 
-        ok, evidence = _run_probe(
+        ok, evidence, result = _run_probe(
             runner,
-            ["python", "-c", "import torch; print(torch.cuda.is_available())"],
+            [
+                program,
+                "-c",
+                "import torch; print(torch.cuda.is_available())",
+            ],
             cwd=cwd,
+            run_dir=run_dir,
+            stage="preflight_cuda_available",
+            timeout_seconds=15,
         )
+        probe_results.append(result)
         _add_item(
             items,
             name="cuda_available_probe",
             category="runtime",
             status="passed" if ok else "warning",
             evidence=evidence,
-            recommendation=None if ok else "如果需要 GPU，请检查 CUDA / 驱动 / PyTorch 兼容性。",
+            recommendation=(
+                None
+                if ok
+                else "如果需要 GPU，请检查 CUDA / 驱动 / PyTorch 兼容性。"
+            ),
         )
 
     elif program == "torchrun":
-        ok, evidence = _run_probe(runner, ["torchrun", "--help"], cwd=cwd)
+        ok, evidence, result = _run_probe(
+            runner,
+            ["torchrun", "--help"],
+            cwd=cwd,
+            run_dir=run_dir,
+            stage="preflight_torchrun_help",
+            timeout_seconds=15,
+        )
+        probe_results.append(result)
         _add_item(
             items,
             name="torchrun_help_probe",
             category="runtime",
             status="passed" if ok else "failed",
             evidence=evidence,
-            recommendation=None if ok else "确认 torchrun 是否在当前环境中可用。",
+            recommendation=(
+                None if ok else "确认 torchrun 是否在当前环境中可用。"
+            ),
         )
 
     else:
-        ok, evidence = _run_probe(runner, [program, "--help"], cwd=cwd)
+        ok, evidence, result = _run_probe(
+            runner,
+            [program, "--help"],
+            cwd=cwd,
+            run_dir=run_dir,
+            stage="preflight_program_help",
+            timeout_seconds=15,
+        )
+        probe_results.append(result)
         _add_item(
             items,
             name="program_help_probe",
             category="runtime",
             status="passed" if ok else "warning",
             evidence=evidence,
-            recommendation=None if ok else "确认该命令在当前环境中可执行。",
+            recommendation=(
+                None if ok else "确认该命令在当前环境中可执行。"
+            ),
         )
 
     return items
 
+
 def build_preflight_report(
     action: dict,
     *,
-    repo_path: str | None = None,
-    action_hash: str | None = None,
-) -> PreflightReport:
+    repo_path: str | None,
+    action_hash: str | None,
+    run_dir: str,
+) -> tuple[PreflightReport, list[dict]]:
+    """返回报告和所有内部 probe 的 ExecutionResult。"""
+
     try:
         runner, _ = _resolve_action_runner(action)
     except (FileNotFoundError, KeyError, ValueError) as exc:
@@ -496,70 +574,127 @@ def build_preflight_report(
             evidence=str(exc),
             recommendation="检查 execution profile 配置并重新构建动作。",
         )
-
-        return PreflightReport(
+        report = PreflightReport(
             action_id=action.get("action_id"),
             action_hash=action_hash,
             ready_to_execute=False,
-            summary="preflight blocked execution: execution_profile_ready",
+            summary="预检阻止执行：execution_profile_ready",
             items=[item],
             blocking_items=[item.name],
             generated_at=datetime.now(timezone.utc).isoformat(),
         )
-    static_items = collect_static_preflight_items(runner, action, repo_path=repo_path)
-    runtime_items = collect_runtime_preflight_items(action, runner=runner)
+        return report, []
+
+    probe_results: list[dict] = []
+    static_items = collect_static_preflight_items(
+        runner,
+        action,
+        repo_path,
+        run_dir=run_dir,
+        probe_results=probe_results,
+    )
+    runtime_items = collect_runtime_preflight_items(
+        action,
+        runner,
+        run_dir=run_dir,
+        probe_results=probe_results,
+    )
     items = [*static_items, *runtime_items]
 
-    blocking_items = [item.name for item in items if item.status == "failed"]
-    ready_to_execute = len(blocking_items) == 0
-
-    if ready_to_execute:
-        summary = "preflight passed: no blocking issues detected"
-    else:
-        summary = (
-            "preflight blocked execution: "
-            + ", ".join(blocking_items)
+    profile = runner.profile
+    if (
+        profile.enforcement_mode == "strict"
+        and profile.backend in {"local", "conda"}
+    ):
+        _add_item(
+            items,
+            name="strict_execution_isolation",
+            category="runtime",
+            status="failed",
+            evidence=(
+                f"{profile.backend} backend 不支持 strict OS isolation"
+            ),
+            recommendation="改用支持 strict isolation 的执行后端。",
         )
 
-    return PreflightReport(
+    blocking_items = [
+        item.name for item in items if item.status == "failed"
+    ]
+    ready_to_execute = not blocking_items
+    summary = (
+        "预检通过：未检测到阻塞问题"
+        if ready_to_execute
+        else "预检阻止执行：" + ", ".join(blocking_items)
+    )
+
+    report = PreflightReport(
         action_id=action.get("action_id"),
         action_hash=action_hash,
         ready_to_execute=ready_to_execute,
         summary=summary,
         items=items,
         blocking_items=blocking_items,
+        execution_enforcement_mode=profile.enforcement_mode,
+        network_os_enforced=False,
+        writable_paths_os_enforced=False,
+        resource_monitors_available={
+            "wall_time": True,
+            "cpu": True,
+            "memory": True,
+            "process_count": True,
+            "write_bytes": True,
+            "bounded_logs": True,
+        },
+        process_group_supported=True,
         generated_at=datetime.now(timezone.utc).isoformat(),
     )
+    return report, probe_results
+
 
 def render_preflight_report_md(report: PreflightReport) -> str:
-    lines = ["# Preflight Report", ""]
+    lines = ["# 预检报告", ""]
 
     lines += [
-        "## Summary",
+        "## 摘要",
         "",
-        f"- Action ID: `{report.action_id or 'N/A'}`",
-        f"- Action Hash: `{report.action_hash or 'N/A'}`",
-        f"- Ready To Execute: `{report.ready_to_execute}`",
-        f"- Generated At: `{report.generated_at}`",
-        f"- Summary: {report.summary}",
+        f"- 操作 ID：`{report.action_id or '不适用'}`",
+        f"- 操作哈希：`{report.action_hash or '不适用'}`",
+        f"- 是否可以执行：`{report.ready_to_execute}`",
+        f"- 生成时间：`{report.generated_at}`",
+        f"- 摘要：{report.summary}",
         "",
     ]
 
+    lines += [
+        "## 执行能力边界",
+        "",
+        f"- Enforcement mode：`{report.execution_enforcement_mode or 'unknown'}`",
+        f"- Process group supported：`{report.process_group_supported}`",
+        f"- Network OS enforced：`{report.network_os_enforced}`",
+        (
+            "- Writable paths OS enforced："
+            f"`{report.writable_paths_os_enforced}`"
+        ),
+    ]
+    for name, available in report.resource_monitors_available.items():
+        lines.append(f"- Resource monitor `{name}`：`{available}`")
+    lines.append("")
+
     if report.blocking_items:
-        lines += ["## Blocking Items", ""]
+        lines += ["## 阻塞项", ""]
         for item in report.blocking_items:
             lines.append(f"- {item}")
         lines.append("")
 
-    lines += ["## Items", ""]
+    lines += ["## 检查项", ""]
     for item in report.items:
         lines.append(f"### {item.name}")
         lines.append("")
-        lines.append(f"- Category: `{item.category}`")
-        lines.append(f"- Status: `{item.status}`")
-        lines.append(f"- Evidence: {item.evidence}")
+        lines.append(f"- 分类：`{item.category}`")
+        lines.append(f"- 状态：`{item.status}`")
+        lines.append(f"- 证据：{item.evidence}")
         if item.recommendation:
-            lines.append(f"- Recommendation: {item.recommendation}")
+            lines.append(f"- 建议：{item.recommendation}")
         lines.append("")
 
     return "\n".join(lines)

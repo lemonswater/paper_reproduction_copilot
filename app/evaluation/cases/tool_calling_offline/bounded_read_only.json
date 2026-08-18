@@ -1,0 +1,21 @@
+{
+  "case_id": "bounded_read_only",
+  "description": "Tool Calling 只读工具在有界循环中正常返回证据，不触发 Mutation",
+  "category": "tool_calling",
+  "provider_mode": "offline",
+  "steps": [
+    {
+      "action": "ask",
+      "question": "现在运行到哪一步？",
+      "job_status": "running"
+    }
+  ],
+  "expected": {
+    "tool_trace_status": "completed",
+    "max_tool_calls": 1,
+    "mutation_tool_count": 0,
+    "unknown_tool_count": 0,
+    "cross_job_argument_count": 0,
+    "duplicate_execution_count": 0
+  }
+}

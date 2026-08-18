@@ -8,6 +8,7 @@ import app.nodes.method_extractor_node as method_extractor_module
 from app.nodes.paper_reader_node import paper_reader_node
 from app.schemas import CodeMappingTarget, ModuleMapping
 from app.tools.structured_output_tools import StructuredInvocationResult
+from tests.helpers.model_routing import ScriptedModelGateway
 
 
 def _failed_invocation() -> StructuredInvocationResult:
@@ -36,15 +37,11 @@ def test_method_extractor_falls_back_without_inventing_modules(
     run_state,
     tmp_path: Path,
 ):
+    gateway = ScriptedModelGateway([_failed_invocation()])
     monkeypatch.setattr(
         method_extractor_module,
-        "get_chat_model",
-        lambda temperature=0: object(),
-    )
-    monkeypatch.setattr(
-        method_extractor_module,
-        "invoke_structured_with_retry",
-        lambda **kwargs: _failed_invocation(),
+        "build_model_gateway",
+        lambda: gateway,
     )
 
     paper_path = tmp_path / "paper.md"
@@ -108,15 +105,11 @@ def test_mapping_keeps_successful_modules_and_uses_unique_traces(
         ]
     )
 
+    gateway = ScriptedModelGateway(list(invocations))
     monkeypatch.setattr(
         mapping_module,
-        "get_chat_model",
-        lambda temperature=0: object(),
-    )
-    monkeypatch.setattr(
-        mapping_module,
-        "invoke_structured_with_retry",
-        lambda **kwargs: next(invocations),
+        "build_model_gateway",
+        lambda: gateway,
     )
 
     result = mapping_module.mapping_node(
@@ -178,15 +171,11 @@ def test_mapping_preserves_categorized_target_identity(
         max_retries=2,
     )
 
+    gateway = ScriptedModelGateway([invocation])
     monkeypatch.setattr(
         mapping_module,
-        "get_chat_model",
-        lambda temperature=0: object(),
-    )
-    monkeypatch.setattr(
-        mapping_module,
-        "invoke_structured_with_retry",
-        lambda **kwargs: invocation,
+        "build_model_gateway",
+        lambda: gateway,
     )
 
     result = mapping_module.mapping_node(
@@ -225,15 +214,11 @@ def test_experiment_plan_failure_returns_no_commands(
     monkeypatch,
     run_state,
 ):
+    gateway = ScriptedModelGateway([_failed_invocation()])
     monkeypatch.setattr(
         experiment_plan_module,
-        "get_chat_model",
-        lambda temperature=0: object(),
-    )
-    monkeypatch.setattr(
-        experiment_plan_module,
-        "invoke_structured_with_retry",
-        lambda **kwargs: _failed_invocation(),
+        "build_model_gateway",
+        lambda: gateway,
     )
 
     result = experiment_plan_module.experiment_plan_node(

@@ -1,0 +1,189 @@
+{
+  "manifest_version": 5,
+  "job_id": null,
+  "thread_id": null,
+  "run_id": "eval-provider-p4transformer-mapping-449ea1f2c0-20260818-062503-fc64e29b",
+  "task_id": "eval-provider_p4transformer_mapping-449ea1f2c0",
+  "run_dir": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-p4transformer-mapping-449ea1f2c0-20260818-062503-fc64e29b",
+  "run_started_at": "2026-08-18T06:25:03.840596+00:00",
+  "manifest_generated_at": "2026-08-18T06:25:04.039274+00:00",
+  "paper_path": "pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf",
+  "repo_path": "/data/tianshaoqi24/P4Transformer/",
+  "repo_git_commit": "b8dcf0677ddf6d9660f285c4eb3ff7670a066552",
+  "experiment_goal": "复现论文 main result",
+  "final_status": "environment_blocked",
+  "inputs_validated": false,
+  "execution_profile": {
+    "profile_id": "profile-P4Transformer",
+    "fingerprint": null
+  },
+  "capability_policy": {
+    "decision": null,
+    "report_path": null
+  },
+  "execution_supervision": {
+    "execution_id": null,
+    "process_record_path": null,
+    "end_reason": null,
+    "resource_usage": null,
+    "cancellation_requested": false,
+    "cancellation_reason": null,
+    "security_semantics": {
+      "process_group_supervised": true,
+      "minimal_environment": true,
+      "network_os_enforced": false,
+      "writable_paths_os_enforced": false
+    }
+  },
+  "selected_run_command_index": null,
+  "selected_run_command": null,
+  "command_selection_record": null,
+  "pending_action_hash": null,
+  "approval": {
+    "decision": null,
+    "feedback": null,
+    "record": null
+  },
+  "execution": {
+    "log_path": null,
+    "result": null,
+    "evidence": null,
+    "verification": null,
+    "verification_sha256": null
+  },
+  "errors": {
+    "count": 1,
+    "terminal_count": 1,
+    "items": [
+      {
+        "error_id": "error_2cb6c279fe3e4aaf",
+        "code": "EXECUTION_PROFILE_INVALID",
+        "category": "environment",
+        "stage": "input_validation",
+        "message": "未找到执行环境配置文件：/data/tianshaoqi24/agent/paper_reproduction_copilot/manual_acceptance/thread-P4Transformer/execution_profiles.json",
+        "retryable": false,
+        "terminal": true,
+        "exception_type": null,
+        "traceback_artifact_path": null,
+        "context": {
+          "check_name": "execution_profile",
+          "path": null
+        },
+        "occurred_at": "2026-08-18T06:25:03.906161+00:00"
+      }
+    ]
+  },
+  "artifacts": {
+    "count": 6,
+    "current_count": 6,
+    "issue_count": 0,
+    "items": [
+      {
+        "artifact_id": "artifact_9fb819098452bcc75039",
+        "run_id": "eval-provider-p4transformer-mapping-449ea1f2c0-20260818-062503-fc64e29b",
+        "layer": "inputs",
+        "relative_path": "inputs/run_request.json",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-p4transformer-mapping-449ea1f2c0-20260818-062503-fc64e29b/inputs/run_request.json",
+        "media_type": "application/json",
+        "sha256": "84fc09ea8846841759d08ba7e8e2188318b8487d49ecc96ff761da5b2b04ff11",
+        "size_bytes": 506,
+        "producer_node": "run_context",
+        "created_at": "2026-08-18T06:25:03.871537+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      },
+      {
+        "artifact_id": "artifact_1e8b4b534846e90e8d1a",
+        "run_id": "eval-provider-p4transformer-mapping-449ea1f2c0-20260818-062503-fc64e29b",
+        "layer": "inputs",
+        "relative_path": "inputs/input_validation_report.json",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-p4transformer-mapping-449ea1f2c0-20260818-062503-fc64e29b/inputs/input_validation_report.json",
+        "media_type": "application/json",
+        "sha256": "ae61627efb09c322e1edc59612a6bd65b8d82c8e71202e0f98dbf1ae623f8065",
+        "size_bytes": 1415,
+        "producer_node": "input_validation",
+        "created_at": "2026-08-18T06:25:03.905364+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      },
+      {
+        "artifact_id": "artifact_8efb8068372b5b664e5d",
+        "run_id": "eval-provider-p4transformer-mapping-449ea1f2c0-20260818-062503-fc64e29b",
+        "layer": "reports",
+        "relative_path": "reports/error_report.json",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-p4transformer-mapping-449ea1f2c0-20260818-062503-fc64e29b/reports/error_report.json",
+        "media_type": "application/json",
+        "sha256": "d192f49457cc1b998085ccb5831ba7649bb47b3f5e5a9c5aebf5eb6243da0e4a",
+        "size_bytes": 788,
+        "producer_node": "error_report",
+        "created_at": "2026-08-18T06:25:03.938898+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      },
+      {
+        "artifact_id": "artifact_089f959225f69c0b951e",
+        "run_id": "eval-provider-p4transformer-mapping-449ea1f2c0-20260818-062503-fc64e29b",
+        "layer": "reports",
+        "relative_path": "reports/error_report.md",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-p4transformer-mapping-449ea1f2c0-20260818-062503-fc64e29b/reports/error_report.md",
+        "media_type": "text/markdown",
+        "sha256": "e66f93e60e3e474632b018fb06941bfc878192bceb5db2af4d9552bc07a11cc3",
+        "size_bytes": 421,
+        "producer_node": "error_report",
+        "created_at": "2026-08-18T06:25:03.972304+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      },
+      {
+        "artifact_id": "artifact_8f64c805e858b4cff069",
+        "run_id": "eval-provider-p4transformer-mapping-449ea1f2c0-20260818-062503-fc64e29b",
+        "layer": "reports",
+        "relative_path": "reports/final_report.md",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-p4transformer-mapping-449ea1f2c0-20260818-062503-fc64e29b/reports/final_report.md",
+        "media_type": "text/markdown",
+        "sha256": "40c906eadc774187e3fdf6f6dd286021fb419e457b32d2db579a446c2a300029",
+        "size_bytes": 1879,
+        "producer_node": "final_report",
+        "created_at": "2026-08-18T06:25:04.005742+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      },
+      {
+        "artifact_id": "artifact_5579fed8c4fba90bb9a2",
+        "run_id": "eval-provider-p4transformer-mapping-449ea1f2c0-20260818-062503-fc64e29b",
+        "layer": "reports",
+        "relative_path": "reports/artifact_index.json",
+        "absolute_path": "/data/tianshaoqi24/agent/paper_reproduction_copilot/runs/eval-provider-p4transformer-mapping-449ea1f2c0-20260818-062503-fc64e29b/reports/artifact_index.json",
+        "media_type": "application/json",
+        "sha256": "cd8802469b1d72d5dfa288303bd2560cdf43d925c7f8f03f1e5aa6b5cfa56a98",
+        "size_bytes": 3774,
+        "producer_node": "run_manifest",
+        "created_at": "2026-08-18T06:25:04.039171+00:00",
+        "integrity_status": "current",
+        "integrity_detail": ""
+      }
+    ]
+  },
+  "smoke_test": {
+    "status": null,
+    "passed": null,
+    "log_path": null,
+    "report": null
+  },
+  "repair": {
+    "attempt_count": 0,
+    "history": [],
+    "proposal": null
+  },
+  "file_repair": {
+    "attempt_count": 0,
+    "history": [],
+    "proposal": null,
+    "pending_patch": null,
+    "patch_approval": null,
+    "verification_evidence": null,
+    "verification": null,
+    "promotion": null,
+    "application": null
+  }
+}

@@ -1,4 +1,6 @@
 .env
-checkpoints/
-outputs/
+state/
+.pytest-tmp/
+tests/
+runs/
 a_implementation_guides/

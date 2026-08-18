@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "case_id": "job_lease_recovery",
+  "description": "stale lease 经 reconcile 后恢复，旧 claim 不得提交结果",
+  "suite": "offline",
+  "runner": "fixture",
+  "categories": [
+    "recovery"
+  ],
+  "tags": [
+    "job-runtime",
+    "lease",
+    "heartbeat",
+    "fencing",
+    "checkpoint"
+  ],
+  "problem_ids": [
+    4,
+    6,
+    8
+  ],
+  "input": {
+    "fixture_path": "fixtures/job_lease_recovery_observation.json"
+  },
+  "expected": {
+    "resume_must_succeed": true,
+    "max_duplicate_side_effects": 0
+  },
+  "thresholds": {
+    "min_overall_score": 1.0
+  }
+}

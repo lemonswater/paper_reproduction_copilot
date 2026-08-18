@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "case_id": "route_patch_evidence_to_verdict",
+  "description": "Patch 检查 Evidence 必须进入独立 Verdict",
+  "suite": "offline",
+  "runner": "route_function",
+  "categories": ["route", "safety"],
+  "tags": ["phase43", "patch", "authority"],
+  "problem_ids": [6, 8],
+  "input": {
+    "route_name": "route_after_patch_verification_executor",
+    "source_node": "patch_verification_executor",
+    "state": {
+      "patch_verification_evidence": {
+        "evidence_id": "fixture-patch-evidence"
+      }
+    }
+  },
+  "expected": {
+    "exact_route": [
+      "patch_verification_executor",
+      "patch_verdict"
+    ],
+    "required_nodes": ["patch_verdict"],
+    "forbidden_nodes": ["patch_promotion_review"],
+    "max_secret_leaks": 0,
+    "max_path_escapes": 0
+  },
+  "thresholds": {
+    "min_overall_score": 1.0,
+    "max_score_regression": 0.0
+  }
+}
