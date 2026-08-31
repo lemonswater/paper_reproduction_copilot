@@ -4,6 +4,34 @@ Paper Reproduction Copilot 是一个面向机器学习论文复现任务的工�
 
 项目同时提供 CLI、FastAPI 和本地 Web Console。用户可以创建复现任务、查看实时事件、选择或修改运行命令、完成人工审批，并在任务结束后通过带引用的 Chat Agent 查询报告、日志和 Artifact。
 
+## 项目结构
+
+```text
+app/
+  nodes/               LangGraph 业务节点
+  paper/               PDF 解析、章节识别、证据和摘要归并
+  retrieval/           仓库索引、混合检索、Dense Cache 和策略优化
+  execution/           Profile、Runner、Supervisor、OCI 与进程记录
+  job_runtime/         异步 Job、Lease、Heartbeat 和恢复
+  resources/           受控外部资源获取与 Resource Manifest
+  authority/           Planner/Executor/Verifier 权限边界
+  chat/                Artifact Grounded Chat 与上下文管理
+  failure_memory/      可信失败案例与诊断检索
+  project_memory/      项目长期事实与可撤销治理
+  knowledge_base/      跨论文证据知识库
+  model_routing/       模型策略、预算和调用账本
+  research_browser/    受限研究浏览与证据归档
+  tool_calling/        有界工具调用与复现编排
+  skills/              Agent Skill/Plugin Registry
+  mcp_gateway/         只读 MCP Client Gateway
+  mcp_export/          只读 MCP Server Export
+  evaluation/          Golden Cases、Runner、Scorer 和 Baseline
+  api/                 FastAPI、SSE 和 Web 托管
+web/                   React Web Console
+config/                Execution、Retrieval、Model、Browser 和 MCP Policy
+alembic/               PostgreSQL Schema Migration
+state/                 本地运行状态
+runs/                  Run-Native Artifacts
 
 ## 系统架构
 
@@ -314,33 +342,4 @@ python -m app.evaluation.run_eval run \
 ```
 
 评测产物同样写入独立 Run，并保留 Case 观察、评分、基线差异和 Manifest，便于区分工程测试通过与 Agent 行为质量。
-
-## 项目结构
-
-```text
-app/
-  nodes/               LangGraph 业务节点
-  paper/               PDF 解析、章节识别、证据和摘要归并
-  retrieval/           仓库索引、混合检索、Dense Cache 和策略优化
-  execution/           Profile、Runner、Supervisor、OCI 与进程记录
-  job_runtime/         异步 Job、Lease、Heartbeat 和恢复
-  resources/           受控外部资源获取与 Resource Manifest
-  authority/           Planner/Executor/Verifier 权限边界
-  chat/                Artifact Grounded Chat 与上下文管理
-  failure_memory/      可信失败案例与诊断检索
-  project_memory/      项目长期事实与可撤销治理
-  knowledge_base/      跨论文证据知识库
-  model_routing/       模型策略、预算和调用账本
-  research_browser/    受限研究浏览与证据归档
-  tool_calling/        有界工具调用与复现编排
-  skills/              Agent Skill/Plugin Registry
-  mcp_gateway/         只读 MCP Client Gateway
-  mcp_export/          只读 MCP Server Export
-  evaluation/          Golden Cases、Runner、Scorer 和 Baseline
-  api/                 FastAPI、SSE 和 Web 托管
-web/                   React Web Console
-config/                Execution、Retrieval、Model、Browser 和 MCP Policy
-alembic/               PostgreSQL Schema Migration
-state/                 本地运行状态
-runs/                  Run-Native Artifacts
 
