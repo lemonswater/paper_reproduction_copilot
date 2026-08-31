@@ -4,21 +4,6 @@ Paper Reproduction Copilot 是一个面向机器学习论文复现任务的工�
 
 项目同时提供 CLI、FastAPI 和本地 Web Console。用户可以创建复现任务、查看实时事件、选择或修改运行命令、完成人工审批，并在任务结束后通过带引用的 Chat Agent 查询报告、日志和 Artifact。
 
-## 核心能力
-
-- **章节感知论文理解**：解析 PDF 文本块和章节层级，提取研究问题、核心方法、实验设置、指标和证据位置，并通过结构化输出约束降低格式漂移。
-- **论文与代码证据映射**：建立仓库地图，结合关键词、符号、路径、稀疏检索和稠密语义检索定位实现模块，输出可追溯的 Evidence Pack。
-- **复现实验规划**：基于论文事实和仓库证据生成环境、数据、训练与评测步骤，并整理可执行命令候选。
-- **可恢复任务编排**：使用 LangGraph Checkpoint、`thread_id` 和异步 Job 状态机保存执行进度，支持中断、恢复、取消、租约续期和崩溃协调。
-- **人在回路中的执行控制**：命令选择、命令编辑、风险检查和审批都绑定版本与内容哈希，防止任务恢复后沿用过期决定。
-- **受控运行边界**：通过 Execution Profile 固定 Python/Conda/OCI 环境、工作目录、程序白名单、网络策略、写入范围和资源预算，并在正式执行前完成 Preflight 与 Smoke Test。
-- **失败诊断与有限修复**：将运行日志、Traceback、代码证据和历史失败案例组合为诊断上下文；Planner、Executor 和 Verifier 职责分离，文件修复通过隔离 Worktree、Patch 审批和验证后再决定是否写回。
-- **证据化 Artifact 管理**：每次运行生成独立目录、Artifact 索引和 Run Manifest，记录输入、输出、生产节点、SHA-256、错误报告和执行证据。
-- **Artifact Grounded Chat**：Chat Agent 只基于任务事件、报告、日志、比较结果和长期事实回答，并保留引用、上下文压缩和记忆来源。
-- **运行比较与可信重跑**：比较两个 Run 的输入、仓库、环境、命令、执行和 Artifact 差异，并基于证据创建不可变派生任务。
-- **Agent 工程治理**：包含 Secret Vault 与脱敏、模型路由与成本预算、项目长期记忆、失败案例记忆、Tool Contract、Skill/Plugin、受限 Research Browser、Bounded Tool Calling 和只读 MCP 互操作。
-- **可观测性与评测**：提供结构化日志、Trace、Metric、Readiness、离线 Golden Evaluation、Provider Evaluation、对话决策评测和 MCP 契约评测。
-
 
 ## 系统架构
 
@@ -53,22 +38,6 @@ Notifications        | Observability | Tool Calling / MCP
 
 默认单机部署使用 SQLite、Local BlobStore 和本地 Checkpoint；同一套端口还支持 PostgreSQL 控制面、S3 兼容对象存储、OpenTelemetry 和 OCI Runtime。
 
-## 技术栈
-
-| 分层 | 技术 |
-|---|---|
-| Agent 编排 | LangGraph、LangChain、Pydantic v2 |
-| 模型接入 | OpenAI-compatible Chat/Embedding API、结构化输出重试、模型路由与预算账本 |
-| 后端接口 | FastAPI、Typer、SSE、Uvicorn |
-| 前端 | React 19、TypeScript、Vite、Vitest |
-| 数据与状态 | SQLite、PostgreSQL、LangGraph Checkpoint |
-| Artifact 存储 | Local BlobStore、S3-compatible Object Storage、SHA-256 Manifest |
-| 执行环境 | Conda Execution Profile、受监管子进程、Podman/OCI |
-| 检索 | 关键词与符号检索、稀疏排序、Embedding Cache、Dense Retrieval |
-| 安全治理 | Human-in-the-loop、Hash-bound Approval、Secret Vault、Redaction、Capability Policy |
-| 可观测性 | Structured Logging、OpenTelemetry、Readiness Probe、Runtime Report |
-| 互操作 | Bounded Tool Calling、Agent Skill/Plugin、MCP Client Gateway 与只读 MCP Server |
-| 质量保障 | Pytest、Ruff、Golden Evaluation、Provider Evaluation、Contract Evaluation |
 
 ## 环境要求
 
