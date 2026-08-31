@@ -154,7 +154,7 @@ python -m app.main serve-stack \
 `serve-stack` 在一个进程中启动 Web/API、Job Worker 和 Resource Worker。浏览器打开：
 
 ```text
-http://127.0.0.1:8000
+http://127.0.0.1:8000 
 ```
 
 本地单用户 Web 模式只监听 loopback，并使用同源 local-only 访问；该模式不在 Secret Vault 中启用 `AGENT_API_TOKEN`。浏览器位于另一台 Windows 机器时，可以建立 SSH Tunnel：
