@@ -19,27 +19,6 @@ Paper Reproduction Copilot 是一个面向机器学习论文复现任务的工�
 - **Agent 工程治理**：包含 Secret Vault 与脱敏、模型路由与成本预算、项目长期记忆、失败案例记忆、Tool Contract、Skill/Plugin、受限 Research Browser、Bounded Tool Calling 和只读 MCP 互操作。
 - **可观测性与评测**：提供结构化日志、Trace、Metric、Readiness、离线 Golden Evaluation、Provider Evaluation、对话决策评测和 MCP 契约评测。
 
-## 工作流程
-
-```mermaid
-flowchart LR
-    U["论文 + 代码仓库 + 复现目标"] --> V["输入校验"]
-    V --> P["论文解析与方法提取"]
-    P --> R["仓库扫描与混合检索"]
-    R --> M["论文-代码证据映射"]
-    M --> E["实验计划与命令候选"]
-    E --> C["用户选择或编辑命令"]
-    C --> G["风险检查与人工审批"]
-    G --> F["Preflight + Smoke Test"]
-    F --> X["受控执行"]
-    X --> Z["独立验证"]
-    Z --> D["失败诊断与有限修复"]
-    Z --> A["Artifact + Final Report"]
-    D --> A
-    A --> H["Grounded Chat / Compare / Rerun"]
-```
-
-高风险动作不会仅凭模型输出直接执行。Agent 负责生成候选方案和证据，确定性策略负责权限边界，用户负责批准具体动作，Verifier 负责依据执行证据给出结论。
 
 ## 系统架构
 
