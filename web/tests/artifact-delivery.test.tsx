@@ -69,6 +69,36 @@ afterEach(() => {
 });
 
 describe("artifact delivery", () => {
+  it("shows all run identities and copies the Job ID", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(window.navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+
+    render(
+      <RunContextPanel
+        job={job}
+        onMutation={async () => undefined}
+      />,
+    );
+
+    expect(screen.getByText("job-1")).toBeTruthy();
+    expect(screen.getByText("thread-1")).toBeTruthy();
+    expect(screen.getByText("run-1")).toBeTruthy();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Copy Job ID" }),
+    );
+
+    await waitFor(() => {
+      expect(writeText).toHaveBeenCalledWith("job-1");
+    });
+    expect(
+      screen.getByRole("button", { name: "Job ID copied" }),
+    ).toBeTruthy();
+  });
+
   it("previews as text and exposes download/export links", async () => {
     vi.spyOn(api, "artifacts").mockResolvedValue([artifact]);
     vi.spyOn(api, "artifactPreview").mockResolvedValue(preview);

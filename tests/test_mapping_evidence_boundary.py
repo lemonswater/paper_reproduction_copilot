@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from app.nodes.mapping_node import (
+    _recover_empty_mapping_from_strong_evidence,
     bind_mapping_to_evidence_pack,
 )
 from app.retrieval.service import (
@@ -8,6 +9,7 @@ from app.retrieval.service import (
 )
 from app.schemas import (
     CodeCandidate,
+    CodeMappingTarget,
     ModuleMapping,
 )
 
@@ -153,3 +155,123 @@ def test_mapping_drops_stale_pack_item(
         "失效" in value
         for value in bound.unresolved_questions
     )
+
+
+def test_empty_core_mapping_recovers_only_strong_valid_evidence(
+    tmp_path,
+):
+    pack = _build_pack(tmp_path)
+    target = CodeMappingTarget(
+        target_id="mapping_target_pstconv",
+        category="core_method",
+        name="PST convolution",
+        description="Named spatio-temporal operator.",
+        aliases=["PSTConv"],
+        possible_keywords=["PSTConv"],
+    )
+
+    recovered = _recover_empty_mapping_from_strong_evidence(
+        target=target,
+        mapping=ModuleMapping(
+            module_name=target.name,
+            target_id=target.target_id,
+            target_category=target.category,
+            candidates=[],
+            unresolved_questions=[],
+        ),
+        pack_payload=pack.model_dump(mode="json"),
+        repo_path=str(tmp_path),
+    )
+
+    assert len(recovered.candidates) == 1
+    candidate = recovered.candidates[0]
+    assert candidate.file_path == "operator.py"
+    assert candidate.symbols == ["PSTConv"]
+    assert candidate.confidence == "medium"
+    assert candidate.evidence_ids
+    assert candidate.evidence
+    assert any(
+        "受约束的强 Evidence 兜底" in question
+        for question in recovered.unresolved_questions
+    )
+
+
+def test_empty_non_core_mapping_does_not_use_evidence_recovery(
+    tmp_path,
+):
+    pack = _build_pack(tmp_path)
+    target = CodeMappingTarget(
+        target_id="mapping_target_metric",
+        category="evaluation_metric",
+        name="PSTConv",
+        description="Synthetic non-core target.",
+    )
+
+    recovered = _recover_empty_mapping_from_strong_evidence(
+        target=target,
+        mapping=ModuleMapping(
+            module_name=target.name,
+            target_id=target.target_id,
+            target_category=target.category,
+        ),
+        pack_payload=pack.model_dump(mode="json"),
+        repo_path=str(tmp_path),
+    )
+
+    assert recovered.candidates == []
+
+
+def test_empty_core_mapping_does_not_recover_weak_evidence(
+    tmp_path,
+):
+    pack = _build_pack(tmp_path).model_dump(mode="json")
+    pack["items"][0]["retrieval_channels"] = [
+        "symbol",
+        "keyword",
+    ]
+    target = CodeMappingTarget(
+        target_id="mapping_target_pstconv",
+        category="core_method",
+        name="PST convolution",
+        description="Named spatio-temporal operator.",
+        aliases=["PSTConv"],
+    )
+
+    recovered = _recover_empty_mapping_from_strong_evidence(
+        target=target,
+        mapping=ModuleMapping(
+            module_name=target.name,
+            target_id=target.target_id,
+            target_category=target.category,
+        ),
+        pack_payload=pack,
+        repo_path=str(tmp_path),
+    )
+
+    assert recovered.candidates == []
+
+
+def test_empty_core_mapping_respects_transpose_conflict(
+    tmp_path,
+):
+    pack = _build_pack(tmp_path)
+    target = CodeMappingTarget(
+        target_id="mapping_target_transposed",
+        category="core_method",
+        name="PST transposed convolution",
+        description="Transposed operator.",
+        aliases=["PSTConv"],
+    )
+
+    recovered = _recover_empty_mapping_from_strong_evidence(
+        target=target,
+        mapping=ModuleMapping(
+            module_name=target.name,
+            target_id=target.target_id,
+            target_category=target.category,
+        ),
+        pack_payload=pack.model_dump(mode="json"),
+        repo_path=str(tmp_path),
+    )
+
+    assert recovered.candidates == []

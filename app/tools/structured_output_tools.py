@@ -302,6 +302,18 @@ def _is_transient_provider_exception(exc: Exception) -> bool:
     )
 
 
+def _is_output_length_exception(exc: Exception) -> bool:
+    """识别由结构化解析器抛出的输出预算截断。"""
+
+    error_type = type(exc).__name__.casefold()
+    material = str(exc).casefold()
+    return (
+        error_type == "lengthfinishreasonerror"
+        or "length limit was reached" in material
+        or "finish reason was length" in material
+    )
+
+
 def _invoke_with_transport_retry(
     *,
     invoke: Callable[[], Any],
@@ -631,6 +643,20 @@ def invoke_structured_with_retry(
             continue
 
         if invoke_error is not None:
+            # OpenAI-compatible 客户端可能在 include_raw 返回前，就因
+            # finish_reason=length 抛 LengthFinishReasonError。它不是网络
+            # 故障，也不应直接终止结构化重试；改用现有紧凑截断提示词
+            # 消费一次 validation retry 预算。
+            if _is_output_length_exception(invoke_error):
+                latest = attempts[-1]
+                latest.status = "validation_error"
+                latest.truncated = True
+                if attempt_index < max_retries:
+                    current_prompt = _build_truncation_retry_prompt(
+                        original_prompt=base_prompt,
+                        validation_error=str(invoke_error),
+                    )
+                    continue
             break
 
         attempt_number = len(attempts) + 1

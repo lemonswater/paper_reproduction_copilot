@@ -4,12 +4,18 @@ import hashlib
 
 import pytest
 
-from app.paper.evidence import InvalidEvidenceReference, resolve_evidence
+from app.paper.evidence import (
+    InvalidEvidenceReference,
+    resolve_evidence,
+    validate_extraction_evidence_references,
+)
 from app.paper.schemas import (
     EvidenceDraft,
+    MethodModuleDraft,
     PaperBlock,
     PaperDocument,
     PaperSection,
+    SectionExtractionDraft,
     SectionChunk,
 )
 
@@ -98,4 +104,81 @@ def test_resolver_rejects_unknown_block_id() -> None:
             section=section,
             chunk=chunk,
             blocks_by_id={block.block_id: block},
+        )
+
+
+def test_resolver_restores_unique_block_hash_in_current_chunk() -> None:
+    block, section, chunk, document = _fixture()
+    block = block.model_copy(
+        update={"block_id": "p014-b0007-0123456789"}
+    )
+    section = section.model_copy(update={"block_ids": [block.block_id]})
+    chunk = chunk.model_copy(update={"block_ids": [block.block_id]})
+
+    resolved = resolve_evidence(
+        draft=EvidenceDraft(
+            block_ids=["p014-b0007-deadbeef00"],
+            summary="All networks are trained for 35 epochs.",
+        ),
+        document=document,
+        section=section,
+        chunk=chunk,
+        blocks_by_id={block.block_id: block},
+    )
+
+    assert resolved.block_ids == [block.block_id]
+
+
+def test_extraction_validation_persists_canonical_block_id() -> None:
+    block, _, chunk, _ = _fixture()
+    block = block.model_copy(
+        update={"block_id": "p014-b0007-0123456789"}
+    )
+    chunk = chunk.model_copy(update={"block_ids": [block.block_id]})
+    extraction = SectionExtractionDraft(
+        section_id=chunk.section_id,
+        chunk_id=chunk.chunk_id,
+        summary="Implementation details",
+        method_modules=[
+            MethodModuleDraft(
+                name="PST convolution",
+                description="Spatio-temporal feature extraction.",
+                evidence=EvidenceDraft(
+                    block_ids=["p014-b0007"],
+                    summary="PST convolution definition.",
+                ),
+            )
+        ],
+    )
+
+    validate_extraction_evidence_references(
+        extraction=extraction,
+        chunk=chunk,
+        blocks_by_id={block.block_id: block},
+    )
+
+    assert extraction.method_modules[0].evidence.block_ids == [
+        block.block_id
+    ]
+
+
+def test_resolver_does_not_restore_block_from_outside_chunk() -> None:
+    block, section, chunk, document = _fixture()
+    outside = block.model_copy(
+        update={"block_id": "p015-b0008-abcdef0123", "page": 15}
+    )
+
+    with pytest.raises(InvalidEvidenceReference):
+        resolve_evidence(
+            draft=EvidenceDraft(
+                block_ids=["p015-b0008"],
+                summary="Outside evidence.",
+            ),
+            document=document,
+            section=section,
+            chunk=chunk,
+            blocks_by_id={
+                block.block_id: block,
+                outside.block_id: outside,
+            },
         )

@@ -1,0 +1,115 @@
+{
+  "schema_version": 2,
+  "scenario_id": "chat_provider_hard_long_history_memory_partition",
+  "job_status": "running",
+  "sources": [
+    {
+      "citation": {
+        "citation_id": "job:current",
+        "source_type": "job",
+        "label": "Current job state"
+      },
+      "content": "status=running; stage=planning; execution_started=false",
+      "score": 1000
+    }
+  ],
+  "seed_exchanges": [
+    {
+      "question": "复现只能使用 CPU。",
+      "answer": "好的，后续按 CPU 环境继续。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "进程内存上限是 32 GB。",
+      "answer": "好的，后续按 32 GB 上限规划。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "也许可以先试小数据集。",
+      "answer": "可以考虑。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "随机种子确定使用 seed 42。",
+      "answer": "好的，后续使用 seed 42。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "dataset split 采用官方还是自定义？这个问题还没决定。",
+      "answer": "明白，划分方式之后再定。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "之前提到 GPU 的想法作废，不要作为约束。",
+      "answer": "好的，后续不再按 GPU 方案考虑。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "当前还在 planning 吗？",
+      "answer": "是，当前仍处于 planning。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "训练已经开始了吗？",
+      "answer": "没有，execution_started=false。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "优化器已确定使用 AdamW。",
+      "answer": "好的，后续使用 AdamW。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "Top-1 准确率 90% 只是目标，不是已实测结果。",
+      "answer": "明白，目前不能把 90% 当作实测结果。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "数据根目录使用 /datasets/paper，保留这个路径约束。",
+      "answer": "好的，后续使用 /datasets/paper。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "batch size 32 可以先考虑，但还没有确认。",
+      "answer": "可以先考虑 batch size 32。",
+      "citation_ids": ["job:current"]
+    }
+  ],
+  "turns": [
+    {
+      "label": "initial-memory-check",
+      "question": "我们现在确定了哪些运行条件和随机种子？",
+      "idempotency_key": "difficulty-hard-long-memory-1"
+    },
+    {
+      "label": "late-correction",
+      "question": "内存改成 24 GB，seed 改成 7，前面的旧值不用了。现在按什么值？",
+      "idempotency_key": "difficulty-hard-long-memory-2"
+    },
+    {
+      "label": "open-question-check",
+      "question": "数据划分之前定下来了吗？",
+      "idempotency_key": "difficulty-hard-long-memory-3"
+    },
+    {
+      "label": "recent-decision",
+      "question": "batch size 就用 16 吧，学习率 0.0005 可以先看看。",
+      "idempotency_key": "difficulty-hard-long-memory-4"
+    },
+    {
+      "label": "full-context-summary",
+      "question": "把现在还有效的运行条件、配置和没定下来的事情总结一下。",
+      "idempotency_key": "difficulty-hard-long-memory-5"
+    }
+  ],
+  "memory_scripts": [],
+  "repetitions": 3,
+  "compaction_enabled": true,
+  "recent_messages": 4,
+  "compaction_min_messages": 4,
+  "compaction_max_messages": 40,
+  "compaction_max_input_chars": 20000,
+  "memory_max_chars": 8000,
+  "history_max_chars": 8000,
+  "prompt_max_chars": 40000
+}

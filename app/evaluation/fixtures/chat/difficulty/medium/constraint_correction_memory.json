@@ -1,0 +1,135 @@
+{
+  "schema_version": 2,
+  "scenario_id": "chat_provider_medium_constraint_correction_memory",
+  "job_status": "running",
+  "sources": [
+    {
+      "citation": {
+        "citation_id": "job:current",
+        "source_type": "job",
+        "label": "Current job state"
+      },
+      "content": "status=running; stage=planning; execution_started=false",
+      "score": 1000
+    }
+  ],
+  "seed_exchanges": [
+    {
+      "question": "最初可以考虑 GPU，但这还不是正式限制。",
+      "answer": "可以先看看 GPU 方案。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "内存上限先写 32 GB，这只是草案。",
+      "answer": "好的，先按 32 GB 记录。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "优化器或许可以用 SGD，先不做决定。",
+      "answer": "可以先看看 SGD。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "代码仓库扫描已经完成，这条只用于记录进度。",
+      "answer": "好的。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "更正：本次复现只允许 CPU。",
+      "answer": "明白，后续只按 CPU 环境继续。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "日志将保存在 reports/training.log，这不是训练超参数。",
+      "answer": "好的，日志路径使用 reports/training.log。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "正式更正：进程内存不得超过 16 GB，32 GB 草案作废。",
+      "answer": "明白，后续按 16 GB 上限处理。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "随机种子可以先考虑 17，但还没确认。",
+      "answer": "可以先考虑 seed 17。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "dataset split 采用官方还是自定义划分？这个问题仍未决定。",
+      "answer": "明白，划分方式之后再定。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "batch size 32 可以作为预检建议，不要当成最终配置。",
+      "answer": "可以在预检时先看看 batch size 32。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "README 的示例命令需要稍后校对，与当前环境约束无关。",
+      "answer": "好的，之后再校对 README。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "优化器正式确定使用 AdamW，SGD 候选作废。",
+      "answer": "明白，后续使用 AdamW。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "之前提到 GPU 的想法作废，不要作为有效约束或决定。",
+      "answer": "好的，后续不再按 GPU 方案考虑。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "学习率可以试 0.001，但尚未审批。",
+      "answer": "可以先看看 0.001。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "请再确认一次：CPU 和 16 GB 是硬性约束。",
+      "answer": "明白，后续按 CPU 和 16 GB 继续。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "随机种子最终确定为 seed 42，seed 17 建议作废。",
+      "answer": "好的，后续使用 seed 42。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "也许可以先用小数据集试跑，但尚未形成决定。",
+      "answer": "可以先看看。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "任务目前还在 planning 吗？",
+      "answer": "是，当前仍在 planning，尚未开始执行。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "单元测试报告稍后会存放到 reports 目录。",
+      "answer": "好的。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "请保留代码扫描的时间戳，但它不影响复现配置。",
+      "answer": "明白。",
+      "citation_ids": ["job:current"]
+    }
+  ],
+  "turns": [
+    {
+      "label": "latest-constraints",
+      "question": "总结当前状态、最终环境约束、已确认的优化器和随机种子，并说明仍未解决的数据划分问题；不要把过期草案或建议写成决定。",
+      "idempotency_key": "difficulty-medium-correction-1"
+    }
+  ],
+  "memory_scripts": [],
+  "repetitions": 2,
+  "compaction_enabled": true,
+  "recent_messages": 4,
+  "compaction_min_messages": 4,
+  "compaction_max_messages": 40,
+  "compaction_max_input_chars": 20000,
+  "memory_max_chars": 8000,
+  "history_max_chars": 8000,
+  "prompt_max_chars": 40000
+}

@@ -16,21 +16,7 @@ from app.retrieval.schemas import (
     RepositoryIndex,
     SymbolRecord,
 )
-from app.tools.repo_tools import IGNORE_DIRS
-
-INDEXABLE_SUFFIXES = {
-    ".py",
-    ".md",
-    ".rst",
-    ".txt",
-    ".yaml",
-    ".yml",
-    ".json",
-    ".toml",
-    ".ini",
-    ".cfg",
-    ".sh",
-}
+from app.tools.repo_tools import is_mapping_relevant_file
 
 _RAW_TOKEN_RE = re.compile(
     r"[A-Za-z0-9_+.-]+"
@@ -293,13 +279,7 @@ def _iter_indexable_files(
         if path.is_symlink() or not path.is_file():
             continue
         relative = path.relative_to(root)
-        if any(
-            part in IGNORE_DIRS
-            or part == ".pytest_cache"
-            for part in relative.parts
-        ):
-            continue
-        if path.suffix.casefold() not in INDEXABLE_SUFFIXES:
+        if not is_mapping_relevant_file(relative):
             continue
         files.append(path)
     return sorted(

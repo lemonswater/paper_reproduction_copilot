@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
-from app.chat.errors import ChatMemoryConflict
+from app.chat.errors import ChatMemoryConflict, ChatMemoryUnavailable
 from app.chat.memory import (
     ConversationMemoryCompactor,
     MemoryDraftResult,
+    _memory_failure_reason,
+    build_memory_draft_invoker,
     validate_memory_hash,
 )
 from app.chat.schemas import (
@@ -131,6 +134,27 @@ def test_unknown_memory_sources_degrade_to_previous_memory(tmp_path):
     assert repository.get_latest_memory("job-1") is None
 
 
+def test_assistant_constraint_source_is_repaired_to_user_message(tmp_path):
+    repository = repository_with_exchanges(tmp_path, count=4)
+
+    outcome = compactor(
+        repository,
+        lambda _prompt: MemoryDraft(
+            summary="CPU constraint",
+            user_constraints=[
+                MemoryStatement(
+                    text="Only use CPU.",
+                    source_sequences=[2],
+                )
+            ],
+        ),
+    ).ensure_memory("job-1")
+
+    assert outcome.degraded is False
+    assert outcome.memory is not None
+    assert outcome.memory.body.user_constraints[0].source_sequences == [1]
+
+
 def test_second_compaction_links_to_first_memory(tmp_path):
     repository = repository_with_exchanges(tmp_path, count=5)
 
@@ -195,6 +219,52 @@ def test_memory_provider_failure_does_not_delete_or_block_history(tmp_path):
     assert repository.latest_sequence("job-1") == 8
 
 
+def test_memory_provider_failure_exposes_only_safe_diagnostics(tmp_path):
+    repository = repository_with_exchanges(tmp_path, count=4)
+
+    def fail(_prompt: str):
+        raise ChatMemoryUnavailable(
+            "ChatMemoryOutputTruncated",
+            attempt_count=2,
+        )
+
+    outcome = compactor(repository, fail).ensure_memory("job-1")
+
+    assert outcome.degraded is True
+    assert outcome.reason == "ChatMemoryOutputTruncated"
+    assert outcome.provider_attempt_count == 2
+
+
+@pytest.mark.parametrize(
+    ("attempts", "expected"),
+    [
+        (
+            [SimpleNamespace(status="validation_error", truncated=True)],
+            "ChatMemoryOutputTruncated",
+        ),
+        (
+            [SimpleNamespace(status="configuration_error", truncated=False)],
+            "ChatMemoryStructuredConfigurationFailed",
+        ),
+        (
+            [
+                SimpleNamespace(status="provider_retry", truncated=False),
+                SimpleNamespace(status="invoke_error", truncated=False),
+            ],
+            "ChatMemoryProviderInvokeFailed",
+        ),
+        (
+            [SimpleNamespace(status="validation_error", truncated=False)],
+            "ChatMemorySchemaValidationFailed",
+        ),
+    ],
+)
+def test_memory_failure_reason_is_bounded(attempts, expected):
+    result = SimpleNamespace(attempts=attempts)
+
+    assert _memory_failure_reason(result) == expected
+
+
 def test_memory_hash_detects_body_tampering(tmp_path):
     repository = repository_with_exchanges(tmp_path, count=5)
     outcome = compactor(
@@ -212,9 +282,6 @@ def test_memory_hash_detects_body_tampering(tmp_path):
 
     with pytest.raises(ChatMemoryConflict):
         validate_memory_hash(tampered)
-
-
-from app.chat.memory import build_memory_draft_invoker
 
 
 @pytest.mark.provider
@@ -250,6 +317,42 @@ DELTA_MESSAGES:
         for sequence in item.source_sequences
     } <= {1, 2}
     assert set(draft.citation_ids_to_preserve) <= {"job:current"}
+
+
+def test_memory_provider_invoker_requests_balanced_output_budget(monkeypatch):
+    from app.model_routing import factory
+
+    captured: dict[str, object] = {}
+
+    class Gateway:
+        def invoke_structured(self, **kwargs):
+            captured.update(kwargs)
+            return SimpleNamespace(
+                value=MemoryDraft(summary="bounded memory"),
+                attempts=[
+                    SimpleNamespace(
+                        status="succeeded",
+                        truncated=False,
+                    )
+                ],
+                decision=SimpleNamespace(
+                    executed_model_name="balanced-model"
+                ),
+                invocation_id="mdl_test",
+            )
+
+    monkeypatch.setattr(
+        factory,
+        "build_model_gateway",
+        lambda: Gateway(),
+    )
+
+    result = build_memory_draft_invoker()("prompt", "job-1")
+
+    assert captured["quality_tier"] == "balanced"
+    assert captured["requested_max_output_tokens"] == 4096
+    assert result.model_name == "balanced-model"
+    assert result.provider_attempt_count == 1
 
 
 from app.chat.memory import _memory_body_hash_payload

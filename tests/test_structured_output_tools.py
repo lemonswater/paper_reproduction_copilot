@@ -48,6 +48,10 @@ class FailingSetupLLM:
         raise RuntimeError("structured output setup failed")
 
 
+class LengthFinishReasonError(RuntimeError):
+    pass
+
+
 def test_structured_output_succeeds_on_first_attempt():
     runnable = FakeStructuredRunnable(
         [
@@ -230,6 +234,38 @@ def test_structured_output_uses_compact_retry_for_truncated_json():
         "total_tokens": 18,
     }
     assert success_attempt.output_chars == len('{"answer":"fixed","count":2}')
+
+
+def test_structured_output_retries_length_finish_reason_as_truncation():
+    runnable = FakeStructuredRunnable(
+        [
+            LengthFinishReasonError(
+                "Could not parse response content as the length limit was reached"
+            ),
+            {
+                "raw": SimpleNamespace(
+                    content='{"answer":"fixed","count":2}'
+                ),
+                "parsed": DemoOutput(answer="fixed", count=2),
+                "parsing_error": None,
+            },
+        ]
+    )
+
+    result = invoke_structured_with_retry(
+        llm=FakeLLM(runnable),
+        schema=DemoOutput,
+        prompt="return demo output",
+        max_retries=1,
+    )
+
+    assert result.succeeded is True
+    assert [item.status for item in result.attempts] == [
+        "validation_error",
+        "succeeded",
+    ]
+    assert result.attempts[0].truncated is True
+    assert "上一轮输出在 JSON 对象完成前被截断" in runnable.prompts[1]
 
 
 def test_structured_output_records_callback_metadata_on_parser_error():

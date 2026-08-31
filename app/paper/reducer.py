@@ -51,6 +51,20 @@ _SECTION_KIND_PRIORITY = {
     "other": 70,
 }
 
+_GENERIC_FRONT_SECTION_TITLES = {
+    "abstract",
+    "introduction",
+    "relatedwork",
+    "background",
+    "method",
+    "methods",
+    "experiments",
+    "results",
+    "conclusion",
+    "references",
+    "appendix",
+}
+
 
 def _sha256(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
@@ -237,6 +251,40 @@ def _legacy_evidence_list(
     return result
 
 
+def _deterministic_paper_title(
+    *,
+    blocks: list[PaperBlock],
+    sections: list[PaperSection],
+) -> str | None:
+    """优先读取 title block；解析器漏标时用首页根 section 兜底。"""
+
+    block_title = next(
+        (
+            block.text.strip()
+            for block in blocks
+            if block.block_type == "title"
+            and not block.excluded
+            and block.text.strip()
+        ),
+        None,
+    )
+    if block_title is not None:
+        return block_title
+
+    if not sections:
+        return None
+    first_section = sections[0]
+    normalized = normalize_key(first_section.title)
+    if (
+        first_section.page_start != 1
+        or first_section.parent_id is not None
+        or not normalized
+        or normalized in _GENERIC_FRONT_SECTION_TITLES
+    ):
+        return None
+    return first_section.title.strip() or None
+
+
 def build_compatible_paper_summary(
     *,
     document: PaperDocument,
@@ -269,17 +317,11 @@ def build_compatible_paper_summary(
     )
     core_values = _unique_values(category_facts("core_idea"))
 
-    # 当前 PaperSummary 没有 title Evidence 字段，标题只从确定性解析出的
-    # title block 获取；找不到时保持 None，不让 LLM 猜测。
-    title = next(
-        (
-            block.text.strip()
-            for block in blocks
-            if block.block_type == "title"
-            and not block.excluded
-            and block.text.strip()
-        ),
-        None,
+    # 标题只取确定性版面结构，不接受 LLM 自由生成；部分 PDF 会把论文
+    # 标题标成 heading，此时使用首页首个根 section 作为安全兜底。
+    title = _deterministic_paper_title(
+        blocks=blocks,
+        sections=sections,
     )
 
     method_groups: dict[str, list[PaperFactRecord]] = defaultdict(list)

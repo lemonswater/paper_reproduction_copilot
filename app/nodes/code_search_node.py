@@ -734,6 +734,7 @@ def code_search_node(
                     if active_profile is not None
                     else None
                 ),
+                target_category=target_category,
             )
         except (
             SearchToolError,

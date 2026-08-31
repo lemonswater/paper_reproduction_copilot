@@ -1,0 +1,65 @@
+{
+  "schema_version": 2,
+  "scenario_id": "chat_provider_medium_memory_partition",
+  "job_status": "running",
+  "sources": [
+    {
+      "citation": {
+        "citation_id": "job:current",
+        "source_type": "job",
+        "label": "Current job state"
+      },
+      "content": "status=running; stage=experiment_planning; execution_started=false",
+      "score": 1000
+    }
+  ],
+  "seed_exchanges": [
+    {
+      "question": "运行环境必须使用 CPU。",
+      "answer": "好的，后续按 CPU 环境继续。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "优化器确定使用 AdamW。",
+      "answer": "好的，后续使用 AdamW。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "dataset split 使用官方划分还是自定义划分？暂时未决定。",
+      "answer": "明白，划分方式之后再定。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "学习率可以先考虑 0.001，但还没确认。",
+      "answer": "可以先考虑 0.001。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "现在开始执行了吗？",
+      "answer": "没有，execution_started=false。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "当前任务状态是什么？",
+      "answer": "任务正在运行，处于 experiment_planning。",
+      "citation_ids": ["job:current"]
+    }
+  ],
+  "turns": [
+    {
+      "label": "settings-summary",
+      "question": "总结已确认的优化器、环境约束以及仍未解决的数据划分问题。",
+      "idempotency_key": "difficulty-medium-partition-1"
+    }
+  ],
+  "memory_scripts": [],
+  "repetitions": 2,
+  "compaction_enabled": true,
+  "recent_messages": 4,
+  "compaction_min_messages": 4,
+  "compaction_max_messages": 40,
+  "compaction_max_input_chars": 20000,
+  "memory_max_chars": 8000,
+  "history_max_chars": 8000,
+  "prompt_max_chars": 40000
+}

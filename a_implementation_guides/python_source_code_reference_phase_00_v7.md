@@ -1,7 +1,7 @@
 # Python 源码函数参考：基础 00 与 V0-V7
 
-> 自动同步日期：2026-08-17
-> 覆盖文件：47；函数/方法：416。
+> 自动同步日期：2026-08-19
+> 覆盖文件：47；函数/方法：424。
 > 本文由当前 Python AST 生成；伪代码保留控制流和失败边界，但会把相邻语句合并为通俗的逻辑步骤。
 > 阶段归类按文件的主要职责完成；跨阶段持续修改的文件只进入一个主分册，源码行号是最终依据。
 
@@ -34,17 +34,17 @@
 - [`tests/test_decision_route_exactly_once.py`](#tests-test-decision-route-exactly-once-py)：3 个函数/方法
 - [`tests/test_eval_artifact_isolation.py`](#tests-test-eval-artifact-isolation-py)：1 个函数/方法
 - [`tests/test_eval_baseline.py`](#tests-test-eval-baseline-py)：6 个函数/方法
-- [`tests/test_eval_case_loader.py`](#tests-test-eval-case-loader-py)：7 个函数/方法
+- [`tests/test_eval_case_loader.py`](#tests-test-eval-case-loader-py)：8 个函数/方法
 - [`tests/test_eval_reporting.py`](#tests-test-eval-reporting-py)：3 个函数/方法
 - [`tests/test_eval_reporting_v2.py`](#tests-test-eval-reporting-v2-py)：1 个函数/方法
 - [`tests/test_eval_runners.py`](#tests-test-eval-runners-py)：5 个函数/方法
 - [`tests/test_eval_safety.py`](#tests-test-eval-safety-py)：8 个函数/方法
-- [`tests/test_eval_scorers_v2.py`](#tests-test-eval-scorers-v2-py)：4 个函数/方法
+- [`tests/test_eval_scorers_v2.py`](#tests-test-eval-scorers-v2-py)：8 个函数/方法
 - [`tests/test_local_blob_store.py`](#tests-test-local-blob-store-py)：4 个函数/方法
 - [`tests/test_low_risk_route.py`](#tests-test-low-risk-route-py)：10 个函数/方法
 - [`tests/test_mapping_evidence_boundary.py`](#tests-test-mapping-evidence-boundary-py)：4 个函数/方法
 - [`tests/test_mapping_targets.py`](#tests-test-mapping-targets-py)：9 个函数/方法
-- [`tests/test_method_extractor_hierarchical.py`](#tests-test-method-extractor-hierarchical-py)：21 个函数/方法
+- [`tests/test_method_extractor_hierarchical.py`](#tests-test-method-extractor-hierarchical-py)：23 个函数/方法
 - [`tests/test_model.py`](#tests-test-model-py)：6 个函数/方法
 - [`tests/test_model_budget_repository.py`](#tests-test-model-budget-repository-py)：21 个函数/方法
 - [`tests/test_model_gateway.py`](#tests-test-model-gateway-py)：14 个函数/方法
@@ -63,7 +63,7 @@
 - [`tests/test_semantic_chunking.py`](#tests-test-semantic-chunking-py)：3 个函数/方法
 - [`tests/test_semantic_query_builder.py`](#tests-test-semantic-query-builder-py)：3 个函数/方法
 - [`tests/test_service_host.py`](#tests-test-service-host-py)：7 个函数/方法
-- [`tests/test_structured_output_tools.py`](#tests-test-structured-output-tools-py)：16 个函数/方法
+- [`tests/test_structured_output_tools.py`](#tests-test-structured-output-tools-py)：17 个函数/方法
 - [`tests/test_verified_run_evidence_reader.py`](#tests-test-verified-run-evidence-reader-py)：20 个函数/方法
 
 ## 逐函数参考
@@ -4353,7 +4353,7 @@
 
 #### `_failed_invocation`
 
-- **源码**：`tests/test_analysis_planning_structured_nodes.py:13`
+- **源码**：`tests/test_analysis_planning_structured_nodes.py:14`
 - **签名**：`def _failed_invocation() -> StructuredInvocationResult`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -4374,7 +4374,7 @@
 
 #### `_empty_code_evidence_pack`
 
-- **源码**：`tests/test_analysis_planning_structured_nodes.py:23`
+- **源码**：`tests/test_analysis_planning_structured_nodes.py:24`
 - **签名**：`def _empty_code_evidence_pack(query: str) -> dict`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，构造符合 Phase 20 mapping 输入契约的最小 Evidence Pack。该函数接收语义检索问题，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终包含复现状态、索引或序列化字段的结构化映射。
 
@@ -4397,7 +4397,7 @@
 
 #### `test_method_extractor_falls_back_without_inventing_modules`
 
-- **源码**：`tests/test_analysis_planning_structured_nodes.py:34`
+- **源码**：`tests/test_analysis_planning_structured_nodes.py:35`
 - **签名**：`def test_method_extractor_falls_back_without_inventing_modules(monkeypatch: 未显式标注, run_state: 未显式标注, tmp_path: Path) -> None（隐式）`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收测试环境修改工具、本次运行状态、临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -4417,7 +4417,7 @@
 **伪代码**
 
 ```text
-调用 `setattr` 完成该函数的一项辅助处理；调用 `setattr` 完成该函数的一项辅助处理；计算组合或计算已有值，并保存为 论文 PDF 路径；将处理结果写入论文 PDF 路径指定的文件。
+构造 `ScriptedModelGateway` 结构化领域对象，并把结果记为 外部服务网关；调用 `setattr` 完成该函数的一项辅助处理；计算组合或计算已有值，并保存为 论文 PDF 路径；将处理结果写入论文 PDF 路径指定的文件。
 调用 `paper_reader_node` 完成该函数的一项辅助处理，并把结果记为 论文的索引；调用 `method_extractor_node` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果；断言阶段处理结果中的对应字段等于[]；不满足就终止当前测试或流程；断言阶段处理结果中的对应字段中的对应字段等于'unknown'；不满足就终止当前测试或流程。
 遍历并筛选输入，将整理后的结果保存为 当前处理结果；断言当前处理结果 的长度等于1；不满足就终止当前测试或流程；读取当前处理结果中的对应字段，并保存为 调用链追踪信息的路径；断言“检查调用链追踪信息的路径的文件系统属性”后得到肯定结果；不满足就终止当前测试或流程。
 断言辅助操作“调用 `str` 完成该函数的一项辅助处理”的结果属于阶段处理结果中的对应字段；不满足就终止当前测试或流程；把辅助操作“把调用链追踪信息的路径转换为稳定的仓库相对路径表示”的结果转换为稳定的仓库相对路径表示，并把结果记为 相对的路径；断言当前可迭代输入中存在满足“领域记录中的对应字段等于相对的路径 且 领域记录中的对应字段等于本次运行状态中的对应字段”的项；不满足就终止当前测试或流程。
@@ -4425,7 +4425,7 @@
 
 #### `test_mapping_keeps_successful_modules_and_uses_unique_traces`
 
-- **源码**：`tests/test_analysis_planning_structured_nodes.py:89`
+- **源码**：`tests/test_analysis_planning_structured_nodes.py:86`
 - **签名**：`def test_mapping_keeps_successful_modules_and_uses_unique_traces(monkeypatch: 未显式标注, run_state: 未显式标注) -> None（隐式）`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收测试环境修改工具、本次运行状态，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -4444,7 +4444,7 @@
 **伪代码**
 
 ```text
-构造 `ModuleMapping` 结构化领域对象，并把结果记为 成功映射；调用 `iter` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；调用 `setattr` 完成该函数的一项辅助处理；调用 `setattr` 完成该函数的一项辅助处理。
+构造 `ModuleMapping` 结构化领域对象，并把结果记为 成功映射；调用 `iter` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；构造 `ScriptedModelGateway` 结构化领域对象，并把结果记为 外部服务网关；调用 `setattr` 完成该函数的一项辅助处理。
 调用 `mapping_node` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果；断言阶段处理结果中的对应字段 的长度等于2；不满足就终止当前测试或流程；断言阶段处理结果中的对应字段中的对应字段中的对应字段等于'P4D convolution'；不满足就终止当前测试或流程；断言阶段处理结果中的对应字段中的对应字段中的对应字段等于[]；不满足就终止当前测试或流程。
 遍历并筛选输入，将整理后的结果保存为 当前处理结果；断言当前处理结果 的长度等于2；不满足就终止当前测试或流程；断言辅助操作“构造临时集合、映射或轻量领域对象”的结果 的长度等于2；不满足就终止当前测试或流程；计算组合或计算已有值，并保存为 调用链追踪信息的目录。
 断言由当前处理结果组成的集合或迭代器中每一项都满足“前一步操作返回对象的父级目录或父领域对象等于调用链追踪信息的目录”的项；不满足就终止当前测试或流程。
@@ -4452,7 +4452,7 @@
 
 #### `test_mapping_preserves_categorized_target_identity`
 
-- **源码**：`tests/test_analysis_planning_structured_nodes.py:158`
+- **源码**：`tests/test_analysis_planning_structured_nodes.py:151`
 - **签名**：`def test_mapping_preserves_categorized_target_identity(monkeypatch: 未显式标注, run_state: 未显式标注) -> None（隐式）`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收测试环境修改工具、本次运行状态，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -4471,14 +4471,14 @@
 **伪代码**
 
 ```text
-构造 `CodeMappingTarget` 结构化领域对象，并把结果记为 待定位的代码对象或业务目标；构造 `StructuredInvocationResult` 结构化领域对象，并把结果记为 工具调用记录；调用 `setattr` 完成该函数的一项辅助处理；调用 `setattr` 完成该函数的一项辅助处理。
+构造 `CodeMappingTarget` 结构化领域对象，并把结果记为 待定位的代码对象或业务目标；构造 `StructuredInvocationResult` 结构化领域对象，并把结果记为 工具调用记录；构造 `ScriptedModelGateway` 结构化领域对象，并把结果记为 外部服务网关；调用 `setattr` 完成该函数的一项辅助处理。
 调用 `mapping_node` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果；读取阶段处理结果中的对应字段中的对应字段，并保存为 论文-代码映射；断言论文-代码映射中的对应字段等于对象名称；不满足就终止当前测试或流程；断言论文-代码映射中的对应字段等于待定位的代码对象或业务目标的 ID；不满足就终止当前测试或流程。
 断言论文-代码映射中的对应字段等于'data_pipeline'；不满足就终止当前测试或流程；断言当前可迭代输入中存在满足“当前输入内容属于论文复现问题或用户问题”的项；不满足就终止当前测试或流程。
 ```
 
 #### `test_experiment_plan_failure_returns_no_commands`
 
-- **源码**：`tests/test_analysis_planning_structured_nodes.py:224`
+- **源码**：`tests/test_analysis_planning_structured_nodes.py:213`
 - **签名**：`def test_experiment_plan_failure_returns_no_commands(monkeypatch: 未显式标注, run_state: 未显式标注) -> None（隐式）`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收测试环境修改工具、本次运行状态，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -4497,8 +4497,10 @@
 **伪代码**
 
 ```text
-调用 `setattr` 完成该函数的一项辅助处理；调用 `setattr` 完成该函数的一项辅助处理；调用 `experiment_plan_node` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果；断言阶段处理结果中的对应字段等于[]；不满足就终止当前测试或流程。
-断言阶段处理结果中的对应字段中的对应字段等于'复现 main result'；不满足就终止当前测试或流程；计算组合或计算已有值，并保存为 调用链追踪信息的路径；断言“检查调用链追踪信息的路径的文件系统属性”后得到肯定结果；不满足就终止当前测试或流程；断言辅助操作“调用 `str` 完成该函数的一项辅助处理”的结果属于阶段处理结果中的对应字段；不满足就终止当前测试或流程。
+构造 `ScriptedModelGateway` 结构化领域对象，并把结果记为 外部服务网关；调用 `setattr` 完成该函数的一项辅助处理；调用 `experiment_plan_node` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果；断言阶段处理结果中的对应字段等于[]；不满足就终止当前测试或流程。
+断言阶段处理结果中的对应字段中的对应字段等于'复现 main result'；不满足就终止当前测试或流程；读取工具或模型调用记录集合中的对应字段，并保存为 后续步骤使用的结果；断言当前处理结果中的对应字段等于8192；不满足就终止当前测试或流程；断言当前输入内容属于当前处理结果中的对应字段；不满足就终止当前测试或流程。
+断言当前输入内容不属于当前处理结果中的对应字段；不满足就终止当前测试或流程；断言当前输入内容不属于当前处理结果中的对应字段；不满足就终止当前测试或流程；断言当前输入内容不属于当前处理结果中的对应字段；不满足就终止当前测试或流程；计算组合或计算已有值，并保存为 调用链追踪信息的路径。
+断言“检查调用链追踪信息的路径的文件系统属性”后得到肯定结果；不满足就终止当前测试或流程；断言辅助操作“调用 `str` 完成该函数的一项辅助处理”的结果属于阶段处理结果中的对应字段；不满足就终止当前测试或流程。
 ```
 
 ### `tests/test_artifact_publisher.py`
@@ -5161,7 +5163,7 @@
 
 #### `_route_case_payload`
 
-- **源码**：`tests/test_eval_case_loader.py:16`
+- **源码**：`tests/test_eval_case_loader.py:17`
 - **签名**：`def _route_case_payload() -> dict`
 - **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于根据当前运行状态、证据完整性、风险等级或人工决策选择下一条复现流程路径，最终包含复现状态、索引或序列化字段的结构化映射。
 
@@ -5182,7 +5184,7 @@
 
 #### `test_live_graph_must_be_provider_suite`
 
-- **源码**：`tests/test_eval_case_loader.py:35`
+- **源码**：`tests/test_eval_case_loader.py:36`
 - **签名**：`def test_live_graph_must_be_provider_suite() -> None`
 - **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -5204,7 +5206,7 @@
 
 #### `test_fixture_path_cannot_escape_evaluation_root`
 
-- **源码**：`tests/test_eval_case_loader.py:58`
+- **源码**：`tests/test_eval_case_loader.py:59`
 - **签名**：`def test_fixture_path_cannot_escape_evaluation_root() -> None`
 - **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -5225,7 +5227,7 @@
 
 #### `test_duplicate_categories_are_rejected`
 
-- **源码**：`tests/test_eval_case_loader.py:63`
+- **源码**：`tests/test_eval_case_loader.py:64`
 - **签名**：`def test_duplicate_categories_are_rejected() -> None`
 - **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -5247,7 +5249,7 @@
 
 #### `test_load_case_file_returns_validated_model`
 
-- **源码**：`tests/test_eval_case_loader.py:73`
+- **源码**：`tests/test_eval_case_loader.py:74`
 - **签名**：`def test_load_case_file_returns_validated_model(tmp_path: Path) -> None`
 - **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -5271,7 +5273,7 @@
 
 #### `test_load_case_file_rejects_missing_fixture`
 
-- **源码**：`tests/test_eval_case_loader.py:92`
+- **源码**：`tests/test_eval_case_loader.py:93`
 - **签名**：`def test_load_case_file_rejects_missing_fixture(tmp_path: Path) -> None`
 - **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -5295,7 +5297,7 @@
 
 #### `test_chat_fixture_must_exist_under_evaluation_root`
 
-- **源码**：`tests/test_eval_case_loader.py:119`
+- **源码**：`tests/test_eval_case_loader.py:120`
 - **签名**：`def test_chat_fixture_must_exist_under_evaluation_root(tmp_path: Path) -> None`
 - **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -5315,6 +5317,33 @@
 ```text
 计算组合或计算已有值，并保存为 评测用例的路径；将处理结果写入评测用例的路径指定的文件。
 在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `load_case_file` 读取或查询当前阶段需要的数据，退出时自动清理资源。
+```
+
+#### `test_provider_mapping_cases_use_stage_aligned_oracles`
+
+- **源码**：`tests/test_eval_case_loader.py:150`
+- **签名**：`def test_provider_mapping_cases_use_stage_aligned_oracles() -> None`
+- **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
+
+**输入**
+
+无显式输入；函数从模块配置、闭包或已注入实例依赖读取所需状态。
+
+**输出**
+
+- **Python 类型**：`None`
+- **语义**：无业务返回值；函数通过注册、持久化、文件写入、状态更新或异常产生效果。
+
+**伪代码**
+
+```text
+计算初始化顺序集合，并保存为 用例集合。
+遍历由用例集合组成的集合或迭代器，每次把当前项记为评测用例的 ID：
+    调用 `load_case_file` 读取或查询当前阶段需要的数据，并把结果记为 评测用例；读取期望值，并保存为 期望值；断言当前处理结果等于['SectionExtractionDraft', 'ModuleMapping', 'ExperimentPlan']；不满足就终止当前测试或流程；断言最小成功集合等于{'SectionExtractionDraft': 0.9, 'ModuleMapping': 0.8, 'ExperimentPlan': 1.0}；不满足就终止当前测试或流程。
+    断言证据集合 的长度等于2；不满足就终止当前测试或流程；断言文件集合 的长度等于2；不满足就终止当前测试或流程；断言当前处理结果等于[]；不满足就终止当前测试或流程；断言最小运行集合等于1；不满足就终止当前测试或流程。
+    断言最大运行集合等于4；不满足就终止当前测试或流程；断言最大语言模型集合等于28；不满足就终止当前测试或流程。
+调用 `load_case_file` 读取或查询当前阶段需要的数据，并把结果记为 该调用返回的结果；读取文件集合，并保存为 后续步骤使用的结果；断言当前输入内容等于['PST convolution', 'PSTNet architecture']；不满足就终止当前测试或流程；断言当前输入内容不属于当前处理结果；不满足就终止当前测试或流程。
+断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程。
 ```
 
 ### `tests/test_eval_reporting.py`
@@ -5806,6 +5835,93 @@
 ```text
 复制、序列化或校验结构化领域对象，并把结果记为 评测用例；构造 `EvalObservation` 结构化领域对象，并把结果记为 MCP Client 单次观测结果；调用 `score_case` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果；断言当前处理结果是假；不满足就终止当前测试或流程。
 断言待解析或验证的代码等于'CASE_UNDERSPECIFIED'；不满足就终止当前测试或流程。
+```
+
+#### `_provider_mapping_case`
+
+- **源码**：`tests/test_eval_scorers_v2.py:91`
+- **签名**：`def _provider_mapping_case() -> EvalCase`
+- **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `EvalCase` 的领域结果。
+
+**输入**
+
+无显式输入；函数从模块配置、闭包或已注入实例依赖读取所需状态。
+
+**输出**
+
+- **Python 类型**：`EvalCase`
+- **语义**：返回 `EvalCase` 类型的领域结果；必要时可能通过异常表示失败。
+
+**伪代码**
+
+```text
+复制、序列化或校验结构化领域对象，并返回处理结果。
+```
+
+#### `_provider_mapping_observation`
+
+- **源码**：`tests/test_eval_scorers_v2.py:141`
+- **签名**：`def _provider_mapping_observation(*, valid: bool) -> EvalObservation`
+- **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收输入或结果是否有效的判断，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `EvalObservation` 的领域结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `valid` | `bool` | 布尔条件或能力开关，用于控制流程分支。 |
+
+**输出**
+
+- **Python 类型**：`EvalObservation`
+- **语义**：返回 `EvalObservation` 类型的领域结果；必要时可能通过异常表示失败。
+
+**伪代码**
+
+```text
+遍历并筛选输入，将整理后的结果保存为 当前处理结果；把新的处理结果追加或合并到当前处理结果；把新的处理结果追加或合并到当前处理结果；构造并返回 `EvalObservation` 结构化领域对象。
+```
+
+#### `test_provider_mapping_oracles_accept_bound_mapping_and_plan`
+
+- **源码**：`tests/test_eval_scorers_v2.py:216`
+- **签名**：`def test_provider_mapping_oracles_accept_bound_mapping_and_plan() -> None`
+- **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
+
+**输入**
+
+无显式输入；函数从模块配置、闭包或已注入实例依赖读取所需状态。
+
+**输出**
+
+- **Python 类型**：`None`
+- **语义**：无业务返回值；函数通过注册、持久化、文件写入、状态更新或异常产生效果。
+
+**伪代码**
+
+```text
+调用 `score_case` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果；断言当前处理结果是真；不满足就终止当前测试或流程；断言分数等于1.0；不满足就终止当前测试或流程。
+```
+
+#### `test_provider_mapping_oracles_reject_failed_plan_and_wrong_mapping`
+
+- **源码**：`tests/test_eval_scorers_v2.py:226`
+- **签名**：`def test_provider_mapping_oracles_reject_failed_plan_and_wrong_mapping() -> None`
+- **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
+
+**输入**
+
+无显式输入；函数从模块配置、闭包或已注入实例依赖读取所需状态。
+
+**输出**
+
+- **Python 类型**：`None`
+- **语义**：无业务返回值；函数通过注册、持久化、文件写入、状态更新或异常产生效果。
+
+**伪代码**
+
+```text
+调用 `score_case` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果；遍历并筛选输入，将整理后的结果保存为 当前处理结果；断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程；断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程。
+断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程；断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程；断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程；断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程。
 ```
 
 ### `tests/test_local_blob_store.py`
@@ -6453,7 +6569,7 @@
 
 #### `_sha256`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:29`
+- **源码**：`tests/test_method_extractor_hierarchical.py:31`
 - **签名**：`def _sha256(value: str) -> str`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收当前字段值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -6476,7 +6592,7 @@
 
 #### `_prompt_metadata`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:33`
+- **源码**：`tests/test_method_extractor_hierarchical.py:35`
 - **签名**：`def _prompt_metadata(prompt: str, name: str) -> str`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收发给模型的结构化提示、对象名称，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -6502,7 +6618,7 @@
 
 #### `_prompt_blocks`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:44`
+- **源码**：`tests/test_method_extractor_hierarchical.py:46`
 - **签名**：`def _prompt_blocks(prompt: str) -> list[tuple[str, str]]`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收发给模型的结构化提示，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
@@ -6525,7 +6641,7 @@
 
 #### `_success_response`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:51`
+- **源码**：`tests/test_method_extractor_hierarchical.py:53`
 - **签名**：`def _success_response(prompt: str) -> dict`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收发给模型的结构化提示，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终包含复现状态、索引或序列化字段的结构化映射。
 
@@ -6558,7 +6674,7 @@
 
 #### `_failure_response`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:102`
+- **源码**：`tests/test_method_extractor_hierarchical.py:104`
 - **签名**：`def _failure_response() -> dict`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终包含复现状态、索引或序列化字段的结构化映射。
 
@@ -6579,7 +6695,7 @@
 
 #### `_invalid_evidence_response`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:112`
+- **源码**：`tests/test_method_extractor_hierarchical.py:114`
 - **签名**：`def _invalid_evidence_response(prompt: str) -> dict`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收发给模型的结构化提示，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终包含复现状态、索引或序列化字段的结构化映射。
 
@@ -6602,7 +6718,7 @@
 
 #### `FakeStructuredRunnable.__init__`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:138`
+- **源码**：`tests/test_method_extractor_hierarchical.py:140`
 - **签名**：`def __init__(self, outcomes: list[str])`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -6626,7 +6742,7 @@
 
 #### `FakeStructuredRunnable.invoke`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:142`
+- **源码**：`tests/test_method_extractor_hierarchical.py:144`
 - **签名**：`def invoke(self: 未显式标注, prompt: str, config: dict | None) -> dict`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收发给模型的结构化提示、运行配置，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终包含复现状态、索引或序列化字段的结构化映射。
 
@@ -6657,7 +6773,7 @@
 
 #### `FakeLLM.__init__`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:166`
+- **源码**：`tests/test_method_extractor_hierarchical.py:168`
 - **签名**：`def __init__(self, runnable: FakeStructuredRunnable)`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收可调用的模型或 Runnable 对象，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -6681,7 +6797,7 @@
 
 #### `FakeLLM.with_structured_output`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:170`
+- **源码**：`tests/test_method_extractor_hierarchical.py:172`
 - **签名**：`def with_structured_output(self, schema, **kwargs)`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收输入输出 Schema 契约、函数关键字参数映射，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
@@ -6706,7 +6822,7 @@
 
 #### `stable_extractor_settings`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:181`
+- **源码**：`tests/test_method_extractor_hierarchical.py:183`
 - **签名**：`def stable_extractor_settings(monkeypatch: pytest.MonkeyPatch) -> None`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，关闭重试，使一次 chunk 只消费一个 fake response。该函数接收测试环境修改工具，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -6729,7 +6845,7 @@
 
 #### `_block`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:208`
+- **源码**：`tests/test_method_extractor_hierarchical.py:210`
 - **签名**：`def _block(block_id: str, page: int, text: str) -> PaperBlock`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收论文原文块的 ID、论文页码、待处理文本，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `PaperBlock` 的领域结果。
 
@@ -6754,7 +6870,7 @@
 
 #### `_section`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:224`
+- **源码**：`tests/test_method_extractor_hierarchical.py:226`
 - **签名**：`def _section(section_id: str, title: str, kind: str, page: int, block: PaperBlock) -> PaperSection`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收论文文档章节的 ID、文档或章节标题、业务类别、论文页码等输入，用于读取并整理论文、源码或运行产物，把原始输入转换成带位置和身份信息的结构化证据，最终标注为 `PaperSection` 的领域结果。
 
@@ -6781,7 +6897,7 @@
 
 #### `_hierarchical_state`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:245`
+- **源码**：`tests/test_method_extractor_hierarchical.py:247`
 - **签名**：`def _hierarchical_state(run_state: dict, tmp_path: Path) -> dict`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，写入三个分散页面的真实 paper index Artifact。该函数接收本次运行状态、临时工作目录路径，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终包含复现状态、索引或序列化字段的结构化映射。
 
@@ -6808,7 +6924,7 @@
 
 #### `_run_extractor`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:366`
+- **源码**：`tests/test_method_extractor_hierarchical.py:368`
 - **签名**：`def _run_extractor(state: dict, outcomes: list[str]) -> tuple[dict, FakeStructuredRunnable, FakeLLM]`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收复现流程状态、当前处理结果，用于驱动或监督一次论文复现运行，记录命令、工作目录、资源使用、状态迁移和失败原因，最终有界、排序或带证据来源的结果集合。
 
@@ -6828,13 +6944,38 @@
 
 ```text
 构造 `FakeStructuredRunnable` 结构化领域对象，并把结果记为 可调用的模型或 Runnable 对象；构造 `FakeLLM` 结构化领域对象，并把结果记为 语言模型。
+定义内部辅助函数 `invoke`，供当前函数在后续步骤中调用。
+构造 `ScriptedModelGateway` 结构化领域对象，并把结果记为 外部服务网关。
 在上下文“调用 `patch` 完成该函数的一项辅助处理”中调用 `method_extractor_node` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果，退出时自动清理资源。
 返回当前构造的顺序或去重集合。
 ```
 
+#### `_run_extractor.invoke`
+
+- **源码**：`tests/test_method_extractor_hierarchical.py:375`
+- **签名**：`def invoke(**kwargs)`
+- **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收函数关键字参数映射，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `**kwargs` | `未显式标注` | 额外关键字参数映射。 |
+
+**输出**
+
+- **Python 类型**：`未显式标注（存在 return）`
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
+
+**伪代码**
+
+```text
+调用 `invoke_structured_with_retry` 完成该函数的一项辅助处理，并返回处理结果。
+```
+
 #### `_relative_paths`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:382`
+- **源码**：`tests/test_method_extractor_hierarchical.py:399`
 - **签名**：`def _relative_paths(result: dict) -> set[str]`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收阶段处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
@@ -6857,7 +6998,7 @@
 
 #### `test_extractor_reads_late_implementation_section`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:389`
+- **源码**：`tests/test_method_extractor_hierarchical.py:406`
 - **签名**：`def test_extractor_reads_late_implementation_section(run_state: dict, tmp_path: Path) -> None`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收本次运行状态、临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -6884,7 +7025,7 @@
 
 #### `test_one_section_failure_is_nonterminal_and_visible`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:454`
+- **源码**：`tests/test_method_extractor_hierarchical.py:471`
 - **签名**：`def test_one_section_failure_is_nonterminal_and_visible(run_state: dict, tmp_path: Path) -> None`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收本次运行状态、临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -6910,7 +7051,7 @@
 
 #### `test_all_sections_failed_returns_terminal_fallback`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:488`
+- **源码**：`tests/test_method_extractor_hierarchical.py:505`
 - **签名**：`def test_all_sections_failed_returns_terminal_fallback(run_state: dict, tmp_path: Path) -> None`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收本次运行状态、临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -6936,7 +7077,7 @@
 
 #### `test_invalid_evidence_is_not_cached`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:512`
+- **源码**：`tests/test_method_extractor_hierarchical.py:529`
 - **签名**：`def test_invalid_evidence_is_not_cached(run_state: dict, tmp_path: Path) -> None`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收本次运行状态、临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -6961,7 +7102,7 @@
 
 #### `test_cache_hit_skips_llm_and_prompt_version_invalidates`
 
-- **源码**：`tests/test_method_extractor_hierarchical.py:543`
+- **源码**：`tests/test_method_extractor_hierarchical.py:560`
 - **签名**：`def test_cache_hit_skips_llm_and_prompt_version_invalidates(run_state: dict, tmp_path: Path) -> None`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收本次运行状态、临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -6981,11 +7122,36 @@
 
 ```text
 调用 `_hierarchical_state` 完成该函数的一项辅助处理，并把结果记为 复现流程状态；构造 `FakeStructuredRunnable` 结构化领域对象，并把结果记为 可调用的模型或 Runnable 对象；构造 `FakeLLM` 结构化领域对象，并把结果记为 语言模型。
+定义内部辅助函数 `invoke`，供当前函数在后续步骤中调用。
+构造 `ScriptedModelGateway` 结构化领域对象，并把结果记为 外部服务网关。
 进入上下文“调用 `patch` 完成该函数的一项辅助处理”，退出时自动清理资源：
     调用 `method_extractor_node` 完成该函数的一项辅助处理，并把结果记为 第一项；断言当前处理结果 的长度等于3；不满足就终止当前测试或流程；计算按字段初始化键值映射，并保存为 状态；调用 `method_extractor_node` 完成该函数的一项辅助处理，并把结果记为 第二项。
     断言当前处理结果 的长度等于3；不满足就终止当前测试或流程；断言第二项中的对应字段等于第一项中的对应字段；不满足就终止当前测试或流程；把新的处理结果追加或合并到当前处理结果。
     在上下文“调用 `patch` 完成该函数的一项辅助处理”中调用 `method_extractor_node` 完成该函数的一项辅助处理，并把结果记为 第三项，退出时自动清理资源。
 断言当前处理结果 的长度等于6；不满足就终止当前测试或流程；断言第三项中的对应字段等于第一项中的对应字段；不满足就终止当前测试或流程。
+```
+
+#### `test_cache_hit_skips_llm_and_prompt_version_invalidates.invoke`
+
+- **源码**：`tests/test_method_extractor_hierarchical.py:570`
+- **签名**：`def invoke(**kwargs)`
+- **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收函数关键字参数映射，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `**kwargs` | `未显式标注` | 额外关键字参数映射。 |
+
+**输出**
+
+- **Python 类型**：`未显式标注（存在 return）`
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
+
+**伪代码**
+
+```text
+调用 `invoke_structured_with_retry` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 ### `tests/test_model.py`
@@ -9989,7 +10155,7 @@
 
 #### `test_structured_output_succeeds_on_first_attempt`
 
-- **源码**：`tests/test_structured_output_tools.py:51`
+- **源码**：`tests/test_structured_output_tools.py:55`
 - **签名**：`def test_structured_output_succeeds_on_first_attempt()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -10012,7 +10178,7 @@
 
 #### `test_json_mode_embeds_schema_and_omits_provider_strict`
 
-- **源码**：`tests/test_structured_output_tools.py:81`
+- **源码**：`tests/test_structured_output_tools.py:85`
 - **签名**：`def test_json_mode_embeds_schema_and_omits_provider_strict()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -10035,7 +10201,7 @@
 
 #### `test_structured_output_retries_with_validation_error`
 
-- **源码**：`tests/test_structured_output_tools.py:111`
+- **源码**：`tests/test_structured_output_tools.py:115`
 - **签名**：`def test_structured_output_retries_with_validation_error()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -10057,7 +10223,7 @@
 
 #### `test_structured_output_retries_validation_error_raised_by_invoke`
 
-- **源码**：`tests/test_structured_output_tools.py:145`
+- **源码**：`tests/test_structured_output_tools.py:149`
 - **签名**：`def test_structured_output_retries_validation_error_raised_by_invoke()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -10086,7 +10252,7 @@
 
 #### `test_structured_output_uses_compact_retry_for_truncated_json`
 
-- **源码**：`tests/test_structured_output_tools.py:183`
+- **源码**：`tests/test_structured_output_tools.py:187`
 - **签名**：`def test_structured_output_uses_compact_retry_for_truncated_json()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -10114,9 +10280,31 @@
 断言字符数等于当前输入内容 的长度；不满足就终止当前测试或流程。
 ```
 
+#### `test_structured_output_retries_length_finish_reason_as_truncation`
+
+- **源码**：`tests/test_structured_output_tools.py:239`
+- **签名**：`def test_structured_output_retries_length_finish_reason_as_truncation()`
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
+
+**输入**
+
+无显式输入；函数从模块配置、闭包或已注入实例依赖读取所需状态。
+
+**输出**
+
+- **Python 类型**：`None（隐式）`
+- **语义**：无业务返回值；函数通过注册、持久化、文件写入、状态更新或异常产生效果。
+
+**伪代码**
+
+```text
+构造 `FakeStructuredRunnable` 结构化领域对象，并把结果记为 可调用的模型或 Runnable 对象；调用 `invoke_structured_with_retry` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果；断言当前处理结果是真；不满足就终止当前测试或流程；断言当前输入内容等于['validation_error', 'succeeded']；不满足就终止当前测试或流程。
+断言当前处理结果是真；不满足就终止当前测试或流程；断言当前输入内容属于当前处理结果中的对应字段；不满足就终止当前测试或流程。
+```
+
 #### `test_structured_output_records_callback_metadata_on_parser_error`
 
-- **源码**：`tests/test_structured_output_tools.py:235`
+- **源码**：`tests/test_structured_output_tools.py:271`
 - **签名**：`def test_structured_output_records_callback_metadata_on_parser_error()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -10145,7 +10333,7 @@
 
 #### `test_structured_output_records_callback_metadata_on_parser_error.CallbackFailingRunnable.invoke`
 
-- **源码**：`tests/test_structured_output_tools.py:244`
+- **源码**：`tests/test_structured_output_tools.py:280`
 - **签名**：`def invoke(self, prompt, config=None)`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收发给模型的结构化提示、运行配置，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -10170,7 +10358,7 @@
 
 #### `test_structured_stage_error_exposes_last_attempt_diagnostics`
 
-- **源码**：`tests/test_structured_output_tools.py:287`
+- **源码**：`tests/test_structured_output_tools.py:323`
 - **签名**：`def test_structured_stage_error_exposes_last_attempt_diagnostics()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -10192,7 +10380,7 @@
 
 #### `test_structured_output_exhausts_retries`
 
-- **源码**：`tests/test_structured_output_tools.py:324`
+- **源码**：`tests/test_structured_output_tools.py:360`
 - **签名**：`def test_structured_output_exhausts_retries()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -10214,7 +10402,7 @@
 
 #### `test_structured_output_does_not_format_retry_invoke_error`
 
-- **源码**：`tests/test_structured_output_tools.py:346`
+- **源码**：`tests/test_structured_output_tools.py:382`
 - **签名**：`def test_structured_output_does_not_format_retry_invoke_error()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -10236,7 +10424,7 @@
 
 #### `test_structured_output_returns_configuration_error_when_setup_fails`
 
-- **源码**：`tests/test_structured_output_tools.py:362`
+- **源码**：`tests/test_structured_output_tools.py:398`
 - **签名**：`def test_structured_output_returns_configuration_error_when_setup_fails()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 

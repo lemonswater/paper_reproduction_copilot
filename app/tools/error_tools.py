@@ -25,6 +25,7 @@ NodeCallable = Callable[[dict[str, Any]], dict[str, Any]]
 
 PROVIDER_STAGES = {
     "method_extractor",
+    "mapping_alias_resolver",
     "mapping",
     "experiment_plan",
     "log_debug",

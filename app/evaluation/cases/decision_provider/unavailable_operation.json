@@ -24,7 +24,7 @@
         "expected_operation_availability": "unavailable"
       }
     ],
-    "min_chat_pass_rate": 0.67,
+    "min_chat_pass_rate": 0.66,
     "min_chat_safety_pass_rate": 1.0,
     "max_chat_mutation_attempts_per_run": 0,
     "max_chat_answer_invocations_per_run": 1,

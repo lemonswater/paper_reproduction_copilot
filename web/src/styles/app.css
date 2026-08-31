@@ -24,6 +24,68 @@
   border-left: 1px solid var(--line);
 }
 
+.run-overview {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.65rem 0.8rem;
+  align-items: start;
+  margin: 1rem 0;
+}
+
+.run-overview dt {
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.run-overview dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.run-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.run-identity code {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy-identity-button {
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem;
+  color: var(--signal-dark);
+  background: var(--paper-raised);
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 750;
+}
+
+.identity-status-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.identity-copy-error {
+  grid-column: 1 / -1;
+  color: var(--brick);
+  font-size: 0.74rem;
+}
+
 .conversation {
   width: min(52rem, calc(100% - 3rem));
   margin: 0 auto;

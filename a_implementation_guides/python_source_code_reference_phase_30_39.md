@@ -1,7 +1,7 @@
 # Python 源码函数参考：Phase 30-39
 
-> 自动同步日期：2026-08-17
-> 覆盖文件：72；函数/方法：680。
+> 自动同步日期：2026-08-19
+> 覆盖文件：73；函数/方法：684。
 > 本文由当前 Python AST 生成；伪代码保留控制流和失败边界，但会把相邻语句合并为通俗的逻辑步骤。
 > 阶段归类按文件的主要职责完成；跨阶段持续修改的文件只进入一个主分册，源码行号是最终依据。
 
@@ -69,12 +69,13 @@
 - [`tests/test_chat_api.py`](#tests-test-chat-api-py)：11 个函数/方法
 - [`tests/test_chat_comparison_grounding.py`](#tests-test-chat-comparison-grounding-py)：5 个函数/方法
 - [`tests/test_chat_context.py`](#tests-test-chat-context-py)：9 个函数/方法
-- [`tests/test_chat_eval_runner.py`](#tests-test-chat-eval-runner-py)：5 个函数/方法
+- [`tests/test_chat_eval_runner.py`](#tests-test-chat-eval-runner-py)：6 个函数/方法
 - [`tests/test_chat_eval_schemas.py`](#tests-test-chat-eval-schemas-py)：12 个函数/方法
-- [`tests/test_chat_eval_scorers.py`](#tests-test-chat-eval-scorers-py)：6 个函数/方法
-- [`tests/test_chat_memory.py`](#tests-test-chat-memory-py)：14 个函数/方法
+- [`tests/test_chat_eval_scorers.py`](#tests-test-chat-eval-scorers-py)：7 个函数/方法
+- [`tests/test_chat_memory.py`](#tests-test-chat-memory-py)：15 个函数/方法
 - [`tests/test_chat_prompt_budget.py`](#tests-test-chat-prompt-budget-py)：7 个函数/方法
 - [`tests/test_chat_provider.py`](#tests-test-chat-provider-py)：1 个函数/方法
+- [`tests/test_chat_provider_difficulty_cases.py`](#tests-test-chat-provider-difficulty-cases-py)：1 个函数/方法
 - [`tests/test_chat_service.py`](#tests-test-chat-service-py)：18 个函数/方法
 - [`tests/test_chat_store.py`](#tests-test-chat-store-py)：7 个函数/方法
 - [`tests/test_comparison_api.py`](#tests-test-comparison-api-py)：7 个函数/方法
@@ -99,7 +100,7 @@
 
 #### `create_api_app`
 
-- **源码**：`app/api/app.py:92`
+- **源码**：`app/api/app.py:95`
 - **签名**：`def create_api_app(job_service: JobService | None, artifact_catalog: ArtifactCatalog | None, artifact_delivery_service: ArtifactDeliveryService | None, api_token: str | None, secret_service: SecretService | None, service_host: Any | None, chat_service: ChatService | None, comparison_service: ComparisonService | None, rerun_service: RerunService | None, notification_service: NotificationService | None, failure_case_service: FailureCaseService | None, project_memory_service: ProjectMemoryService | None, model_gateway: ModelGateway | None, research_browser_service: 'ResearchBrowserService | None') -> FastAPI`
 - **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，App factory 允许测试注入临时 Job DB 和伪 checkpoint reader。该函数接收任务、Artifact、Artifact、当前处理结果等输入，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `FastAPI` 的领域结果。
 
@@ -184,6 +185,8 @@
 定义内部辅助函数 `healthz`，供当前函数在后续步骤中调用。
 定义内部辅助函数 `livez`，供当前函数在后续步骤中调用。
 定义内部辅助函数 `readyz`，供当前函数在后续步骤中调用。
+计算使用固定配置或常量值，并保存为 证据代码仓库。
+如果网关有值或为真，就加载这一步需要的外部依赖；构造 `SqliteMcpEvidenceRepository` 结构化领域对象，并把结果记为 代码仓库；调用 `initialize` 完成该函数的一项辅助处理；读取代码仓库，并保存为 证据代码仓库。
 调用 `include_router` 完成该函数的一项辅助处理；调用 `include_router` 完成该函数的一项辅助处理；调用 `include_router` 完成该函数的一项辅助处理；调用 `include_router` 完成该函数的一项辅助处理。
 调用 `include_router` 完成该函数的一项辅助处理；调用 `include_router` 完成该函数的一项辅助处理；调用 `include_router` 完成该函数的一项辅助处理；调用 `include_router` 完成该函数的一项辅助处理。
 调用 `include_router` 完成该函数的一项辅助处理；调用 `include_router` 完成该函数的一项辅助处理。
@@ -192,16 +195,14 @@
 如果当前处理结果不为空，就调用 `include_router` 完成该函数的一项辅助处理。
 如果证据代码仓库不为空，就加载这一步需要的外部依赖；调用 `include_router` 完成该函数的一项辅助处理。
 调用 `install_error_handlers` 完成该函数的一项辅助处理；调用 `mount_web_ui` 完成该函数的一项辅助处理；加载这一步需要的外部依赖；加载这一步需要的外部依赖。
-读取运行观测数据，并保存为 运行观测数据；读取当前处理结果，并保存为 后续步骤使用的结果；计算使用固定配置或常量值，并保存为 证据代码仓库。
-如果网关有值或为真，就加载这一步需要的外部依赖；构造 `SqliteMcpEvidenceRepository` 结构化领域对象，并把结果记为 代码仓库；调用 `initialize` 完成该函数的一项辅助处理；读取代码仓库，并保存为 证据代码仓库。
-计算使用固定配置或常量值，并保存为 仓库。
+读取运行观测数据，并保存为 运行观测数据；读取当前处理结果，并保存为 后续步骤使用的结果；计算使用固定配置或常量值，并保存为 仓库。
 如果当前处理结果不为空，就读取持久化仓库，并保存为 仓库。
 调用 `build_retention` 组装当前阶段需要的领域对象，并把结果记为 该调用返回的结果；返回前一步处理得到的结果。
 ```
 
 #### `create_api_app.db_check`
 
-- **源码**：`app/api/app.py:404`
+- **源码**：`app/api/app.py:407`
 - **签名**：`def db_check() -> str`
 - **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -225,7 +226,7 @@
 
 #### `create_api_app.storage_check`
 
-- **源码**：`app/api/app.py:411`
+- **源码**：`app/api/app.py:414`
 - **签名**：`def storage_check() -> str`
 - **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -250,7 +251,7 @@
 
 #### `create_api_app.resource_db_check`
 
-- **源码**：`app/api/app.py:419`
+- **源码**：`app/api/app.py:422`
 - **签名**：`def resource_db_check() -> str`
 - **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -274,7 +275,7 @@
 
 #### `create_api_app._chat_ping`
 
-- **源码**：`app/api/app.py:459`
+- **源码**：`app/api/app.py:462`
 - **签名**：`def _chat_ping(service: ChatService) -> bool`
 - **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收领域服务对象，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -300,7 +301,7 @@
 
 #### `create_api_app._tool_calling_check`
 
-- **源码**：`app/api/app.py:483`
+- **源码**：`app/api/app.py:486`
 - **签名**：`def _tool_calling_check() -> str`
 - **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -324,7 +325,7 @@
 
 #### `create_api_app.notification_db_check`
 
-- **源码**：`app/api/app.py:531`
+- **源码**：`app/api/app.py:534`
 - **签名**：`def notification_db_check() -> str`
 - **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -348,7 +349,7 @@
 
 #### `create_api_app.failure_memory_db_check`
 
-- **源码**：`app/api/app.py:547`
+- **源码**：`app/api/app.py:550`
 - **签名**：`def failure_memory_db_check() -> str`
 - **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -372,7 +373,7 @@
 
 #### `create_api_app.project_memory_db_check`
 
-- **源码**：`app/api/app.py:564`
+- **源码**：`app/api/app.py:567`
 - **签名**：`def project_memory_db_check() -> str`
 - **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -396,7 +397,7 @@
 
 #### `create_api_app.observability_middleware`
 
-- **源码**：`app/api/app.py:600`
+- **源码**：`app/api/app.py:603`
 - **签名**：`async def observability_middleware(request: Request, call_next: 未显式标注) -> 未显式标注（存在 return）`
 - **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收业务请求、下一项，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
@@ -442,7 +443,7 @@
 
 #### `create_api_app.healthz`
 
-- **源码**：`app/api/app.py:710`
+- **源码**：`app/api/app.py:713`
 - **签名**：`def healthz() -> dict[str, str]`
 - **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终包含复现状态、索引或序列化字段的结构化映射。
 
@@ -463,7 +464,7 @@
 
 #### `create_api_app.livez`
 
-- **源码**：`app/api/app.py:715`
+- **源码**：`app/api/app.py:718`
 - **签名**：`def livez() -> dict`
 - **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终包含复现状态、索引或序列化字段的结构化映射。
 
@@ -484,7 +485,7 @@
 
 #### `create_api_app.readyz`
 
-- **源码**：`app/api/app.py:723`
+- **源码**：`app/api/app.py:726`
 - **签名**：`def readyz() -> Response`
 - **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -13415,7 +13416,7 @@
 
 #### `test_artifact_preview_download_and_job_export`
 
-- **源码**：`tests/test_artifact_delivery_api.py:24`
+- **源码**：`tests/test_artifact_delivery_api.py:27`
 - **签名**：`def test_artifact_preview_download_and_job_export(tmp_path: Path, monkeypatch: 未显式标注) -> None`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径、测试环境修改工具，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -13434,12 +13435,12 @@
 **伪代码**
 
 ```text
-调用 `setattr` 完成该函数的一项辅助处理；构造 `JobService` 结构化领域对象，并把结果记为 任务；调用 `submit` 完成该函数的一项辅助处理，并把结果记为 多个解包结果；把外部位置解析为文件系统路径对象，并把结果记为 运行产物根目录。
-计算组合或计算已有值，并保存为 MCP 评测或运行报告；计算组合或计算已有值，并保存为 当前处理结果；创建父级目录或父领域对象对应的目录；将处理结果写入MCP 评测或运行报告指定的文件。
-将处理结果写入当前处理结果指定的文件；调用 `build_artifact_record` 组装当前阶段需要的领域对象，并把结果记为 记录；调用 `build_artifact_record` 组装当前阶段需要的领域对象，并把结果记为 记录；构造 `SqliteArtifactRepository` 结构化领域对象，并把结果记为 持久化仓库。
-构造 `LocalBlobStore` 结构化领域对象，并把结果记为 Blob 内容存储；调用 `publish` 完成该函数的一项辅助处理；构造 `PublishedArtifactCatalog` 结构化领域对象，并把结果记为 模型、工具或 Artifact 目录；调用 `unlink` 完成该函数的一项辅助处理。
-调用 `unlink` 完成该函数的一项辅助处理；计算组合或计算已有值，并保存为 暂存工作区根目录；构造 `ArtifactDeliveryService` 结构化领域对象，并把结果记为 通知投递记录；调用 `create_api_app` 组装当前阶段需要的领域对象，并把结果记为 该调用返回的结果。
-计算按字段初始化键值映射，并保存为 当前处理结果。
+调用 `setattr` 完成该函数的一项辅助处理；调用 `setup_local_execution_profile` 完成该函数的一项辅助处理；构造 `JobService` 结构化领域对象，并把结果记为 任务；调用 `submit` 完成该函数的一项辅助处理，并把结果记为 多个解包结果。
+把外部位置解析为文件系统路径对象，并把结果记为 运行产物根目录；计算组合或计算已有值，并保存为 MCP 评测或运行报告；计算组合或计算已有值，并保存为 当前处理结果；创建父级目录或父领域对象对应的目录。
+将处理结果写入MCP 评测或运行报告指定的文件；将处理结果写入当前处理结果指定的文件；调用 `build_artifact_record` 组装当前阶段需要的领域对象，并把结果记为 记录；调用 `build_artifact_record` 组装当前阶段需要的领域对象，并把结果记为 记录。
+构造 `SqliteArtifactRepository` 结构化领域对象，并把结果记为 持久化仓库；构造 `LocalBlobStore` 结构化领域对象，并把结果记为 Blob 内容存储；调用 `publish` 完成该函数的一项辅助处理；构造 `PublishedArtifactCatalog` 结构化领域对象，并把结果记为 模型、工具或 Artifact 目录。
+调用 `unlink` 完成该函数的一项辅助处理；调用 `unlink` 完成该函数的一项辅助处理；计算组合或计算已有值，并保存为 暂存工作区根目录；构造 `ArtifactDeliveryService` 结构化领域对象，并把结果记为 通知投递记录。
+调用 `create_api_app` 组装当前阶段需要的领域对象，并把结果记为 该调用返回的结果；计算按字段初始化键值映射，并保存为 当前处理结果。
 进入上下文“构造 `TestClient` 结构化领域对象，并把上下文资源交给外部服务客户端”，退出时自动清理资源：
     从外部服务客户端读取所需的状态或领域记录，并把结果记为 该调用返回的结果；断言状态等于401；不满足就终止当前测试或流程；从外部服务客户端读取所需的状态或领域记录，并把结果记为 该调用返回的结果；断言状态等于200；不满足就终止当前测试或流程。
     遍历并筛选输入，将整理后的结果保存为 待处理项集合；断言待处理项集合中的对应字段中的对应字段是真；不满足就终止当前测试或流程；断言待处理项集合中的对应字段中的对应字段是假；不满足就终止当前测试或流程；断言当前输入内容不属于待处理文本；不满足就终止当前测试或流程。
@@ -14532,9 +14533,35 @@
 断言来源集合等于[1]；不满足就终止当前测试或流程。
 ```
 
-#### `test_provider_mode_rejects_scripted_draft`
+#### `test_offline_runner_compacts_three_memory_generations`
 
 - **源码**：`tests/test_chat_eval_runner.py:180`
+- **签名**：`def test_offline_runner_compacts_three_memory_generations(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None（隐式）`
+- **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收临时工作目录路径、测试环境修改工具，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `tmp_path` | `Path` | 文件或目录路径；用于定位输入、输出或日志，访问范围由函数内的路径边界检查决定。 |
+| `monkeypatch` | `pytest.MonkeyPatch` | pytest 提供的环境/对象替换工具，用于隔离测试副作用；不是业务输入。 |
+
+**输出**
+
+- **Python 类型**：`None（隐式）`
+- **语义**：无业务返回值；函数通过注册、持久化、文件写入、状态更新或异常产生效果。
+
+**伪代码**
+
+```text
+复制、序列化或校验结构化领域对象，并把结果记为 复现实验场景；调用 `setattr` 完成该函数的一项辅助处理；调用 `run_chat_eval_case` 完成该函数的一项辅助处理，并把结果记为 MCP Client 单次观测结果；断言对话不为空；不满足就终止当前测试或流程。
+读取当前处理结果中的对应字段，并保存为 运行；断言当前处理结果等于5；不满足就终止当前测试或流程；断言记忆集合等于3；不满足就终止当前测试或流程；断言记录版本号等于3；不满足就终止当前测试或流程。
+断言当前处理结果等于28；不满足就终止当前测试或流程；断言阶段摘要等于'memory generation 3'；不满足就终止当前测试或流程。
+```
+
+#### `test_provider_mode_rejects_scripted_draft`
+
+- **源码**：`tests/test_chat_eval_runner.py:252`
 - **签名**：`def test_provider_mode_rejects_scripted_draft(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None（隐式）`
 - **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收临时工作目录路径、测试环境修改工具，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -14851,7 +14878,7 @@
 
 #### `_run`
 
-- **源码**：`tests/test_chat_eval_scorers.py:63`
+- **源码**：`tests/test_chat_eval_scorers.py:67`
 - **签名**：`def _run(*, valid: bool, repetition: int)`
 - **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收输入或结果是否有效的判断、当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
@@ -14875,7 +14902,7 @@
 
 #### `_observation`
 
-- **源码**：`tests/test_chat_eval_scorers.py:124`
+- **源码**：`tests/test_chat_eval_scorers.py:131`
 - **签名**：`def _observation(valid_runs: list[bool]) -> EvalObservation`
 - **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `EvalObservation` 的领域结果。
 
@@ -14898,7 +14925,7 @@
 
 #### `test_two_of_three_provider_runs_pass_with_point_66_threshold`
 
-- **源码**：`tests/test_chat_eval_scorers.py:140`
+- **源码**：`tests/test_chat_eval_scorers.py:147`
 - **签名**：`def test_two_of_three_provider_runs_pass_with_point_66_threshold()`
 - **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -14919,7 +14946,7 @@
 
 #### `test_one_of_three_provider_runs_fails_threshold`
 
-- **源码**：`tests/test_chat_eval_scorers.py:149`
+- **源码**：`tests/test_chat_eval_scorers.py:156`
 - **签名**：`def test_one_of_three_provider_runs_fails_threshold()`
 - **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -14936,12 +14963,12 @@
 
 ```text
 调用 `score_case` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果；断言当前处理结果是假；不满足就终止当前测试或流程；遍历并筛选输入，将整理后的结果保存为 当前处理结果；断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程。
-断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程；断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程。
+断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程；断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程；断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程。
 ```
 
 #### `test_missing_chat_observation_does_not_receive_full_score`
 
-- **源码**：`tests/test_chat_eval_scorers.py:167`
+- **源码**：`tests/test_chat_eval_scorers.py:175`
 - **签名**：`def test_missing_chat_observation_does_not_receive_full_score()`
 - **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -14960,13 +14987,35 @@
 调用 `score_case` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果；断言当前处理结果是假；不满足就终止当前测试或流程。
 ```
 
+#### `test_memory_trigger_and_coverage_oracles_fail_when_compaction_did_not_run`
+
+- **源码**：`tests/test_chat_eval_scorers.py:187`
+- **签名**：`def test_memory_trigger_and_coverage_oracles_fail_when_compaction_did_not_run()`
+- **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
+
+**输入**
+
+无显式输入；函数从模块配置、闭包或已注入实例依赖读取所需状态。
+
+**输出**
+
+- **Python 类型**：`None（隐式）`
+- **语义**：无业务返回值；函数通过注册、持久化、文件写入、状态更新或异常产生效果。
+
+**伪代码**
+
+```text
+调用 `_observation` 完成该函数的一项辅助处理，并把结果记为 MCP Client 单次观测结果；断言对话不为空；不满足就终止当前测试或流程；计算使用固定配置或常量值，并保存为 记忆集合；计算使用固定配置或常量值，并保存为 当前处理结果。
+调用 `score_case` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果；遍历并筛选输入，将整理后的结果保存为 当前处理结果；断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程；断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程。
+```
+
 ### `tests/test_chat_memory.py`
 
 **模块作用**：以源码中的函数、类和常量共同实现该模块职责。
 
 #### `repository_with_exchanges`
 
-- **源码**：`tests/test_chat_memory.py:17`
+- **源码**：`tests/test_chat_memory.py:21`
 - **签名**：`def repository_with_exchanges(tmp_path: Path, count: int) -> SqliteChatRepository`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径、对象数量，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `SqliteChatRepository` 的领域结果。
 
@@ -14992,7 +15041,7 @@
 
 #### `compactor`
 
-- **源码**：`tests/test_chat_memory.py:48`
+- **源码**：`tests/test_chat_memory.py:52`
 - **签名**：`def compactor(repository, invoker)`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收持久化仓库、工具或模型调用器，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
@@ -15011,12 +15060,37 @@
 **伪代码**
 
 ```text
+定义内部辅助函数 `routed_invoker`，供当前函数在后续步骤中调用。
 构造并返回 `ConversationMemoryCompactor` 结构化领域对象。
+```
+
+#### `compactor.routed_invoker`
+
+- **源码**：`tests/test_chat_memory.py:53`
+- **签名**：`def routed_invoker(prompt: str, job_id: str) -> MemoryDraftResult`
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收发给模型的结构化提示、复现任务 ID，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `prompt` | `str` | 用户目标、检索问题、反馈或待处理文本；会作为当前阶段的业务语境输入，并可能受到长度/脱敏约束。 |
+| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+
+**输出**
+
+- **Python 类型**：`MemoryDraftResult`
+- **语义**：返回结构化响应/结果对象，字段语义由对应 Pydantic Schema 定义。
+
+**伪代码**
+
+```text
+移除复现任务 ID中的当前内容；构造并返回 `MemoryDraftResult` 结构化领域对象。
 ```
 
 #### `test_compaction_creates_hashed_memory_without_deleting_raw_messages`
 
-- **源码**：`tests/test_chat_memory.py:65`
+- **源码**：`tests/test_chat_memory.py:77`
 - **签名**：`def test_compaction_creates_hashed_memory_without_deleting_raw_messages(tmp_path: 未显式标注) -> 未显式标注（存在 return）`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
@@ -15043,7 +15117,7 @@
 
 #### `test_compaction_creates_hashed_memory_without_deleting_raw_messages.invoke`
 
-- **源码**：`tests/test_chat_memory.py:70`
+- **源码**：`tests/test_chat_memory.py:82`
 - **签名**：`def invoke(_prompt: str) -> MemoryDraft`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收发给模型的结构化提示，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `MemoryDraft` 的领域结果。
 
@@ -15066,7 +15140,7 @@
 
 #### `test_unknown_memory_sources_degrade_to_previous_memory`
 
-- **源码**：`tests/test_chat_memory.py:99`
+- **源码**：`tests/test_chat_memory.py:111`
 - **签名**：`def test_unknown_memory_sources_degrade_to_previous_memory(tmp_path)`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15090,7 +15164,7 @@
 
 #### `test_second_compaction_links_to_first_memory`
 
-- **源码**：`tests/test_chat_memory.py:122`
+- **源码**：`tests/test_chat_memory.py:134`
 - **签名**：`def test_second_compaction_links_to_first_memory(tmp_path)`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
@@ -15119,7 +15193,7 @@
 
 #### `test_second_compaction_links_to_first_memory.first`
 
-- **源码**：`tests/test_chat_memory.py:125`
+- **源码**：`tests/test_chat_memory.py:137`
 - **签名**：`def first(_prompt: str) -> MemoryDraft`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收发给模型的结构化提示，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `MemoryDraft` 的领域结果。
 
@@ -15142,7 +15216,7 @@
 
 #### `test_second_compaction_links_to_first_memory.second`
 
-- **源码**：`tests/test_chat_memory.py:149`
+- **源码**：`tests/test_chat_memory.py:161`
 - **签名**：`def second(_prompt: str) -> MemoryDraft`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收发给模型的结构化提示，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `MemoryDraft` 的领域结果。
 
@@ -15165,7 +15239,7 @@
 
 #### `test_memory_provider_failure_does_not_delete_or_block_history`
 
-- **源码**：`tests/test_chat_memory.py:174`
+- **源码**：`tests/test_chat_memory.py:186`
 - **签名**：`def test_memory_provider_failure_does_not_delete_or_block_history(tmp_path)`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15190,7 +15264,7 @@
 
 #### `test_memory_provider_failure_does_not_delete_or_block_history.fail`
 
-- **源码**：`tests/test_chat_memory.py:177`
+- **源码**：`tests/test_chat_memory.py:189`
 - **签名**：`def fail(_prompt: str)`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收发给模型的结构化提示，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15213,7 +15287,7 @@
 
 #### `test_memory_hash_detects_body_tampering`
 
-- **源码**：`tests/test_chat_memory.py:186`
+- **源码**：`tests/test_chat_memory.py:198`
 - **签名**：`def test_memory_hash_detects_body_tampering(tmp_path)`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15238,7 +15312,7 @@
 
 #### `test_memory_provider_returns_bounded_structured_draft`
 
-- **源码**：`tests/test_chat_memory.py:209`
+- **源码**：`tests/test_chat_memory.py:221`
 - **签名**：`def test_memory_provider_returns_bounded_structured_draft()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15254,13 +15328,13 @@
 **伪代码**
 
 ```text
-去除当前输入内容的首尾空白，并把规范化后的文本记为 发给模型的结构化提示；调用 `辅助操作` 完成该函数的一项辅助处理，并把结果记为 草稿对象；断言“对阶段摘要中的文本执行规范化或拆分”后得到肯定结果；不满足就终止当前测试或流程；断言当前输入内容不大于{1, 2}；不满足就终止当前测试或流程。
+去除当前输入内容的首尾空白，并把规范化后的文本记为 发给模型的结构化提示；读取前一步操作返回对象的草稿对象，并保存为 草稿对象；断言“对阶段摘要中的文本执行规范化或拆分”后得到肯定结果；不满足就终止当前测试或流程；断言当前输入内容不大于{1, 2}；不满足就终止当前测试或流程。
 断言辅助操作“构造临时集合、映射或轻量领域对象”的结果不大于{'job:current'}；不满足就终止当前测试或流程。
 ```
 
 #### `test_phase36_memory_hash_projection_ignores_new_comparison_fields`
 
-- **源码**：`tests/test_chat_memory.py:247`
+- **源码**：`tests/test_chat_memory.py:259`
 - **签名**：`def test_phase36_memory_hash_projection_ignores_new_comparison_fields() -> None`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15282,7 +15356,7 @@
 
 #### `test_phase38_memory_hash_projection_binds_comparison_identity`
 
-- **源码**：`tests/test_chat_memory.py:266`
+- **源码**：`tests/test_chat_memory.py:278`
 - **签名**：`def test_phase38_memory_hash_projection_binds_comparison_identity() -> None`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15488,6 +15562,41 @@
 
 ```text
 去除当前输入内容的首尾空白，并把规范化后的文本记为 发给模型的结构化提示；调用 `辅助操作` 完成该函数的一项辅助处理，并把结果记为 草稿对象；断言“对当前处理结果中的文本执行规范化或拆分”后得到肯定结果；不满足就终止当前测试或流程；断言辅助操作“构造临时集合、映射或轻量领域对象”的结果不大于{'job:current'}；不满足就终止当前测试或流程。
+```
+
+### `tests/test_chat_provider_difficulty_cases.py`
+
+**模块作用**：以源码中的函数、类和常量共同实现该模块职责。
+
+#### `test_chat_provider_difficulty_matrix_is_complete_and_valid`
+
+- **源码**：`tests/test_chat_provider_difficulty_cases.py:15`
+- **签名**：`def test_chat_provider_difficulty_matrix_is_complete_and_valid() -> None`
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
+
+**输入**
+
+无显式输入；函数从模块配置、闭包或已注入实例依赖读取所需状态。
+
+**输出**
+
+- **Python 类型**：`None`
+- **语义**：无业务返回值；函数通过注册、持久化、文件写入、状态更新或异常产生效果。
+
+**伪代码**
+
+```text
+按稳定规则整理结果顺序，并把结果记为 该调用返回的结果；断言当前输入内容等于['difficulty_easy.json', 'difficulty_hard.json', 'difficulty_medium.json']；不满足就终止当前测试或流程；遍历并筛选输入，将整理后的结果保存为 当前处理结果；断言当前处理结果等于{'easy': 4, 'hard': 3, 'medium': 3}；不满足就终止当前测试或流程。
+遍历并筛选输入，将整理后的结果保存为 评测用例集合；构造 `Counter` 结构化领域对象，并把结果记为 该调用返回的结果；断言当前处理结果等于{'difficulty-easy': 4, 'difficulty-medium': 3, 'difficulty-hard': 3}；不满足就终止当前测试或流程；计算按字段初始化键值映射，并保存为 期望集合。
+遍历由评测用例集合组成的集合或迭代器，每次把当前项记为评测用例：
+    调用 `resolve_evaluation_path` 解析、规范化或转换当前输入，并把结果记为 测试夹具的路径；复制、序列化或校验结构化领域对象，并把结果记为 复现实验场景；调用 `next` 完成该函数的一项辅助处理，并把结果记为 等级；断言复现实验场景的 ID等于评测用例的 ID；不满足就终止当前测试或流程。
+    断言当前处理结果等于期望集合中的对应字段；不满足就终止当前测试或流程；断言记忆集合等于[]；不满足就终止当前测试或流程；断言当前可迭代输入中每一项都满足“草稿为空”的项；不满足就终止当前测试或流程。
+计算按字段初始化键值映射，并保存为 当前处理结果；遍历并筛选输入，将整理后的结果保存为 用例集合的 ID。
+遍历辅助操作产生的可迭代结果（调用 `items` 完成该函数的一项辅助处理），每次把当前项记为多个解包结果：
+    读取用例集合的 ID中的对应字段，并保存为 评测用例；调用 `resolve_evaluation_path` 解析、规范化或转换当前输入，并把结果记为 测试夹具的路径；调用 `model_validate_json` 完成该函数的一项辅助处理，并把结果记为 复现实验场景；读取对话记忆，并保存为 记忆。
+    断言记忆不为空；不满足就终止当前测试或流程；断言当前处理结果是真；不满足就终止当前测试或流程；断言当前处理结果 的长度等于期望值中的对应字段；不满足就终止当前测试或流程；断言当前处理结果 的长度等于期望值中的对应字段；不满足就终止当前测试或流程。
+    断言最小记录版本号等于期望值中的对应字段；不满足就终止当前测试或流程；断言最小当前处理结果等于期望值中的对应字段；不满足就终止当前测试或流程；断言最大当前处理结果等于期望值中的对应字段；不满足就终止当前测试或流程；断言最小对话记忆运行等于期望值中的对应字段；不满足就终止当前测试或流程。
+    断言最大对话记忆运行等于期望值中的对应字段；不满足就终止当前测试或流程。
 ```
 
 ### `tests/test_chat_service.py`

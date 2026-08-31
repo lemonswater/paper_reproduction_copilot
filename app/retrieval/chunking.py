@@ -13,13 +13,13 @@ from app.retrieval.schemas import (
     SemanticChunkMetadata,
     SemanticIndexManifest,
 )
+from app.tools.repo_tools import (
+    MAPPING_RELEVANT_SUFFIXES,
+)
 
-SEMANTIC_SUFFIXES = {
-    ".py",
-    ".md",
-    ".rst",
-    ".txt",
-}
+# Dense Retrieval 与确定性 RepositoryIndex 使用同一文件边界，只让 Python
+# 源码、配置、实验脚本和说明文档参与论文语义匹配。
+SEMANTIC_SUFFIXES = MAPPING_RELEVANT_SUFFIXES
 
 _SECRET_ASSIGNMENT_RE = re.compile(
     r"""(?ix)

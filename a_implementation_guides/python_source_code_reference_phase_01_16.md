@@ -1,7 +1,7 @@
 # Python 源码函数参考：Phase 1-16
 
-> 自动同步日期：2026-08-17
-> 覆盖文件：101；函数/方法：555。
+> 自动同步日期：2026-08-19
+> 覆盖文件：101；函数/方法：561。
 > 本文由当前 Python AST 生成；伪代码保留控制流和失败边界，但会把相邻语句合并为通俗的逻辑步骤。
 > 阶段归类按文件的主要职责完成；跨阶段持续修改的文件只进入一个主分册，源码行号是最终依据。
 
@@ -42,14 +42,14 @@
 - [`app/nodes/command_selection_node.py`](#app-nodes-command-selection-node-py)：7 个函数/方法
 - [`app/nodes/execution_verifier_node.py`](#app-nodes-execution-verifier-node-py)：2 个函数/方法
 - [`app/nodes/executor_node.py`](#app-nodes-executor-node-py)：2 个函数/方法
-- [`app/nodes/experiment_plan_node.py`](#app-nodes-experiment-plan-node-py)：4 个函数/方法
+- [`app/nodes/experiment_plan_node.py`](#app-nodes-experiment-plan-node-py)：7 个函数/方法
 - [`app/nodes/file_repair_planner_node.py`](#app-nodes-file-repair-planner-node-py)：5 个函数/方法
 - [`app/nodes/final_report_node.py`](#app-nodes-final-report-node-py)：5 个函数/方法
 - [`app/nodes/human_review_node.py`](#app-nodes-human-review-node-py)：1 个函数/方法
 - [`app/nodes/input_validation_node.py`](#app-nodes-input-validation-node-py)：6 个函数/方法
 - [`app/nodes/log_debug_node.py`](#app-nodes-log-debug-node-py)：10 个函数/方法
 - [`app/nodes/mapping_node.py`](#app-nodes-mapping-node-py)：7 个函数/方法
-- [`app/nodes/method_extractor_node.py`](#app-nodes-method-extractor-node-py)：2 个函数/方法
+- [`app/nodes/method_extractor_node.py`](#app-nodes-method-extractor-node-py)：4 个函数/方法
 - [`app/nodes/paper_reader_node.py`](#app-nodes-paper-reader-node-py)：1 个函数/方法
 - [`app/nodes/patch_apply_node.py`](#app-nodes-patch-apply-node-py)：1 个函数/方法
 - [`app/nodes/patch_builder_node.py`](#app-nodes-patch-builder-node-py)：1 个函数/方法
@@ -81,7 +81,7 @@
 - [`app/tools/repository_lock_tools.py`](#app-tools-repository-lock-tools-py)：2 个函数/方法
 - [`app/tools/safe_shell_tools.py`](#app-tools-safe-shell-tools-py)：1 个函数/方法
 - [`app/tools/smoke_test_tools.py`](#app-tools-smoke-test-tools-py)：5 个函数/方法
-- [`app/tools/structured_output_tools.py`](#app-tools-structured-output-tools-py)：20 个函数/方法
+- [`app/tools/structured_output_tools.py`](#app-tools-structured-output-tools-py)：21 个函数/方法
 - [`tests/test_action_builder_node.py`](#tests-test-action-builder-node-py)：4 个函数/方法
 - [`tests/test_action_capability_policy.py`](#tests-test-action-capability-policy-py)：5 个函数/方法
 - [`tests/test_command_selection_cli.py`](#tests-test-command-selection-cli-py)：8 个函数/方法
@@ -3639,8 +3639,8 @@
 #### `_prepare_dense`
 
 - **源码**：`app/nodes/code_search_node.py:109`
-- **签名**：`def _prepare_dense(repo_path: str, index: 未显式标注) -> tuple[PreparedDenseRetriever, dict]`
-- **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，该函数接收代码仓库根目录、当前候选项的索引，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
+- **签名**：`def _prepare_dense(repo_path: str, index: 未显式标注, state: dict | None) -> tuple[PreparedDenseRetriever, dict]`
+- **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，该函数接收代码仓库根目录、当前候选项的索引、复现流程状态，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
@@ -3648,6 +3648,7 @@
 |---|---|---|
 | `repo_path` | `str` | 代码仓库根目录路径；用于限制文件扫描、相对路径计算和后续工具访问范围。 |
 | `index` | `未显式标注` | 候选集合中的零基索引，用于定位选中项；它不是业务 ID 或内容 Hash。 |
+| `state` | `dict | None` | Agent/Graph 当前状态或状态字段映射；节点通过它传递阶段结果和错误信息。；默认 空值 |
 
 **输出**
 
@@ -3658,13 +3659,13 @@
 
 ```text
 如果“当前处理结果有值或为真”不成立，就拒绝继续处理并抛出 `EmbeddingProviderError`，向调用方报告输入或运行失败。
-调用 `build_semantic_chunks` 组装当前阶段需要的领域对象，并把结果记为 多个解包结果；调用 `get_embedding_backend` 读取或查询当前阶段需要的数据，并把结果记为 模型或检索后端；构造 `SQLiteEmbeddingCache` 结构化领域对象，并把结果记为 该调用返回的结果；调用 `prepare` 完成该函数的一项辅助处理，并把结果记为 证据检索器。
-返回当前构造的顺序或去重集合。
+调用 `build_semantic_chunks` 组装当前阶段需要的领域对象，并把结果记为 多个解包结果；计算计算当前表达式的结果，并保存为 本次运行状态；调用 `get_embedding_backend` 读取或查询当前阶段需要的数据，并把结果记为 模型或检索后端；构造 `SQLiteEmbeddingCache` 结构化领域对象，并把结果记为 该调用返回的结果。
+调用 `prepare` 完成该函数的一项辅助处理，并把结果记为 证据检索器；返回当前构造的顺序或去重集合。
 ```
 
 #### `_fallback_report`
 
-- **源码**：`app/nodes/code_search_node.py:161`
+- **源码**：`app/nodes/code_search_node.py:163`
 - **签名**：`def _fallback_report(enabled: bool, required: bool, reason: str | None) -> DenseRetrievalReport`
 - **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，该函数接收功能是否启用的开关、当前处理结果、基线接受或运行操作原因，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `DenseRetrievalReport` 的领域结果。
 
@@ -3689,7 +3690,7 @@
 
 #### `_mapping_targets`
 
-- **源码**：`app/nodes/code_search_node.py:174`
+- **源码**：`app/nodes/code_search_node.py:176`
 - **签名**：`def _mapping_targets(state: dict) -> list[dict]`
 - **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，该函数接收复现流程状态，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
@@ -3712,7 +3713,7 @@
 
 #### `_policy_mode`
 
-- **源码**：`app/nodes/code_search_node.py:183`
+- **源码**：`app/nodes/code_search_node.py:185`
 - **签名**：`def _policy_mode() -> RetrievalPolicyMode`
 - **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，Settings 已在启动时验证，这里只做类型收窄。该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `RetrievalPolicyMode` 的领域结果。
 
@@ -3733,7 +3734,7 @@
 
 #### `_paper_evidence_count`
 
-- **源码**：`app/nodes/code_search_node.py:189`
+- **源码**：`app/nodes/code_search_node.py:191`
 - **签名**：`def _paper_evidence_count(target: dict) -> int`
 - **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，只统计结构化 Evidence 项数，不解析或信任其自然语言内容。该函数接收待定位的代码对象或业务目标，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终数量、序号、字节数或版本等整数结果。
 
@@ -3756,7 +3757,7 @@
 
 #### `_target_keywords`
 
-- **源码**：`app/nodes/code_search_node.py:196`
+- **源码**：`app/nodes/code_search_node.py:198`
 - **签名**：`def _target_keywords(target: dict, target_name: str) -> list[str]`
 - **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，保持当前节点的关键词构造顺序，并确定性去重。该函数接收待定位的代码对象或业务目标、待定位的代码对象或业务目标的名称，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
@@ -3780,7 +3781,7 @@
 
 #### `_policy_decision`
 
-- **源码**：`app/nodes/code_search_node.py:222`
+- **源码**：`app/nodes/code_search_node.py:224`
 - **签名**：`def _policy_decision(policy: RetrievalPolicyConfig, mode: RetrievalPolicyMode, target_payload: dict, lexical_query: str, keywords: list[str], dense_available: bool) -> RetrievalDecision`
 - **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，为一个 mapping target 生成不含 query 原文的 Decision。该函数接收安全策略、MCP 评测或运行模式、当前处理结果、查询等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `RetrievalDecision` 的领域结果。
 
@@ -3808,7 +3809,7 @@
 
 #### `code_search_node`
 
-- **源码**：`app/nodes/code_search_node.py:247`
+- **源码**：`app/nodes/code_search_node.py:249`
 - **签名**：`def code_search_node(state: dict) -> dict`
 - **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，该函数接收复现流程状态，用于作为 Graph 节点读取当前复现状态，完成一个阶段动作，并以状态更新形式把证据、错误或产物交给下一节点，最终包含复现状态、索引或序列化字段的结构化映射。
 
@@ -4244,9 +4245,93 @@
 构造并返回 `ExperimentPlan` 结构化领域对象。
 ```
 
-#### `_render_steps`
+#### `_compact_paper_summary`
 
 - **源码**：`app/nodes/experiment_plan_node.py:40`
+- **签名**：`def _compact_paper_summary(payload: dict) -> dict`
+- **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，保留规划所需论文事实，移除已验证但体积很大的 provenance。该函数接收结构化请求载荷，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终包含复现状态、索引或序列化字段的结构化映射。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `payload` | `dict` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+
+**输出**
+
+- **Python 类型**：`dict`
+- **语义**：返回键值映射；常用于状态更新、序列化投影或索引结果。
+
+**伪代码**
+
+```text
+遍历并筛选输入，将整理后的结果保存为 当前处理结果；遍历并筛选输入，将整理后的结果保存为 当前处理结果中的对应字段；遍历并筛选输入，将整理后的结果保存为 当前处理结果中的对应字段；返回前一步处理得到的结果。
+```
+
+#### `_compact_repo_map`
+
+- **源码**：`app/nodes/experiment_plan_node.py:82`
+- **签名**：`def _compact_repo_map(payload: dict) -> dict`
+- **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，限制仓库文件列表规模，同时保留训练入口和关键文件。该函数接收结构化请求载荷，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终包含复现状态、索引或序列化字段的结构化映射。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `payload` | `dict` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+
+**输出**
+
+- **Python 类型**：`dict`
+- **语义**：返回键值映射；常用于状态更新、序列化投影或索引结果。
+
+**伪代码**
+
+```text
+将 当前处理结果 初始化为空映射，用来收集后续结果。
+遍历辅助操作产生的可迭代结果（调用 `items` 完成该函数的一项辅助处理），每次把当前项记为多个解包结果：
+    如果“计算数量、边界或类型判断结果”后得到肯定结果：
+        读取当前字段值中的对应字段，并保存为 当前处理结果中的对应字段。
+    否则：
+        如果当前字段值不属于(空值, '')，就读取当前字段值，并保存为 当前处理结果中的对应字段。
+返回前一步处理得到的结果。
+```
+
+#### `_compact_code_mapping`
+
+- **源码**：`app/nodes/experiment_plan_node.py:94`
+- **签名**：`def _compact_code_mapping(payload: list) -> list[dict]`
+- **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，规划只消费映射结论，不重复发送完整源码、哈希和检索信号。该函数接收结构化请求载荷，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `payload` | `list` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+
+**输出**
+
+- **Python 类型**：`list[dict]`
+- **语义**：返回有界或排序后的对象集合；元素类型由返回标注给出。
+
+**伪代码**
+
+```text
+将 当前处理结果 初始化为空列表，用来收集后续结果。
+遍历由结构化请求载荷组成的集合或迭代器，每次把当前项记为论文-代码映射：
+    如果“计算数量、边界或类型判断结果”后未得到肯定结果，就跳过本轮剩余处理，直接进入下一轮。
+    将 候选结果集合 初始化为空列表，用来收集后续结果；从论文-代码映射读取所需的状态或领域记录，并把结果记为 该调用返回的结果。
+    如果“计算数量、边界或类型判断结果”后未得到肯定结果，就将 当前处理结果 初始化为空列表，用来收集后续结果。
+    遍历当前可迭代输入，每次把当前项记为待审核的 MCP 能力候选：
+        如果“计算数量、边界或类型判断结果”后未得到肯定结果，就跳过本轮剩余处理，直接进入下一轮。
+        把新的处理结果追加或合并到候选结果集合。
+    把新的处理结果追加或合并到当前处理结果。
+返回前一步处理得到的结果。
+```
+
+#### `_render_steps`
+
+- **源码**：`app/nodes/experiment_plan_node.py:138`
 - **签名**：`def _render_steps(title: str, steps: list) -> list[str]`
 - **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，该函数接收文档或章节标题、当前处理结果，用于把复现过程中的结构化状态、证据或结果转换为可读、可传输或可持久化的表示，最终有界、排序或带证据来源的结果集合。
 
@@ -4276,7 +4361,7 @@
 
 #### `_render_plan_markdown`
 
-- **源码**：`app/nodes/experiment_plan_node.py:58`
+- **源码**：`app/nodes/experiment_plan_node.py:156`
 - **签名**：`def _render_plan_markdown(plan: ExperimentPlan) -> str`
 - **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，该函数接收实验计划，用于把复现过程中的结构化状态、证据或结果转换为可读、可传输或可持久化的表示，最终文本、路径、状态标签或内容身份摘要。
 
@@ -4307,7 +4392,7 @@
 
 #### `experiment_plan_node`
 
-- **源码**：`app/nodes/experiment_plan_node.py:81`
+- **源码**：`app/nodes/experiment_plan_node.py:179`
 - **签名**：`def experiment_plan_node(state: dict) -> dict`
 - **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，该函数接收复现流程状态，用于作为 Graph 节点读取当前复现状态，完成一个阶段动作，并以状态更新形式把证据、错误或产物交给下一节点，最终包含复现状态、索引或序列化字段的结构化映射。
 
@@ -5423,7 +5508,7 @@
 
 #### `_build_method_extraction_fallback`
 
-- **源码**：`app/nodes/method_extractor_node.py:56`
+- **源码**：`app/nodes/method_extractor_node.py:63`
 - **签名**：`def _build_method_extraction_fallback() -> PaperSummary`
 - **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，结构化提取失败时不编造论文方法，确保下游不会生成可执行命令。该函数接收当前运行配置、模块状态和已注入依赖，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `PaperSummary` 的领域结果。
 
@@ -5442,9 +5527,68 @@
 构造并返回 `PaperSummary` 结构化领域对象。
 ```
 
+#### `_invocation_is_truncation`
+
+- **源码**：`app/nodes/method_extractor_node.py:83`
+- **签名**：`def _invocation_is_truncation(invocation: RoutedStructuredInvocation) -> bool`
+- **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，判断调用失败是不是因为输出在 JSON 完成前被截断。该函数接收工具调用记录，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `invocation` | `RoutedStructuredInvocation` | 工具调用记录；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+
+**输出**
+
+- **Python 类型**：`bool`
+- **语义**：返回条件判断结果：`True` 表示满足，`False` 表示不满足。
+
+**伪代码**
+
+```text
+如果阶段处理结果为空，就返回固定值 `假`。
+遍历当前可迭代输入，每次把当前项记为尝试：
+    如果当前处理结果有值或为真，就返回固定值 `真`。
+    如果错误类型有值或为真 且 当前输入内容属于辅助操作“对错误类型中的文本执行规范化或拆分”的结果，就返回固定值 `真`。
+    计算根据条件从两个候选结果中选择一个，并保存为 原因。
+    如果原因属于{'length', 'max_tokens', 'max_output_tokens'}，就返回固定值 `真`。
+返回固定值 `假`。
+```
+
+#### `_invoke_section_attempt`
+
+- **源码**：`app/nodes/method_extractor_node.py:105`
+- **签名**：`def _invoke_section_attempt(model_gateway: 未显式标注, chunk: SectionChunk, prompt: str, state: dict, generated_records: list, attempt_label: str, route_preview: 未显式标注) -> tuple[RoutedStructuredInvocation, str]`
+- **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，对单个 chunk 执行一次 preview + invoke，并登记调用 trace。该函数接收网关、检索文本块、发给模型的结构化提示、复现流程状态等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `model_gateway` | `未显式标注` | 名为 `model_gateway` 的 `未显式标注` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `chunk` | `SectionChunk` | 检索文本块；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `prompt` | `str` | 用户目标、检索问题、反馈或待处理文本；会作为当前阶段的业务语境输入，并可能受到长度/脱敏约束。 |
+| `state` | `dict` | Agent/Graph 当前状态或状态字段映射；节点通过它传递阶段结果和错误信息。 |
+| `generated_records` | `list` | 持久化领域记录、Manifest 或证据对象，通常携带版本、关联 ID 和内容身份。 |
+| `attempt_label` | `str` | 名为 `attempt_label` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。；默认 '' |
+| `route_preview` | `未显式标注` | 名为 `route_preview` 的 `未显式标注` 领域输入；用于当前函数的业务处理，具体约束见校验分支。；默认 空值 |
+
+**输出**
+
+- **Python 类型**：`tuple[RoutedStructuredInvocation, str]`
+- **语义**：返回有界或排序后的对象集合；元素类型由返回标注给出。
+
+**伪代码**
+
+```text
+如果当前处理结果为空，就调用 `preview_structured` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+调用 `invoke_structured` 完成该函数的一项辅助处理，并把结果记为 工具调用记录；调用 `write_structured_output_trace` 持久化或更新当前领域数据，并把结果记为 调用链追踪信息的路径；把新的处理结果追加或合并到当前处理结果；返回当前构造的顺序或去重集合。
+```
+
 #### `method_extractor_node`
 
-- **源码**：`app/nodes/method_extractor_node.py:76`
+- **源码**：`app/nodes/method_extractor_node.py:177`
 - **签名**：`def method_extractor_node(state: dict) -> dict`
 - **作用**：在编排论文复现流水线、传递阶段状态并生成运行产物的阶段中，该函数接收复现流程状态，用于作为 Graph 节点读取当前复现状态，完成一个阶段动作，并以状态更新形式把证据、错误或产物交给下一节点，最终包含复现状态、索引或序列化字段的结构化映射。
 
@@ -5470,17 +5614,23 @@
 调用 `build_model_gateway` 组装当前阶段需要的领域对象，并把结果记为 网关；将 当前处理结果、章节集合、当前处理结果 初始化为空列表，用来收集后续结果；读取当前处理结果，并保存为 论文方法或 HTTP 方法；读取当前处理结果，并保存为 是否启用严格校验的开关。
 读取论文版本，并保存为 版本。
 遍历由当前处理结果组成的集合或迭代器，每次把当前项记为检索文本块：
-    调用 `format` 完成该函数的一项辅助处理，并把结果记为 发给模型的结构化提示；调用 `preview_structured` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；读取当前处理结果的名称，并保存为 模型标识或模型配置的名称；调用 `build_section_cache_key` 组装当前阶段需要的领域对象，并把结果记为 键。
-    调用 `load_valid_section_cache` 读取或查询当前阶段需要的数据，并把结果记为 该调用返回的结果。
+    调用 `format` 完成该函数的一项辅助处理，并把结果记为 发给模型的结构化提示；计算计算当前表达式的结果，并保存为 是否论文方法或 HTTP 方法；调用 `preview_structured` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；读取当前处理结果的名称，并保存为 模型标识或模型配置的名称。
+    调用 `build_section_cache_key` 组装当前阶段需要的领域对象，并把结果记为 键；调用 `load_valid_section_cache` 读取或查询当前阶段需要的数据，并把结果记为 该调用返回的结果。
     如果当前处理结果不为空：
         先尝试完成以下处理：
             调用 `validate_extraction_identity` 校验当前输入或状态；调用 `validate_extraction_evidence_references` 校验当前输入或状态。
         如果出现 `(ValueError, InvalidEvidenceReference)`并把异常保存为捕获的异常对象：
             把新的处理结果追加或合并到章节集合；计算使用固定配置或常量值，并保存为 当前处理结果。
+    如果当前处理结果不为空 且 是否论文方法或 HTTP 方法有值或为真 且 “当前处理结果有值或为真”不成立，就把新的处理结果追加或合并到章节集合；计算使用固定配置或常量值，并保存为 当前处理结果。
     如果当前处理结果不为空，就调用 `resolve_artifact_path` 解析、规范化或转换当前输入，并把结果记为 当前处理结果的路径；把新的处理结果追加或合并到当前处理结果；把当前处理结果追加或合并到当前处理结果；跳过本轮剩余处理，直接进入下一轮。
-    调用 `invoke_structured` 完成该函数的一项辅助处理，并把结果记为 工具调用记录；调用 `write_structured_output_trace` 持久化或更新当前领域数据，并把结果记为 调用链追踪信息的路径；把新的处理结果追加或合并到当前处理结果。
+    调用 `_invoke_section_attempt` 完成该函数的一项辅助处理，并把结果记为 多个解包结果。
+    如果当前字段值为空 且 是否论文方法或 HTTP 方法有值或为真，就计算组合或计算已有值，并保存为 当前处理结果；调用 `_invoke_section_attempt` 完成该函数的一项辅助处理，并把结果记为 多个解包结果；读取调用记录，并保存为 工具调用记录。
     如果当前字段值为空，就把新的处理结果追加或合并到章节集合；跳过本轮剩余处理，直接进入下一轮。
     读取当前字段值，并保存为 后续步骤使用的结果。
+    如果是否论文方法或 HTTP 方法有值或为真 且 “当前处理结果有值或为真”不成立：
+        计算组合或计算已有值，并保存为 当前处理结果；调用 `_invoke_section_attempt` 完成该函数的一项辅助处理，并把结果记为 多个解包结果。
+        如果当前字段值不为空，就读取当前字段值，并保存为 后续步骤使用的结果。
+    如果是否论文方法或 HTTP 方法有值或为真 且 “当前处理结果有值或为真”不成立，就把新的处理结果追加或合并到章节集合。
     先尝试完成以下处理：
         调用 `validate_extraction_identity` 校验当前输入或状态；调用 `validate_extraction_evidence_references` 校验当前输入或状态。
     如果出现 `(ValueError, InvalidEvidenceReference)`并把异常保存为捕获的异常对象：
@@ -10971,9 +11121,32 @@
 对当前输入内容中的文本执行规范化或拆分，并把结果记为 待处理的论文或源码材料；检查当前可迭代输入中是否存在满足“测试或状态标记属于待处理的论文或源码材料”的项，并返回处理结果。
 ```
 
-#### `_invoke_with_transport_retry`
+#### `_is_output_length_exception`
 
 - **源码**：`app/tools/structured_output_tools.py:305`
+- **签名**：`def _is_output_length_exception(exc: Exception) -> bool`
+- **作用**：在为论文阅读、源码分析和复现实验提供受控工具调用的阶段中，识别由结构化解析器抛出的输出预算截断。该函数接收捕获的异常，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `exc` | `Exception` | 异常、错误记录或错误分类信息，用于失败处理和诊断。 |
+
+**输出**
+
+- **Python 类型**：`bool`
+- **语义**：返回条件判断结果：`True` 表示满足，`False` 表示不满足。
+
+**伪代码**
+
+```text
+对前一步操作返回对象的当前处理结果中的文本执行规范化或拆分，并把结果记为 错误类型；调用 `str` 完成该函数的一项辅助处理，再对返回文本执行规范化或拆分，并把结果记为 待处理的论文或源码材料；返回组合判断结果。
+```
+
+#### `_invoke_with_transport_retry`
+
+- **源码**：`app/tools/structured_output_tools.py:317`
 - **签名**：`def _invoke_with_transport_retry(invoke: Callable[[], Any], prompt_kind: str, attempt_number_start: int, max_retries: int, base_seconds: float) -> tuple[Any | None, list[StructuredOutputAttempt], Exception | None]`
 - **作用**：在为论文阅读、源码分析和复现实验提供受控工具调用的阶段中，只负责 Provider transport retry，不消费 schema validation retry。该函数接收当前处理结果、类别、尝试编号、重试次数上限等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
@@ -11010,7 +11183,7 @@
 
 #### `_raw_to_preview`
 
-- **源码**：`app/tools/structured_output_tools.py:352`
+- **源码**：`app/tools/structured_output_tools.py:364`
 - **签名**：`def _raw_to_preview(raw: Any, max_chars: int) -> str | None`
 - **作用**：在为论文阅读、源码分析和复现实验提供受控工具调用的阶段中，从 LangChain AIMessage 或普通对象提取可审计预览。该函数接收原始内容、最大字符数，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `str | None` 的领域结果。
 
@@ -11034,7 +11207,7 @@
 
 #### `_build_validation_retry_prompt`
 
-- **源码**：`app/tools/structured_output_tools.py:363`
+- **源码**：`app/tools/structured_output_tools.py:375`
 - **签名**：`def _build_validation_retry_prompt(original_prompt: str, schema: type[BaseModel], validation_error: str, previous_raw_preview: str | None, schema_already_in_prompt: bool) -> str`
 - **作用**：在为论文阅读、源码分析和复现实验提供受控工具调用的阶段中，把上一轮具体错误反馈给模型。该函数接收当前处理结果、输入输出 Schema 契约、错误、前一项等输入，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终文本、路径、状态标签或内容身份摘要。
 
@@ -11061,7 +11234,7 @@
 
 #### `_build_json_mode_prompt`
 
-- **源码**：`app/tools/structured_output_tools.py:407`
+- **源码**：`app/tools/structured_output_tools.py:419`
 - **签名**：`def _build_json_mode_prompt(original_prompt: str, schema: type[BaseModel]) -> str`
 - **作用**：在为论文阅读、源码分析和复现实验提供受控工具调用的阶段中，json_object 只保证 JSON 语法，必须在 prompt 中显式提供字段契约。该函数接收当前处理结果、输入输出 Schema 契约，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终文本、路径、状态标签或内容身份摘要。
 
@@ -11085,7 +11258,7 @@
 
 #### `_build_truncation_retry_prompt`
 
-- **源码**：`app/tools/structured_output_tools.py:433`
+- **源码**：`app/tools/structured_output_tools.py:445`
 - **签名**：`def _build_truncation_retry_prompt(original_prompt: str, validation_error: str) -> str`
 - **作用**：在为论文阅读、源码分析和复现实验提供受控工具调用的阶段中，截断时不再重复附加完整 schema，避免 retry prompt 继续膨胀。该函数接收当前处理结果、错误，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终文本、路径、状态标签或内容身份摘要。
 
@@ -11109,7 +11282,7 @@
 
 #### `invoke_structured_with_retry`
 
-- **源码**：`app/tools/structured_output_tools.py:461`
+- **源码**：`app/tools/structured_output_tools.py:473`
 - **签名**：`def invoke_structured_with_retry(llm: Any, schema: type[SchemaT], prompt: str, method: str, strict: bool, max_retries: int, raw_preview_chars: int, provider_max_retries: int, provider_retry_base_seconds: float, telemetry: TelemetryPort | None, telemetry_provider_label: str | None, telemetry_model_name: str | None) -> StructuredInvocationResult[SchemaT]`
 - **作用**：在为论文阅读、源码分析和复现实验提供受控工具调用的阶段中，使用 Provider 结构化输出能力 + Pydantic 完成有限重试。该函数接收语言模型、输入输出 Schema 契约、发给模型的结构化提示、论文方法或 HTTP 方法等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -11161,7 +11334,11 @@
         把新的处理结果追加或合并到模型尝试记录集合；调用 `_record_token_usage_safe` 完成该函数的一项辅助处理。
         如果尝试的索引不小于重试次数上限，就立即结束当前循环。
         计算根据条件从两个候选结果中选择一个，并保存为 当前；跳过本轮剩余处理，直接进入下一轮。
-    如果错误不为空，就立即结束当前循环。
+    如果错误不为空：
+        如果“调用 `_is_output_length_exception` 校验当前输入或状态”后得到肯定结果：
+            读取模型尝试记录集合中的对应字段，并保存为 后续步骤使用的结果；计算使用固定配置或常量值，并保存为 当前状态；计算使用固定配置或常量值，并保存为 当前处理结果。
+            如果尝试的索引小于重试次数上限，就调用 `_build_truncation_retry_prompt` 组装当前阶段需要的领域对象，并把结果记为 当前；跳过本轮剩余处理，直接进入下一轮。
+        立即结束当前循环。
     计算组合或计算已有值，并保存为 尝试编号。
     如果“计算数量、边界或类型判断结果”后得到肯定结果：
         读取结构化响应，并保存为 解析后的结果；计算使用固定配置或常量值，并保存为 原始内容；计算使用固定配置或常量值，并保存为 错误。
@@ -11181,7 +11358,7 @@
 
 #### `write_structured_output_trace`
 
-- **源码**：`app/tools/structured_output_tools.py:748`
+- **源码**：`app/tools/structured_output_tools.py:774`
 - **签名**：`def write_structured_output_trace(result: StructuredInvocationResult[Any], node_name: str, schema_name: str, output_dir: Path, fallback_used: bool, model_invocation_id: str | None, model_decision_sha256: str | None, model_profile_id: str | None, model_name: str | None, model_usage_quality: str | None) -> Path`
 - **作用**：在为论文阅读、源码分析和复现实验提供受控工具调用的阶段中，把结构化调用过程写成独立 artifact，方便调试和评测。该函数接收阶段处理结果、当前流程节点的名称、输入输出 Schema 契约的名称、复现输出目录等输入，用于在版本、幂等键和内容 Hash 约束下保存、发布或变更复现记录和 Artifact，最终一个经过边界校验的文件或目录路径。
 
@@ -13098,7 +13275,7 @@
 
 #### `_make_state`
 
-- **源码**：`tests/test_file_repair_planner_node.py:11`
+- **源码**：`tests/test_file_repair_planner_node.py:12`
 - **签名**：`def _make_state(tmp_path) -> tuple[dict, str, str]`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终有界、排序或带证据来源的结果集合。
 
@@ -13123,7 +13300,7 @@
 
 #### `_invocation`
 
-- **源码**：`tests/test_file_repair_planner_node.py:62`
+- **源码**：`tests/test_file_repair_planner_node.py:63`
 - **签名**：`def _invocation(proposal: FileRepairProposal) -> StructuredInvocationResult`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收修复或重跑提案，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -13146,7 +13323,7 @@
 
 #### `test_file_repair_adds_pytest_target_from_pending_action`
 
-- **源码**：`tests/test_file_repair_planner_node.py:72`
+- **源码**：`tests/test_file_repair_planner_node.py:73`
 - **签名**：`def test_file_repair_adds_pytest_target_from_pending_action(tmp_path: 未显式标注, run_state: 未显式标注, monkeypatch: 未显式标注) -> None（隐式）`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径、本次运行状态、测试环境修改工具，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -13167,14 +13344,14 @@
 
 ```text
 调用 `_make_state` 完成该函数的一项辅助处理，并把结果记为 多个解包结果；计算按字段初始化键值映射，并保存为 复现流程状态；构造 `FileRepairProposal` 结构化领域对象，并把结果记为 修复或重跑提案；调用 `setattr` 完成该函数的一项辅助处理。
-调用 `setattr` 完成该函数的一项辅助处理。
-在上下文“调用 `patch` 完成该函数的一项辅助处理、调用 `patch` 完成该函数的一项辅助处理”中调用 `file_repair_planner_node` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果，退出时自动清理资源。
+调用 `setattr` 完成该函数的一项辅助处理；构造 `ScriptedModelGateway` 结构化领域对象，并把结果记为 外部服务网关。
+在上下文“调用 `patch` 完成该函数的一项辅助处理”中调用 `file_repair_planner_node` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果，退出时自动清理资源。
 断言阶段处理结果中的对应字段中的对应字段等于'patch'；不满足就终止当前测试或流程；断言阶段处理结果中的对应字段中的对应字段等于['tests/test_phase14_demo.py']；不满足就终止当前测试或流程。
 ```
 
 #### `test_file_repair_rejects_test_file_edit`
 
-- **源码**：`tests/test_file_repair_planner_node.py:121`
+- **源码**：`tests/test_file_repair_planner_node.py:120`
 - **签名**：`def test_file_repair_rejects_test_file_edit(tmp_path: 未显式标注, run_state: 未显式标注, monkeypatch: 未显式标注) -> None（隐式）`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径、本次运行状态、测试环境修改工具，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -13195,8 +13372,8 @@
 
 ```text
 调用 `_make_state` 完成该函数的一项辅助处理，并把结果记为 多个解包结果；计算按字段初始化键值映射，并保存为 复现流程状态；构造 `FileRepairProposal` 结构化领域对象，并把结果记为 修复或重跑提案；调用 `setattr` 完成该函数的一项辅助处理。
-调用 `setattr` 完成该函数的一项辅助处理。
-在上下文“调用 `patch` 完成该函数的一项辅助处理、调用 `patch` 完成该函数的一项辅助处理”中调用 `file_repair_planner_node` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果，退出时自动清理资源。
+调用 `setattr` 完成该函数的一项辅助处理；构造 `ScriptedModelGateway` 结构化领域对象，并把结果记为 外部服务网关。
+在上下文“调用 `patch` 完成该函数的一项辅助处理”中调用 `file_repair_planner_node` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果，退出时自动清理资源。
 断言阶段处理结果中的对应字段中的对应字段等于'no_patch'；不满足就终止当前测试或流程；断言阶段处理结果中的对应字段中的对应字段等于[]；不满足就终止当前测试或流程；断言当前输入内容属于阶段处理结果中的对应字段中的对应字段；不满足就终止当前测试或流程。
 ```
 
@@ -15147,7 +15324,7 @@
 
 #### `test_route_after_preflight_goes_to_smoke_when_passed`
 
-- **源码**：`tests/test_smoke_repair_flow.py:20`
+- **源码**：`tests/test_smoke_repair_flow.py:21`
 - **签名**：`def test_route_after_preflight_goes_to_smoke_when_passed()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15168,7 +15345,7 @@
 
 #### `test_route_after_smoke_test_goes_to_executor_when_passed`
 
-- **源码**：`tests/test_smoke_repair_flow.py:24`
+- **源码**：`tests/test_smoke_repair_flow.py:25`
 - **签名**：`def test_route_after_smoke_test_goes_to_executor_when_passed()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15189,7 +15366,7 @@
 
 #### `test_route_after_smoke_test_goes_to_executor_when_skipped`
 
-- **源码**：`tests/test_smoke_repair_flow.py:28`
+- **源码**：`tests/test_smoke_repair_flow.py:29`
 - **签名**：`def test_route_after_smoke_test_goes_to_executor_when_skipped()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15210,7 +15387,7 @@
 
 #### `test_route_after_smoke_test_goes_to_log_debug_when_failed`
 
-- **源码**：`tests/test_smoke_repair_flow.py:32`
+- **源码**：`tests/test_smoke_repair_flow.py:33`
 - **签名**：`def test_route_after_smoke_test_goes_to_log_debug_when_failed()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15231,7 +15408,7 @@
 
 #### `test_route_after_log_debug_goes_to_repair_planner_before_limit`
 
-- **源码**：`tests/test_smoke_repair_flow.py:40`
+- **源码**：`tests/test_smoke_repair_flow.py:41`
 - **签名**：`def test_route_after_log_debug_goes_to_repair_planner_before_limit()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15252,7 +15429,7 @@
 
 #### `test_route_after_repair_planner_goes_to_repair_action_builder_for_edit_command`
 
-- **源码**：`tests/test_smoke_repair_flow.py:44`
+- **源码**：`tests/test_smoke_repair_flow.py:45`
 - **签名**：`def test_route_after_repair_planner_goes_to_repair_action_builder_for_edit_command()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15273,7 +15450,7 @@
 
 #### `test_route_after_repair_action_builder_returns_to_risk_check`
 
-- **源码**：`tests/test_smoke_repair_flow.py:54`
+- **源码**：`tests/test_smoke_repair_flow.py:55`
 - **签名**：`def test_route_after_repair_action_builder_returns_to_risk_check()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15294,7 +15471,7 @@
 
 #### `test_cuda_oom_builds_bounded_batch_size_repair_without_llm`
 
-- **源码**：`tests/test_smoke_repair_flow.py:58`
+- **源码**：`tests/test_smoke_repair_flow.py:59`
 - **签名**：`def test_cuda_oom_builds_bounded_batch_size_repair_without_llm(run_state: 未显式标注) -> None（隐式）`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收本次运行状态，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15320,7 +15497,7 @@
 
 #### `test_cuda_oom_debug_report_does_not_require_llm`
 
-- **源码**：`tests/test_smoke_repair_flow.py:88`
+- **源码**：`tests/test_smoke_repair_flow.py:89`
 - **签名**：`def test_cuda_oom_debug_report_does_not_require_llm(tmp_path: 未显式标注, run_state: 未显式标注) -> None（隐式）`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径、本次运行状态，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15346,7 +15523,7 @@
 
 #### `test_shape_mismatch_with_related_files_hands_off_to_file_repair`
 
-- **源码**：`tests/test_smoke_repair_flow.py:108`
+- **源码**：`tests/test_smoke_repair_flow.py:109`
 - **签名**：`def test_shape_mismatch_with_related_files_hands_off_to_file_repair(run_state: 未显式标注, monkeypatch: 未显式标注) -> None（隐式）`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收本次运行状态、测试环境修改工具，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15373,7 +15550,7 @@
 
 #### `test_traceback_paths_are_limited_to_existing_repo_python_files`
 
-- **源码**：`tests/test_smoke_repair_flow.py:142`
+- **源码**：`tests/test_smoke_repair_flow.py:143`
 - **签名**：`def test_traceback_paths_are_limited_to_existing_repo_python_files(tmp_path)`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15397,7 +15574,7 @@
 
 #### `test_log_debug_merges_traceback_paths_with_model_related_files`
 
-- **源码**：`tests/test_smoke_repair_flow.py:165`
+- **源码**：`tests/test_smoke_repair_flow.py:166`
 - **签名**：`def test_log_debug_merges_traceback_paths_with_model_related_files(tmp_path: 未显式标注, run_state: 未显式标注, monkeypatch: 未显式标注) -> None（隐式）`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径、本次运行状态、测试环境修改工具，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -15419,8 +15596,8 @@
 ```text
 计算组合或计算已有值，并保存为 代码仓库；计算组合或计算已有值，并保存为 测试文件；计算组合或计算已有值，并保存为 来源文件；创建父级目录或父领域对象对应的目录。
 将处理结果写入测试文件指定的文件；将处理结果写入来源文件指定的文件；计算组合或计算已有值，并保存为 运行日志路径；将处理结果写入运行日志路径指定的文件。
-构造 `StructuredInvocationResult` 结构化领域对象，并把结果记为 工具调用记录。
-在上下文“调用 `patch` 完成该函数的一项辅助处理、调用 `patch` 完成该函数的一项辅助处理”中调用 `log_debug_node` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果，退出时自动清理资源。
+构造 `StructuredInvocationResult` 结构化领域对象，并把结果记为 工具调用记录；构造 `ScriptedModelGateway` 结构化领域对象，并把结果记为 外部服务网关。
+在上下文“调用 `patch` 完成该函数的一项辅助处理”中调用 `log_debug_node` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果，退出时自动清理资源。
 断言阶段处理结果中的对应字段中的对应字段等于['tests/test_demo.py', 'demo.py']；不满足就终止当前测试或流程。
 ```
 

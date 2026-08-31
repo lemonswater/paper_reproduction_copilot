@@ -22,6 +22,22 @@ EvalCategory = Literal[
     "decision",
 ]
 
+DEFAULT_CATEGORY_PASS_THRESHOLDS: dict[
+    EvalCategory,
+    float,
+] = {
+    "schema": 0.9,
+    "quality": 0.8,
+    "efficiency": 0.8,
+}
+
+
+def _default_category_pass_thresholds() -> dict[
+    EvalCategory,
+    float,
+]:
+    return dict(DEFAULT_CATEGORY_PASS_THRESHOLDS)
+
 EvalSuiteName = Literal[
     "offline",
     "provider",
@@ -113,6 +129,15 @@ class SectionParentExpectation(EvalModel):
     child_number: str
     parent_number: str
 
+
+class ModuleFileMapping(EvalModel):
+    """论文方法模块必须映射到指定代码文件。"""
+
+    module_name: str = Field(min_length=1)
+    module_aliases: list[str] = Field(default_factory=list)
+    file_path: str = Field(min_length=1)
+
+
 class EvalExpected(EvalModel):
     """所有 Scorer 共用的强类型期望。"""
 
@@ -126,6 +151,9 @@ class EvalExpected(EvalModel):
         default=None,
         ge=0,
         le=1,
+    )
+    min_schema_success_rates: dict[str, float] = Field(
+        default_factory=dict
     )
     max_schema_fallbacks: int | None = Field(default=None, ge=0)
     max_schema_retries: int | None = Field(default=None, ge=0)
@@ -157,6 +185,28 @@ class EvalExpected(EvalModel):
 
     required_modules: list[str] = Field(default_factory=list)
     required_files: list[str] = Field(default_factory=list)
+    # 论文模块 → 代码文件的映射断言：module_name 是论文方法模块，
+    # file_path 是它必须映射到的真实代码文件。
+    required_module_file_mappings: list[ModuleFileMapping] = Field(
+        default_factory=list
+    )
+    min_experiment_plan_run_commands: int | None = Field(
+        default=None,
+        ge=0,
+    )
+    max_experiment_plan_run_commands: int | None = Field(
+        default=None,
+        ge=0,
+    )
+    required_experiment_plan_command_terms: list[str] = Field(
+        default_factory=list
+    )
+    forbidden_experiment_plan_command_terms: list[str] = Field(
+        default_factory=list
+    )
+    required_experiment_plan_terms: list[str] = Field(
+        default_factory=list
+    )
     forbidden_claims: list[str] = Field(default_factory=list)
 
     approval_required: bool | None = None
@@ -258,6 +308,10 @@ class EvalExpected(EvalModel):
         default=None,
         ge=0,
     )
+    min_chat_memory_invocations_per_run: int | None = Field(
+        default=None,
+        ge=0,
+    )
     max_chat_memory_invocations_per_run: int | None = Field(
         default=None,
         ge=0,
@@ -275,16 +329,61 @@ class EvalExpected(EvalModel):
         le=1.0,
     )
 
+    @model_validator(mode="after")
+    def validate_chat_invocation_range(self) -> EvalExpected:
+        minimum = self.min_chat_memory_invocations_per_run
+        maximum = self.max_chat_memory_invocations_per_run
+        if minimum is not None and maximum is not None and minimum > maximum:
+            raise ValueError("Chat Memory invocation min 不能大于 max")
+        plan_minimum = self.min_experiment_plan_run_commands
+        plan_maximum = self.max_experiment_plan_run_commands
+        if (
+            plan_minimum is not None
+            and plan_maximum is not None
+            and plan_minimum > plan_maximum
+        ):
+            raise ValueError("ExperimentPlan run command min 不能大于 max")
+        if any(
+            not name.strip() or not 0.0 <= rate <= 1.0
+            for name, rate in self.min_schema_success_rates.items()
+        ):
+            raise ValueError("Schema 分阶段成功率的名称或阈值无效")
+        plan_terms = [
+            *self.required_experiment_plan_command_terms,
+            *self.forbidden_experiment_plan_command_terms,
+            *self.required_experiment_plan_terms,
+        ]
+        if any(not term.strip() for term in plan_terms):
+            raise ValueError("ExperimentPlan Oracle 不允许空术语")
+        for mapping in self.required_module_file_mappings:
+            if any(not alias.strip() for alias in mapping.module_aliases):
+                raise ValueError("Module mapping alias 不允许空值")
+        return self
+
 
 class EvalThresholds(EvalModel):
     min_overall_score: float = Field(default=1.0, ge=0, le=1)
     max_score_regression: float = Field(default=0.0, ge=0, le=1)
+    min_category_scores: dict[EvalCategory, float] = Field(
+        default_factory=_default_category_pass_thresholds
+    )
     category_weights: dict[EvalCategory, float] = Field(
         default_factory=dict
     )
 
     @model_validator(mode="after")
     def validate_weights(self) -> EvalThresholds:
+        self.min_category_scores = {
+            **DEFAULT_CATEGORY_PASS_THRESHOLDS,
+            **self.min_category_scores,
+        }
+        if any(
+            not 0.0 < threshold <= 1.0
+            for threshold in self.min_category_scores.values()
+        ):
+            raise ValueError(
+                "category pass threshold 必须在 (0, 1] 内"
+            )
         if any(weight <= 0 for weight in self.category_weights.values()):
             raise ValueError("category weight 必须大于 0")
         return self
@@ -418,6 +517,35 @@ class EvalCase(EvalModel):
                     "Decision Case 至少声明一个 intent Oracle"
                 )
 
+        return self
+
+
+class EvalCaseBundle(EvalModel):
+    """同一 Suite、同一难度的一组 EvalCase，供一个 JSON 文件承载。"""
+
+    schema_version: int = 1
+    group_id: str
+    suite: EvalSuiteName
+    difficulty: Literal["easy", "medium", "hard"] | None = None
+    cases: list[EvalCase] = Field(min_length=1, max_length=100)
+
+    @model_validator(mode="after")
+    def validate_bundle(self) -> EvalCaseBundle:
+        if not self.group_id.strip():
+            raise ValueError("Case Bundle group_id 不能为空")
+
+        case_ids = [case.case_id for case in self.cases]
+        if len(case_ids) != len(set(case_ids)):
+            raise ValueError("Case Bundle 内不能包含重复 case_id")
+        if any(case.suite != self.suite for case in self.cases):
+            raise ValueError("Case Bundle 内每个 Case 的 suite 必须与 Bundle 一致")
+
+        if self.difficulty is not None:
+            required_tag = f"difficulty-{self.difficulty}"
+            if any(required_tag not in case.tags for case in self.cases):
+                raise ValueError(
+                    "Case Bundle 内每个 Case 都必须携带与 difficulty 一致的标签"
+                )
         return self
 
 
@@ -578,6 +706,7 @@ class ScorerResult(EvalModel):
     category: EvalCategory
     score: float = Field(ge=0, le=1)
     passed: bool
+    pass_threshold: float = Field(default=1.0, ge=0, le=1)
     assertions: list[EvalAssertion] = Field(default_factory=list)
 
 
@@ -626,4 +755,3 @@ class BaselineDiff(EvalModel):
     missing_cases: list[str] = Field(default_factory=list)
     newly_failed_cases: list[str] = Field(default_factory=list)
     score_regressions: list[dict[str, Any]] = Field(default_factory=list)
-

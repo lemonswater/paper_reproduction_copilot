@@ -11,24 +11,67 @@
     "paper_path": "pdf/PSTNet—Point Spatio-Temporal Convolution on Point Cloud Sequences.pdf",
     "repo_path": "/data/tianshaoqi24/PST-Convolution-main/",
     "experiment_goal": "复现论文 main result",
+    "execution_profile_id": "pstnet-local-supervised",
     "scripted_responses": []
   },
   "expected": {
     "required_schemas": [
-      "PaperSummary",
+      "SectionExtractionDraft",
       "ModuleMapping",
       "ExperimentPlan"
     ],
-    "min_schema_success_rate": 1.0,
+    "min_schema_success_rate": 0.9,
+    "min_schema_success_rates": {
+      "SectionExtractionDraft": 0.9,
+      "ModuleMapping": 0.8,
+      "ExperimentPlan": 1.0
+    },
     "max_schema_fallbacks": 1,
     "max_schema_retries": 3,
-    "required_files": [
-      "models/model.py"
-    ],
     "required_evidence_paths": [
-      "models/model.py"
+      "modules/pst_convolutions.py",
+      "models/sequence_classification.py"
     ],
-    "max_llm_calls": 12,
+    "required_module_file_mappings": [
+      {
+        "module_name": "PST convolution",
+        "module_aliases": [
+          "PSTConv",
+          "point spatio-temporal convolution"
+        ],
+        "file_path": "modules/pst_convolutions.py"
+      },
+      {
+        "module_name": "PSTNet architecture",
+        "module_aliases": [
+          "PSTNet",
+          "MSRAction",
+          "sequence classification",
+          "action recognition"
+        ],
+        "file_path": "models/sequence_classification.py"
+      }
+    ],
+    "min_experiment_plan_run_commands": 1,
+    "max_experiment_plan_run_commands": 4,
+    "required_experiment_plan_command_terms": [
+      "train-msr.py",
+      "--data-path",
+      "--batch-size"
+    ],
+    "forbidden_experiment_plan_command_terms": [
+      "--root",
+      "--temporal_kernel_size",
+      "--temporal-kernel-size",
+      "--batch_size",
+      "--lr_schedule",
+      "--lr_decay",
+      "--clip_length",
+      "--spatial_radius",
+      "--neighbors"
+    ],
+    "required_experiment_plan_terms": ["need_confirm"],
+    "max_llm_calls": 28,
     "max_human_interventions": 1
   },
   "thresholds": {

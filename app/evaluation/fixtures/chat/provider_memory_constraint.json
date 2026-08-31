@@ -15,13 +15,13 @@
   ],
   "seed_exchanges": [
     {
-      "question": "后续只考虑 CPU 环境。",
-      "answer": "已记录这个用户约束。",
+      "question": "我这边没有能用的显卡，后面就按 CPU 来吧。",
+      "answer": "好的，后面按这个条件继续。",
       "citation_ids": ["job:current"]
     },
     {
-      "question": "可以考虑先跑小数据集。",
-      "answer": "这是建议，不是已经确认的决定。",
+      "question": "要不先拿一小部分数据试试看？",
+      "answer": "可以先看看。",
       "citation_ids": ["job:current"]
     },
     {
@@ -38,7 +38,7 @@
   "turns": [
     {
       "label": "current-status",
-      "question": "根据当前证据说明任务状态，并遵守此前环境限制。",
+      "question": "现在任务进行到哪一步了？",
       "idempotency_key": "provider-memory-1"
     }
   ],

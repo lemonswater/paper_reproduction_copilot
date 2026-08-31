@@ -114,3 +114,74 @@ def test_repository_index_skips_large_file(
         )
         for warning in index.warnings
     )
+
+
+def test_repository_index_only_keeps_mapping_relevant_files(
+    tmp_path,
+):
+    for directory in (
+        "log",
+        "output",
+        "best_model",
+        "build",
+        "package.egg-info",
+    ):
+        path = tmp_path / directory
+        path.mkdir()
+        (path / "copied_model.py").write_text(
+            "class Noise: pass\n",
+            encoding="utf-8",
+        )
+
+    (tmp_path / "model.py").write_text(
+        "class Model: pass\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "operator.cu").write_text(
+        "// CUDA operator\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "operator.cpp").write_text(
+        "// C++ operator\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "operator.pyi").write_text(
+        "class Operator: ...\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "config.yaml").write_text(
+        "epochs: 35\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "README.md").write_text(
+        "# Reproduction\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "train.sh").write_text(
+        "python model.py\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "model_best.pth").write_bytes(b"weights")
+    (tmp_path / "training.log").write_text(
+        "epoch=1\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "samples.csv").write_text(
+        "x,y\n",
+        encoding="utf-8",
+    )
+
+    index = build_repository_index(
+        tmp_path,
+        index_version="test-v1",
+    )
+
+    assert {
+        item.file_path
+        for item in index.documents
+    } == {
+        "README.md",
+        "config.yaml",
+        "model.py",
+        "train.sh",
+    }

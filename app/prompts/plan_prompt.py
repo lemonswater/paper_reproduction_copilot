@@ -25,6 +25,12 @@ JSON 对象，不要重复 schema，不要输出解释、Markdown、代码围栏
 5. 安装依赖、编译扩展、下载数据、训练和评测必须给出合理风险等级。
 6. 某类步骤没有可靠内容时返回空数组，不要用占位符凑数。
 7. goal 必须保持为用户实验目标。
+8. 如果下面提供了仓库 CLI 契约，run_commands 中的脚本参数必须逐字来自
+   对应入口的 options，不得把连字符改成下划线，也不得根据论文术语编造参数。
+9. 论文参数没有对应 CLI option 时，不要把它写进 command；应在
+   unresolved_questions 中说明需要修改代码或进一步确认。
+10. 训练入口存在带默认值的数据集路径参数时，在 command 中显式写出该参数，
+    并在数据路径未经用户确认时保持 source="need_confirm"。
 
 论文摘要：
 {paper_summary}
@@ -34,6 +40,9 @@ JSON 对象，不要重复 schema，不要输出解释、Markdown、代码围栏
 
 论文-代码映射：
 {paper_code_mapping}
+
+仓库 CLI 契约（由 Python AST 确定性提取）：
+{cli_contract}
 
 用户实验目标：
 {experiment_goal}

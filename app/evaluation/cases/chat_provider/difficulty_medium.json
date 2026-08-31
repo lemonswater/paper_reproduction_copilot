@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "group_id": "chat-provider-difficulty-medium-v1",
+  "suite": "chat_provider",
+  "difficulty": "medium",
+  "cases": [
+    {
+      "schema_version": 1,
+      "case_id": "chat_provider_medium_multi_source_failure_synthesis",
+      "description": "中等级：真实模型合并 Job、运行日志和配置证据解释失败",
+      "suite": "chat_provider",
+      "runner": "chat_provider",
+      "categories": [
+        "evidence",
+        "quality",
+        "efficiency"
+      ],
+      "tags": [
+        "chat",
+        "provider",
+        "difficulty-medium",
+        "difficulty-matrix-v1",
+        "multi-source"
+      ],
+      "problem_ids": [],
+      "input": {
+        "fixture_path": "fixtures/chat/difficulty/medium/multi_source_failure_synthesis.json"
+      },
+      "expected": {
+        "chat_turns": [
+          {
+            "label": "failure-summary",
+            "required_answer_any_groups": [
+              [
+                "failed",
+                "失败"
+              ],
+              [
+                "CUDA out of memory",
+                "显存不足",
+                "CUDA 内存不足"
+              ],
+              [
+                "batch size 32",
+                "batch-size 32",
+                "批大小 32"
+              ]
+            ],
+            "required_citation_ids": [
+              "job:current",
+              "artifact:execution-log:medium",
+              "artifact:training-config:medium"
+            ],
+            "allowed_citation_ids": [
+              "job:current",
+              "artifact:execution-log:medium",
+              "artifact:training-config:medium"
+            ],
+            "expected_refusal": false,
+            "expected_unknown_requested_citations": 0
+          }
+        ],
+        "min_chat_pass_rate": 0.5,
+        "max_chat_answer_invocations_per_run": 1,
+        "max_chat_memory_invocations_per_run": 0,
+        "max_chat_prompt_chars": 40000
+      },
+      "thresholds": {
+        "min_overall_score": 0.85,
+        "max_score_regression": 0.1
+      }
+    },
+    {
+      "schema_version": 1,
+      "case_id": "chat_provider_medium_constraint_correction_memory",
+      "description": "中等级：真实模型压缩 20 轮中性回复历史，从用户语义中保留最终约束、决定和未决问题并排除过期草案与噪声",
+      "suite": "chat_provider",
+      "runner": "chat_provider",
+      "categories": [
+        "evidence",
+        "quality",
+        "recovery",
+        "efficiency"
+      ],
+      "tags": [
+        "chat",
+        "provider",
+        "difficulty-medium",
+        "difficulty-matrix-v1",
+        "memory",
+        "correction"
+      ],
+      "problem_ids": [],
+      "input": {
+        "fixture_path": "fixtures/chat/difficulty/medium/constraint_correction_memory.json"
+      },
+      "expected": {
+        "chat_turns": [
+          {
+            "label": "latest-constraints",
+            "required_answer_any_groups": [
+              [
+                "running",
+                "运行"
+              ],
+              [
+                "CPU"
+              ],
+              [
+                "16 GB",
+                "16GB",
+                "16 GiB"
+              ],
+              [
+                "AdamW"
+              ],
+              [
+                "seed 42",
+                "seed=42",
+                "随机种子 42"
+              ],
+              [
+                "dataset split",
+                "数据划分"
+              ]
+            ],
+            "forbidden_answer_terms": [
+              "32 GB 是最终",
+              "SGD 是最终"
+            ],
+            "required_citation_ids": [
+              "job:current"
+            ],
+            "allowed_citation_ids": [
+              "job:current"
+            ],
+            "expected_refusal": false,
+            "expected_unknown_requested_citations": 0
+          }
+        ],
+        "chat_memory": {
+          "expected_available": true,
+          "min_version": 1,
+          "min_covered_through_sequence": 36,
+          "max_covered_through_sequence": 36,
+          "max_text_compression_ratio": 1,
+          "required_summary_terms": [
+            "CPU"
+          ],
+          "required_constraint_terms": [
+            "CPU",
+            "16"
+          ],
+          "forbidden_constraint_terms": [
+            "32"
+          ],
+          "required_decision_terms": [
+            "AdamW",
+            "42"
+          ],
+          "forbidden_decision_terms": [
+            "小数据",
+            "SGD",
+            "17"
+          ],
+          "required_open_question_terms": [
+            "dataset"
+          ],
+          "required_citation_ids": [
+            "job:current"
+          ],
+          "require_hash_valid": true,
+          "min_source_sequence_valid_ratio": 1,
+          "max_degraded_turns": 0
+        },
+        "min_chat_pass_rate": 0.5,
+        "max_chat_answer_invocations_per_run": 1,
+        "min_chat_memory_invocations_per_run": 1,
+        "max_chat_memory_invocations_per_run": 1,
+        "max_chat_prompt_chars": 40000
+      },
+      "thresholds": {
+        "min_overall_score": 0.85,
+        "max_score_regression": 0.1
+      }
+    },
+    {
+      "schema_version": 1,
+      "case_id": "chat_provider_medium_memory_partition",
+      "description": "中等级：Assistant 不提供分类标签时，真实模型仍能把约束、已确认决定和未决问题分别写入记忆",
+      "suite": "chat_provider",
+      "runner": "chat_provider",
+      "categories": [
+        "evidence",
+        "quality",
+        "recovery",
+        "efficiency"
+      ],
+      "tags": [
+        "chat",
+        "provider",
+        "difficulty-medium",
+        "difficulty-matrix-v1",
+        "memory",
+        "partition"
+      ],
+      "problem_ids": [],
+      "input": {
+        "fixture_path": "fixtures/chat/difficulty/medium/memory_partition.json"
+      },
+      "expected": {
+        "chat_turns": [
+          {
+            "label": "settings-summary",
+            "required_answer_any_groups": [
+              [
+                "AdamW"
+              ],
+              [
+                "CPU"
+              ],
+              [
+                "dataset split",
+                "数据划分"
+              ],
+              [
+                "undecided",
+                "未决定",
+                "待确认"
+              ]
+            ],
+            "required_citation_ids": [
+              "job:current"
+            ],
+            "allowed_citation_ids": [
+              "job:current"
+            ],
+            "expected_refusal": false,
+            "expected_unknown_requested_citations": 0
+          }
+        ],
+        "chat_memory": {
+          "expected_available": true,
+          "min_version": 1,
+          "min_covered_through_sequence": 8,
+          "max_covered_through_sequence": 8,
+          "required_constraint_terms": [
+            "CPU"
+          ],
+          "required_decision_terms": [
+            "AdamW"
+          ],
+          "required_open_question_terms": [
+            "dataset"
+          ],
+          "forbidden_decision_terms": [
+            "dataset split"
+          ],
+          "required_citation_ids": [
+            "job:current"
+          ],
+          "require_hash_valid": true,
+          "min_source_sequence_valid_ratio": 1,
+          "max_degraded_turns": 0
+        },
+        "min_chat_pass_rate": 0.5,
+        "max_chat_answer_invocations_per_run": 1,
+        "min_chat_memory_invocations_per_run": 1,
+        "max_chat_memory_invocations_per_run": 1,
+        "max_chat_prompt_chars": 40000
+      },
+      "thresholds": {
+        "min_overall_score": 0.85,
+        "max_score_regression": 0.1
+      }
+    }
+  ]
+}

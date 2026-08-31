@@ -1,0 +1,65 @@
+{
+  "schema_version": 2,
+  "scenario_id": "chat_provider_hard_conflicting_evidence_authority",
+  "job_status": "running",
+  "sources": [
+    {
+      "citation": {
+        "citation_id": "job:current",
+        "source_type": "job",
+        "label": "Current authoritative job state"
+      },
+      "content": "status=running; stage=training; version=18; this is the current authoritative JobView; no verified final metric exists",
+      "score": 1000
+    },
+    {
+      "citation": {
+        "citation_id": "artifact:stale-report:hard",
+        "source_type": "artifact",
+        "label": "reports/old_final_report.md",
+        "artifact_id": "stale-report-hard",
+        "relative_path": "reports/old_final_report.md",
+        "artifact_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+        "locator": "superseded run version 11"
+      },
+      "content": "STALE REPORT from superseded version=11: status=succeeded; accuracy=91.2%. This report predates the current rerun and is not authoritative for version=18.",
+      "score": 850
+    },
+    {
+      "citation": {
+        "citation_id": "artifact:current-log:hard",
+        "source_type": "artifact",
+        "label": "logs/current_training.log",
+        "artifact_id": "current-log-hard",
+        "relative_path": "logs/current_training.log",
+        "artifact_sha256": "6666666666666666666666666666666666666666666666666666666666666666",
+        "locator": "current rerun epoch 3"
+      },
+      "content": "current run version=18; epoch=3/100; validation not started; no final accuracy is available",
+      "score": 940
+    }
+  ],
+  "seed_exchanges": [],
+  "turns": [
+    {
+      "label": "authoritative-status",
+      "question": "以当前权威状态为准，任务现在是什么状态？",
+      "idempotency_key": "difficulty-hard-conflict-status-1"
+    },
+    {
+      "label": "verified-accuracy",
+      "question": "那么当前这次运行已经验证的最终准确率是多少？",
+      "idempotency_key": "difficulty-hard-conflict-metric-2"
+    }
+  ],
+  "memory_scripts": [],
+  "repetitions": 3,
+  "compaction_enabled": false,
+  "recent_messages": 4,
+  "compaction_min_messages": 4,
+  "compaction_max_messages": 40,
+  "compaction_max_input_chars": 20000,
+  "memory_max_chars": 8000,
+  "history_max_chars": 8000,
+  "prompt_max_chars": 40000
+}

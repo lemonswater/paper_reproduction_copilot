@@ -267,6 +267,9 @@ class ChatTurnExpectation(ChatEvalModel):
 class ChatMemoryExpectation(ChatEvalModel):
     expected_available: bool | None = None
     min_version: int | None = Field(default=None, ge=1)
+    min_covered_through_sequence: int | None = Field(default=None, ge=0)
+    max_covered_through_sequence: int | None = Field(default=None, ge=0)
+    max_text_compression_ratio: float | None = Field(default=None, ge=0.0)
     required_summary_terms: list[str] = Field(default_factory=list)
     required_constraint_terms: list[str] = Field(default_factory=list)
     forbidden_constraint_terms: list[str] = Field(default_factory=list)
@@ -315,6 +318,13 @@ class ChatMemoryExpectation(ChatEvalModel):
             and self.min_degraded_turns > self.max_degraded_turns
         ):
             raise ValueError("Memory degraded min 不能大于 max")
+        if (
+            self.min_covered_through_sequence is not None
+            and self.max_covered_through_sequence is not None
+            and self.min_covered_through_sequence
+            > self.max_covered_through_sequence
+        ):
+            raise ValueError("Memory covered sequence min 不能大于 max")
         return self
 
 
@@ -330,6 +340,8 @@ class ChatTurnObservation(ChatEvalModel):
     replayed: bool = False
     memory_available: bool = False
     memory_degraded: bool = False
+    memory_degraded_reason: str | None = None
+    memory_provider_attempt_count: int = Field(default=0, ge=0)
 
     predicted_intent: ChatDecisionIntent = "read_only"
     requested_operation_kind: OperationKind | None = None
@@ -346,6 +358,9 @@ class ChatMemoryObservation(ChatEvalModel):
     available: bool = False
     version: int | None = None
     covered_through_sequence: int = 0
+    compacted_source_chars: int = Field(default=0, ge=0)
+    memory_text_chars: int = Field(default=0, ge=0)
+    text_compression_ratio: float | None = Field(default=None, ge=0.0)
     summary: str = ""
     user_constraints: list[MemoryStatement] = Field(default_factory=list)
     decisions: list[MemoryStatement] = Field(default_factory=list)

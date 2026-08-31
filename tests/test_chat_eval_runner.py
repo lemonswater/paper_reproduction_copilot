@@ -94,6 +94,54 @@ def test_offline_runner_uses_real_service_citation_fail_closed(
     assert not (tmp_path / "case" / "_chat_scratch").exists()
 
 
+def test_runner_marks_structured_insufficient_evidence_as_refusal(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    scenario = ChatEvalScenario.model_validate(
+        {
+            "scenario_id": "chat-runner-insufficient",
+            "sources": [
+                {
+                    "citation": {
+                        "citation_id": "job:current",
+                        "source_type": "job",
+                        "label": "Current job state",
+                    },
+                    "content": "status=running; no final metric",
+                }
+            ],
+            "turns": [
+                {
+                    "label": "turn-1",
+                    "question": "What is the final metric?",
+                    "idempotency_key": "turn-1",
+                    "scripted_draft": {
+                        "answer": "无法确认最终指标。",
+                        "citation_ids": ["job:current"],
+                        "insufficient_evidence": True,
+                    },
+                }
+            ],
+            "compaction_enabled": False,
+        }
+    )
+    monkeypatch.setattr(
+        chat_runner,
+        "_load_scenario",
+        lambda _case: scenario,
+    )
+
+    observation = chat_runner.run_chat_eval_case(
+        _case(case_id="chat-runner-insufficient"),
+        work_dir=tmp_path / "insufficient-case",
+        provider=False,
+    )
+
+    assert observation.chat is not None
+    assert observation.chat.runs[0].turns[0].refused is True
+
+
 def test_offline_runner_creates_valid_memory(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -175,6 +223,78 @@ def test_offline_runner_creates_valid_memory(
     assert run.memory.hash_valid is True
     assert run.memory.source_sequence_valid_ratio == 1.0
     assert run.memory.user_constraints[0].source_sequences == [1]
+
+
+def test_offline_runner_compacts_three_memory_generations(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    scenario = ChatEvalScenario.model_validate(
+        {
+            "scenario_id": "chat-runner",
+            "sources": [
+                {
+                    "citation": {
+                        "citation_id": "job:current",
+                        "source_type": "job",
+                        "label": "Current job state",
+                    },
+                    "content": "status=running",
+                }
+            ],
+            "seed_exchanges": [
+                {
+                    "question": f"seed question {index}",
+                    "answer": f"seed answer {index}",
+                    "citation_ids": ["job:current"],
+                }
+                for index in range(12)
+            ],
+            "turns": [
+                {
+                    "label": f"turn-{index}",
+                    "question": f"question {index}",
+                    "idempotency_key": f"turn-{index}",
+                    "scripted_draft": {
+                        "answer": "running",
+                        "citation_ids": ["job:current"],
+                    },
+                }
+                for index in range(1, 6)
+            ],
+            "memory_scripts": [
+                {
+                    "draft": {
+                        "summary": f"memory generation {version}",
+                        "citation_ids_to_preserve": ["job:current"],
+                    }
+                }
+                for version in range(1, 4)
+            ],
+            "recent_messages": 4,
+            "compaction_min_messages": 4,
+            "compaction_max_messages": 40,
+        }
+    )
+    monkeypatch.setattr(
+        chat_runner,
+        "_load_scenario",
+        lambda _case: scenario,
+    )
+
+    observation = chat_runner.run_chat_eval_case(
+        _case(),
+        work_dir=tmp_path / "multi-generation-memory-case",
+        provider=False,
+    )
+
+    assert observation.chat is not None
+    run = observation.chat.runs[0]
+    assert run.answer_invocations == 5
+    assert run.memory_invocations == 3
+    assert run.memory.version == 3
+    assert run.memory.covered_through_sequence == 28
+    assert run.memory.summary == "memory generation 3"
 
 
 def test_provider_mode_rejects_scripted_draft(

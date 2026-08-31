@@ -3,6 +3,7 @@ from __future__ import annotations
 from app.retrieval.indexer import (
     build_repository_index,
 )
+from app.retrieval.ranking import rank_symbol
 from app.retrieval.service import (
     build_evidence_pack,
     validate_code_evidence,
@@ -84,6 +85,76 @@ def test_exact_symbol_and_import_graph_rank_high(
         repo_path=tmp_path,
         evidence=operator,
     )
+
+
+def test_method_family_name_anchors_related_symbol_definition(
+    tmp_path,
+):
+    _write_fixture_repo(tmp_path)
+    index = build_repository_index(
+        tmp_path,
+        index_version="test-v1",
+    )
+
+    _, pack = build_evidence_pack(
+        repo_path=tmp_path,
+        query="PSTNet point spatio temporal network",
+        keywords=["PSTNet"],
+        index=index,
+        top_k=5,
+    )
+
+    operator = next(
+        item
+        for item in pack.items
+        if item.file_path == "modules/pst.py"
+    )
+    assert operator.symbol == "PSTConv"
+    assert operator.start_line == 1
+    assert "class PSTConv" in operator.text
+    assert "symbol" in operator.retrieval_channels
+
+
+def test_symbol_overlap_ignores_single_generic_query_tokens(
+    tmp_path,
+):
+    _write_fixture_repo(tmp_path)
+    (tmp_path / "noise.py").write_text(
+        "\n".join(
+            [
+                "class FurthestPointSampling: pass",
+                "def setup_for_distributed(): pass",
+                "class FourDProjection: pass",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    index = build_repository_index(
+        tmp_path,
+        index_version="test-v1",
+    )
+
+    hits = rank_symbol(
+        index,
+        query=(
+            "PSTNet point spatio temporal network "
+            "used for action recognition and 4D segmentation"
+        ),
+        keywords=["PSTNet"],
+    )
+
+    assert "noise.py" not in {
+        hit.file_path
+        for hit in hits
+    }
+    assert {
+        hit.file_path
+        for hit in hits
+    } == {
+        "models/classification.py",
+        "modules/pst.py",
+    }
 
 
 def test_evidence_becomes_stale_after_source_change(

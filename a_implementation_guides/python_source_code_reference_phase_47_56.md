@@ -1,7 +1,7 @@
 # Python 源码函数参考：Phase 47-56
 
-> 自动同步日期：2026-08-17
-> 覆盖文件：183；函数/方法：1141。
+> 自动同步日期：2026-08-19
+> 覆盖文件：183；函数/方法：1144。
 > 本文由当前 Python AST 生成；伪代码保留控制流和失败边界，但会把相邻语句合并为通俗的逻辑步骤。
 > 阶段归类按文件的主要职责完成；跨阶段持续修改的文件只进入一个主分册，源码行号是最终依据。
 
@@ -112,7 +112,7 @@
 - [`create_mcp_phase1.py`](#create-mcp-phase1-py)：1 个函数/方法
 - [`tests/fakes/mcp_readonly_server.py`](#tests-fakes-mcp-readonly-server-py)：2 个函数/方法
 - [`tests/helpers/knowledge_base.py`](#tests-helpers-knowledge-base-py)：10 个函数/方法
-- [`tests/helpers/model_routing.py`](#tests-helpers-model-routing-py)：14 个函数/方法
+- [`tests/helpers/model_routing.py`](#tests-helpers-model-routing-py)：17 个函数/方法
 - [`tests/mcp_contract_helpers.py`](#tests-mcp-contract-helpers-py)：2 个函数/方法
 - [`tests/mcp_export_helpers.py`](#tests-mcp-export-helpers-py)：9 个函数/方法
 - [`tests/mcp_gateway_helpers.py`](#tests-mcp-gateway-helpers-py)：7 个函数/方法
@@ -8381,7 +8381,7 @@
 
 #### `McpEvidenceGatewayPort.authority_fingerprint`
 
-- **源码**：`app/mcp_gateway/tool_adapter.py:18`
+- **源码**：`app/mcp_gateway/tool_adapter.py:23`
 - **签名**：`def authority_fingerprint(self) -> str`
 - **作用**：在围绕论文复现证据、运行状态和报告建立受控 MCP 互操作与可靠性闭环的阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -8404,7 +8404,7 @@
 
 #### `McpEvidenceGatewayPort.search`
 
-- **源码**：`app/mcp_gateway/tool_adapter.py:21`
+- **源码**：`app/mcp_gateway/tool_adapter.py:26`
 - **签名**：`def search(self, *, job_id: str, request_id: str, payload: McpSearchInput) -> McpEvidencePack`
 - **作用**：在围绕论文复现证据、运行状态和报告建立受控 MCP 互操作与可靠性闭环的阶段中，该函数接收复现任务 ID、MCP 请求 ID、结构化请求载荷，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `McpEvidencePack` 的领域结果。
 
@@ -8430,7 +8430,7 @@
 
 #### `_pack_to_output`
 
-- **源码**：`app/mcp_gateway/tool_adapter.py:25`
+- **源码**：`app/mcp_gateway/tool_adapter.py:30`
 - **签名**：`def _pack_to_output(pack: McpEvidencePack) -> "EvidenceToolOutput"`
 - **作用**：在围绕论文复现证据、运行状态和报告建立受控 MCP 互操作与可靠性闭环的阶段中，该函数接收检索或映射证据包，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `'EvidenceToolOutput'` 的领域结果。
 
@@ -8455,7 +8455,7 @@
 
 #### `_map_mcp_error`
 
-- **源码**：`app/mcp_gateway/tool_adapter.py:60`
+- **源码**：`app/mcp_gateway/tool_adapter.py:65`
 - **签名**：`def _map_mcp_error(exc: BaseException) -> "ToolFailure | None"`
 - **作用**：在围绕论文复现证据、运行状态和报告建立受控 MCP 互操作与可靠性闭环的阶段中，该函数接收捕获的异常，用于把论文中的方法、模块或实验意图与仓库中的可验证对象建立稳定关联，并保留匹配依据，最终标注为 `'ToolFailure | None'` 的领域结果。
 
@@ -8480,7 +8480,7 @@
 
 #### `register_mcp_evidence_tool`
 
-- **源码**：`app/mcp_gateway/tool_adapter.py:83`
+- **源码**：`app/mcp_gateway/tool_adapter.py:88`
 - **签名**：`def register_mcp_evidence_tool(*, registry: "ToolRegistry", gateway: McpEvidenceGatewayPort) -> None`
 - **作用**：在围绕论文复现证据、运行状态和报告建立受控 MCP 互操作与可靠性闭环的阶段中，该函数接收组件注册表、外部服务网关，用于在固定 MCP Policy、Schema Pin、调用预算和只读职责边界内连接或调用外部能力，并把返回内容转换为可追溯的复现证据，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -8506,7 +8506,7 @@
 
 #### `register_mcp_evidence_tool.search_external`
 
-- **源码**：`app/mcp_gateway/tool_adapter.py:96`
+- **源码**：`app/mcp_gateway/tool_adapter.py:101`
 - **签名**：`def search_external(payload: McpSearchInput, context: ToolInvocationContext) -> EvidenceToolOutput`
 - **作用**：在围绕论文复现证据、运行状态和报告建立受控 MCP 互操作与可靠性闭环的阶段中，该函数接收结构化请求载荷、运行上下文，用于在固定 MCP Policy、Schema Pin、调用预算和只读职责边界内连接或调用外部能力，并把返回内容转换为可追溯的复现证据，最终标注为 `EvidenceToolOutput` 的领域结果。
 
@@ -15692,7 +15692,9 @@
 遍历辅助操作产生的可迭代结果（调用 `discover_skill_packages` 完成该函数的一项辅助处理），每次把当前项记为当前处理结果：
     读取当前处理结果的 ID，并保存为 当前处理结果的 ID；从当前处理结果读取所需的状态或领域记录，并把结果记为 契约定义。
     如果契约定义为空，就拒绝继续处理并抛出 `SkillRegistryError`，向调用方报告输入或运行失败。
-    调用 `_validate_eval_suite` 校验当前输入或状态；调用 `register` 完成该函数的一项辅助处理。
+    调用 `_validate_eval_suite` 校验当前输入或状态；计算计算当前表达式的结果，并保存为 功能是否启用的开关；遍历并筛选输入，将整理后的结果保存为 工具集合。
+    如果功能是否启用的开关为空或为假 且 “调用 `issubset` 完成该函数的一项辅助处理”后未得到肯定结果，就跳过本轮剩余处理，直接进入下一轮。
+    调用 `register` 完成该函数的一项辅助处理。
 返回组件注册表的当前值。
 ```
 
@@ -17980,7 +17982,7 @@
 
 #### `FakeProviders.__init__`
 
-- **源码**：`tests/helpers/model_routing.py:55`
+- **源码**：`tests/helpers/model_routing.py:56`
 - **签名**：`def __init__(self, *, chat: Any = None, embedding: Any = None)`
 - **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收对话、文本嵌入向量，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -18005,7 +18007,7 @@
 
 #### `FakeProviders.build_chat`
 
-- **源码**：`tests/helpers/model_routing.py:61`
+- **源码**：`tests/helpers/model_routing.py:62`
 - **签名**：`def build_chat(self, profile: Any, *, max_output_tokens: int) -> Any`
 - **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收MCP Client 配置档案、最大实际输出 token 数，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `Any` 的领域结果。
 
@@ -18032,7 +18034,7 @@
 
 #### `FakeProviders.build_embedding`
 
-- **源码**：`tests/helpers/model_routing.py:67`
+- **源码**：`tests/helpers/model_routing.py:68`
 - **签名**：`def build_embedding(self, profile: Any) -> Any`
 - **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收MCP Client 配置档案，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `Any` 的领域结果。
 
@@ -18056,9 +18058,87 @@
 返回文本嵌入向量的当前值。
 ```
 
+#### `ScriptedModelGateway.__init__`
+
+- **源码**：`tests/helpers/model_routing.py:78`
+- **签名**：`def __init__(self, invocations: Any)`
+- **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
+| `invocations` | `Any` | 名为 `invocations` 的 `Any` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+
+**输出**
+
+- **Python 类型**：`None（隐式）`
+- **语义**：无业务返回值；函数通过注册、持久化、文件写入、状态更新或异常产生效果。
+
+**伪代码**
+
+```text
+把传入参数保存到实例字段（当前处理结果 → 当前处理结果）；将 工具或模型调用记录集合、当前处理结果 初始化为空列表，用来收集后续结果；构造 `SimpleNamespace` 结构化领域对象，并把结果记为 人工决策结果。
+```
+
+#### `ScriptedModelGateway.preview_structured`
+
+- **源码**：`tests/helpers/model_routing.py:88`
+- **签名**：`def preview_structured(self, **kwargs: Any) -> Any`
+- **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收函数关键字参数映射，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `Any` 的领域结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
+| `**kwargs` | `Any` | 额外关键字参数映射。 |
+
+**输出**
+
+- **Python 类型**：`Any`
+- **语义**：返回 `Any` 类型的领域结果；必要时可能通过异常表示失败。
+
+**伪代码**
+
+```text
+把新的处理结果追加或合并到当前处理结果；返回人工决策结果的当前值。
+```
+
+#### `ScriptedModelGateway.invoke_structured`
+
+- **源码**：`tests/helpers/model_routing.py:92`
+- **签名**：`def invoke_structured(self, **kwargs: Any) -> Any`
+- **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收函数关键字参数映射，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `Any` 的领域结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
+| `**kwargs` | `Any` | 额外关键字参数映射。 |
+
+**输出**
+
+- **Python 类型**：`Any`
+- **语义**：返回 `Any` 类型的领域结果；必要时可能通过异常表示失败。
+
+**伪代码**
+
+```text
+把新的处理结果追加或合并到工具或模型调用记录集合。
+如果“调用 `callable` 完成该函数的一项辅助处理”后得到肯定结果：
+    调用 `_invocations` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果。
+否则：
+    如果“当前处理结果有值或为真”不成立，就拒绝继续处理并抛出 `AssertionError`，向调用方报告输入或运行失败。
+    从当前处理结果取出并移除最后一项，并把结果记为 阶段处理结果。
+构造并返回 `SimpleNamespace` 结构化领域对象。
+```
+
 #### `_legacy_chat_profile`
 
-- **源码**：`tests/helpers/model_routing.py:74`
+- **源码**：`tests/helpers/model_routing.py:114`
 - **签名**：`def _legacy_chat_profile(pricing: ModelPricing | None) -> ModelProfile`
 - **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收模型计费配置，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ModelProfile` 的领域结果。
 
@@ -18081,7 +18161,7 @@
 
 #### `_strong_chat_profile`
 
-- **源码**：`tests/helpers/model_routing.py:99`
+- **源码**：`tests/helpers/model_routing.py:139`
 - **签名**：`def _strong_chat_profile(pricing: ModelPricing | None) -> ModelProfile`
 - **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收模型计费配置，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ModelProfile` 的领域结果。
 
@@ -18104,7 +18184,7 @@
 
 #### `_economy_chat_profile`
 
-- **源码**：`tests/helpers/model_routing.py:124`
+- **源码**：`tests/helpers/model_routing.py:164`
 - **签名**：`def _economy_chat_profile(pricing: ModelPricing | None) -> ModelProfile`
 - **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收模型计费配置，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ModelProfile` 的领域结果。
 
@@ -18127,7 +18207,7 @@
 
 #### `_legacy_embedding_profile`
 
-- **源码**：`tests/helpers/model_routing.py:148`
+- **源码**：`tests/helpers/model_routing.py:188`
 - **签名**：`def _legacy_embedding_profile(pricing: ModelPricing | None) -> ModelProfile`
 - **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收模型计费配置，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ModelProfile` 的领域结果。
 
@@ -18150,7 +18230,7 @@
 
 #### `build_test_document`
 
-- **源码**：`tests/helpers/model_routing.py:167`
+- **源码**：`tests/helpers/model_routing.py:207`
 - **签名**：`def build_test_document(budget: ModelBudgetPolicy | None, extra_profiles: list[ModelProfile] | None, pricing_override: dict[str, ModelPricing] | None) -> ModelRoutingDocument`
 - **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收模型或实验资源预算、当前处理结果、当前处理结果，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `ModelRoutingDocument` 的领域结果。
 
@@ -18177,7 +18257,7 @@
 
 #### `write_test_policy`
 
-- **源码**：`tests/helpers/model_routing.py:338`
+- **源码**：`tests/helpers/model_routing.py:378`
 - **签名**：`def write_test_policy(tmp_path: Path, document: ModelRoutingDocument | None) -> Path`
 - **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，把测试 Policy JSON 写入 tmp_path 内的文件。该函数接收临时工作目录路径、论文解析文档，用于在版本、幂等键和内容 Hash 约束下保存、发布或变更复现记录和 Artifact，最终一个经过边界校验的文件或目录路径。
 
@@ -18202,7 +18282,7 @@
 
 #### `build_test_catalog`
 
-- **源码**：`tests/helpers/model_routing.py:353`
+- **源码**：`tests/helpers/model_routing.py:393`
 - **签名**：`def build_test_catalog(tmp_path: Path, document: ModelRoutingDocument | None) -> 未显式标注（存在 return）`
 - **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收临时工作目录路径、论文解析文档，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
@@ -18226,7 +18306,7 @@
 
 #### `build_test_router`
 
-- **源码**：`tests/helpers/model_routing.py:370`
+- **源码**：`tests/helpers/model_routing.py:410`
 - **签名**：`def build_test_router(tmp_path: Path, document: ModelRoutingDocument | None) -> ModelRouter`
 - **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收临时工作目录路径、论文解析文档，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `ModelRouter` 的领域结果。
 
@@ -18250,7 +18330,7 @@
 
 #### `build_test_gateway`
 
-- **源码**：`tests/helpers/model_routing.py:378`
+- **源码**：`tests/helpers/model_routing.py:418`
 - **签名**：`def build_test_gateway(tmp_path: Path, mode: str, providers: FakeProviders | None, structured_invoker: Any, document: ModelRoutingDocument | None) -> ModelGateway`
 - **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收临时工作目录路径、MCP 评测或运行模式、模型服务商配置集合、当前处理结果等输入，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `ModelGateway` 的领域结果。
 
@@ -18277,7 +18357,7 @@
 
 #### `build_chat_route_request`
 
-- **源码**：`tests/helpers/model_routing.py:403`
+- **源码**：`tests/helpers/model_routing.py:443`
 - **签名**：`def build_chat_route_request(task_kind: str, estimated_input_tokens: int, requested_max_output_tokens: int, quality_tier: str, required_capabilities: set[str] | None, node_name: str, prompt_text: str) -> ModelRouteRequest`
 - **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收类别、估算的输入 token 数、调用方要求的最大输出 token 数、模型质量档位等输入，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `ModelRouteRequest` 的领域结果。
 
@@ -18308,7 +18388,7 @@
 
 #### `build_embedding_route_request`
 
-- **源码**：`tests/helpers/model_routing.py:435`
+- **源码**：`tests/helpers/model_routing.py:475`
 - **签名**：`def build_embedding_route_request(task_kind: str, estimated_input_tokens: int, node_name: str, prompt_text: str) -> ModelRouteRequest`
 - **作用**：在论文复现模型路由、Provider 能力治理、成本预算和调用降级的验证阶段中，该函数接收类别、估算的输入 token 数、当前流程节点的名称、发给模型的结构化提示的文本，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `ModelRouteRequest` 的领域结果。
 
@@ -23642,7 +23722,7 @@
 
 ```text
 调用 `write_test_policy` 持久化或更新当前领域数据，并把结果记为 安全策略的路径；调用 `load_model_catalog` 读取或查询当前阶段需要的数据，并把结果记为 模型、工具或 Artifact 目录；断言策略版本等于'test-v1'；不满足就终止当前测试或流程；断言MCP Client 配置档案集合 的长度等于4；不满足就终止当前测试或流程。
-断言当前处理结果 的长度等于11；不满足就终止当前测试或流程；断言安全策略的 SHA-256 的长度等于64；不满足就终止当前测试或流程。
+断言当前处理结果 的长度等于12；不满足就终止当前测试或流程；断言安全策略的 SHA-256 的长度等于64；不满足就终止当前测试或流程。
 ```
 
 #### `test_policy_sha256_stable`

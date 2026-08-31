@@ -18,6 +18,8 @@ class ReproductionState(TypedDict, total=False):
     paper_text_chunks: list[dict[str, Any]]
     paper_summary: dict[str, Any]
     method_modules: list[dict[str, Any]]
+    mapping_alias_decisions: list[dict[str, Any]]
+    mapping_alias_resolution_status: str | None
     mapping_targets: list[dict[str, Any]]
     mapping_targets_path: str | None
     repo_map: dict[str, Any]

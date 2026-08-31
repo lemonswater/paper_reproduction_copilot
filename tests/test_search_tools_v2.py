@@ -40,6 +40,82 @@ def test_literal_search_falls_back_without_rg(
     ]
 
 
+def test_literal_search_excludes_artifacts_and_unrelated_files(
+    tmp_path,
+    monkeypatch,
+):
+    (tmp_path / "model.py").write_text(
+        "PSTConv\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "metrics.csv").write_text(
+        "PSTConv\n",
+        encoding="utf-8",
+    )
+    log_dir = tmp_path / "log"
+    log_dir.mkdir()
+    (log_dir / "model.py").write_text(
+        "PSTConv\n",
+        encoding="utf-8",
+    )
+    egg_dir = tmp_path / "package.egg-info"
+    egg_dir.mkdir()
+    (egg_dir / "metadata.py").write_text(
+        "PSTConv\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        search_tools.shutil,
+        "which",
+        lambda _: None,
+    )
+
+    result = search_text(str(tmp_path), "PSTConv")
+
+    assert [item["file_path"] for item in result] == [
+        "model.py"
+    ]
+
+
+def test_rg_search_limits_files_to_mapping_boundary(
+    tmp_path,
+    monkeypatch,
+):
+    captured: dict[str, list[str]] = {}
+    monkeypatch.setattr(
+        search_tools.shutil,
+        "which",
+        lambda _: "/usr/bin/rg",
+    )
+
+    def run(args, **kwargs):
+        captured["args"] = args
+        return SimpleNamespace(
+            returncode=1,
+            stdout="",
+            stderr="",
+        )
+
+    monkeypatch.setattr(
+        search_tools.subprocess,
+        "run",
+        run,
+    )
+
+    assert search_text(str(tmp_path), "PSTConv") == []
+    globs = [
+        captured["args"][index + 1]
+        for index, value in enumerate(captured["args"][:-1])
+        if value == "--glob"
+    ]
+    assert "*.py" in globs
+    assert "*.yaml" in globs
+    assert "*.cu" not in globs
+    assert "*.cpp" not in globs
+    assert "!log/**" in globs
+    assert "!**/*.egg-info/**" in globs
+
+
 def test_regex_without_rg_is_explicit_error(
     tmp_path,
     monkeypatch,

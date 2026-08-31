@@ -16,8 +16,8 @@
         "long_context",
         "tool_calling"
       ],
-      "context_window_tokens": 32768,
-      "max_output_tokens": 4096,
+      "context_window_tokens": 65536,
+      "max_output_tokens": 8192,
       "thinking_mode": "disabled",
       "enabled": true,
       "pricing": {
@@ -64,8 +64,8 @@
         "structured_json_mode",
         "long_context"
       ],
-      "context_window_tokens": 32768,
-      "max_output_tokens": 4096,
+      "context_window_tokens": 65536,
+      "max_output_tokens": 8192,
       "thinking_mode": "disabled",
       "enabled": true,
       "pricing": {
@@ -82,7 +82,9 @@
       "model_name": "$EMBEDDING_MODEL",
       "quality_tier": "balanced",
       "quality_rank": 70,
-      "capabilities": ["embedding"],
+      "capabilities": [
+        "embedding"
+      ],
       "context_window_tokens": 8192,
       "max_output_tokens": 0,
       "thinking_mode": null,
@@ -99,8 +101,13 @@
     {
       "task_kind": "paper_section_extraction",
       "workload_kind": "chat",
-      "required_capabilities": ["long_context"],
-      "candidate_profile_ids": ["strong_chat", "legacy_chat"],
+      "required_capabilities": [
+        "long_context"
+      ],
+      "candidate_profile_ids": [
+        "strong_chat",
+        "legacy_chat"
+      ],
       "legacy_profile_id": "legacy_chat",
       "minimum_quality_rank": 70,
       "max_input_tokens": 24000,
@@ -109,13 +116,31 @@
       "provider_max_retries": 2
     },
     {
+      "task_kind": "mapping_alias_resolution",
+      "workload_kind": "chat",
+      "required_capabilities": [],
+      "candidate_profile_ids": [
+        "legacy_chat",
+        "strong_chat"
+      ],
+      "legacy_profile_id": "legacy_chat",
+      "minimum_quality_rank": 70,
+      "max_input_tokens": 24000,
+      "max_output_tokens": 4096,
+      "validation_max_retries": 0,
+      "provider_max_retries": 0
+    },
+    {
       "task_kind": "paper_code_mapping",
       "workload_kind": "chat",
       "required_capabilities": [],
-      "candidate_profile_ids": ["strong_chat", "legacy_chat"],
+      "candidate_profile_ids": [
+        "strong_chat",
+        "legacy_chat"
+      ],
       "legacy_profile_id": "legacy_chat",
       "minimum_quality_rank": 70,
-      "max_input_tokens": 20000,
+      "max_input_tokens": 40000,
       "max_output_tokens": 4096,
       "validation_max_retries": 2,
       "provider_max_retries": 2
@@ -124,11 +149,14 @@
       "task_kind": "experiment_plan",
       "workload_kind": "chat",
       "required_capabilities": [],
-      "candidate_profile_ids": ["legacy_chat", "strong_chat"],
+      "candidate_profile_ids": [
+        "legacy_chat",
+        "strong_chat"
+      ],
       "legacy_profile_id": "legacy_chat",
       "minimum_quality_rank": 70,
-      "max_input_tokens": 16000,
-      "max_output_tokens": 4096,
+      "max_input_tokens": 40000,
+      "max_output_tokens": 8192,
       "validation_max_retries": 2,
       "provider_max_retries": 2
     },
@@ -136,7 +164,10 @@
       "task_kind": "failure_debug",
       "workload_kind": "chat",
       "required_capabilities": [],
-      "candidate_profile_ids": ["strong_chat", "legacy_chat"],
+      "candidate_profile_ids": [
+        "strong_chat",
+        "legacy_chat"
+      ],
       "legacy_profile_id": "legacy_chat",
       "minimum_quality_rank": 70,
       "max_input_tokens": 16000,
@@ -148,7 +179,10 @@
       "task_kind": "repair_plan",
       "workload_kind": "chat",
       "required_capabilities": [],
-      "candidate_profile_ids": ["strong_chat", "legacy_chat"],
+      "candidate_profile_ids": [
+        "strong_chat",
+        "legacy_chat"
+      ],
       "legacy_profile_id": "legacy_chat",
       "minimum_quality_rank": 80,
       "max_input_tokens": 16000,
@@ -160,7 +194,9 @@
       "task_kind": "file_repair_plan",
       "workload_kind": "chat",
       "required_capabilities": [],
-      "candidate_profile_ids": ["strong_chat"],
+      "candidate_profile_ids": [
+        "strong_chat"
+      ],
       "legacy_profile_id": "legacy_chat",
       "minimum_quality_rank": 80,
       "max_input_tokens": 16000,
@@ -172,7 +208,10 @@
       "task_kind": "chat_answer",
       "workload_kind": "chat",
       "required_capabilities": [],
-      "candidate_profile_ids": ["legacy_chat", "strong_chat"],
+      "candidate_profile_ids": [
+        "legacy_chat",
+        "strong_chat"
+      ],
       "legacy_profile_id": "legacy_chat",
       "minimum_quality_rank": 70,
       "max_input_tokens": 20000,
@@ -183,8 +222,13 @@
     {
       "task_kind": "chat_tool_selection",
       "workload_kind": "chat",
-      "required_capabilities": ["tool_calling"],
-      "candidate_profile_ids": ["economy_chat", "legacy_chat"],
+      "required_capabilities": [
+        "tool_calling"
+      ],
+      "candidate_profile_ids": [
+        "economy_chat",
+        "legacy_chat"
+      ],
       "legacy_profile_id": "legacy_chat",
       "minimum_quality_rank": 50,
       "max_input_tokens": 12000,
@@ -196,19 +240,26 @@
       "task_kind": "chat_memory_compaction",
       "workload_kind": "chat",
       "required_capabilities": [],
-      "candidate_profile_ids": ["economy_chat", "legacy_chat"],
+      "candidate_profile_ids": [
+        "economy_chat",
+        "legacy_chat"
+      ],
       "legacy_profile_id": "legacy_chat",
       "minimum_quality_rank": 50,
       "max_input_tokens": 16000,
-      "max_output_tokens": 2048,
-      "validation_max_retries": 1,
+      "max_output_tokens": 4096,
+      "validation_max_retries": 2,
       "provider_max_retries": 2
     },
     {
       "task_kind": "code_embedding_document",
       "workload_kind": "embedding",
-      "required_capabilities": ["embedding"],
-      "candidate_profile_ids": ["legacy_embedding"],
+      "required_capabilities": [
+        "embedding"
+      ],
+      "candidate_profile_ids": [
+        "legacy_embedding"
+      ],
       "legacy_profile_id": "legacy_embedding",
       "minimum_quality_rank": 60,
       "max_input_tokens": 8192,
@@ -219,8 +270,12 @@
     {
       "task_kind": "code_embedding_query",
       "workload_kind": "embedding",
-      "required_capabilities": ["embedding"],
-      "candidate_profile_ids": ["legacy_embedding"],
+      "required_capabilities": [
+        "embedding"
+      ],
+      "candidate_profile_ids": [
+        "legacy_embedding"
+      ],
       "legacy_profile_id": "legacy_embedding",
       "minimum_quality_rank": 60,
       "max_input_tokens": 8192,
@@ -232,7 +287,9 @@
       "task_kind": "evaluation_probe",
       "workload_kind": "chat",
       "required_capabilities": [],
-      "candidate_profile_ids": ["legacy_chat"],
+      "candidate_profile_ids": [
+        "legacy_chat"
+      ],
       "legacy_profile_id": "legacy_chat",
       "minimum_quality_rank": 60,
       "max_input_tokens": 12000,
@@ -244,7 +301,10 @@
       "task_kind": "web_research_synthesis",
       "workload_kind": "chat",
       "required_capabilities": [],
-      "candidate_profile_ids": ["strong_chat", "legacy_chat"],
+      "candidate_profile_ids": [
+        "strong_chat",
+        "legacy_chat"
+      ],
       "legacy_profile_id": "legacy_chat",
       "minimum_quality_rank": 70,
       "max_input_tokens": 20000,

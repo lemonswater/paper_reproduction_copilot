@@ -191,6 +191,28 @@ class CodeMappingTarget(BaseModel):
     source_evidence_ids: list[str] = Field(default_factory=list)
 
 
+class MappingAliasDecision(BaseModel):
+    """LLM 只返回最小别名裁决，别名和证据由程序重建。"""
+
+    model_config = ConfigDict(extra="forbid")
+
+    group_id: str = Field(min_length=1, max_length=80)
+    should_merge: bool
+    confidence: Confidence
+    member_ids: list[str] = Field(min_length=2, max_length=5)
+    canonical_member_id: str | None = Field(
+        default=None,
+        max_length=80,
+    )
+    reason: str = Field(min_length=1, max_length=240)
+
+
+class MappingAliasBatchDecision(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    decisions: list[MappingAliasDecision] = Field(max_length=8)
+
+
 class ModuleMapping(BaseModel):
     module_name: str
     # 保留 module_name 兼容旧 Artifact；新流程用下面两个字段表达分类目标。

@@ -4364,8 +4364,8 @@ Phase 47 之后再实现 Skill/Plugin 机制，会更容易为每个 Skill 声�
 > **本节类型：实际源码函数参考，不修改代码。**
 >
 > 本附录以当前已经实现的 Phase 46 源码和专项测试为准，而不是以早期教程草案为准。
-> 输入表会区分命令、ID、路径、Hash、记录、请求和审计主体；伪代码按真实 AST 的赋值、
-> 分支、循环、异常、事务和返回顺序展开。
+> 输入表会区分命令、ID、路径、Hash、记录、请求和审计主体；伪代码保留真实 AST 的
+> 分支、循环、异常、事务和返回顺序，但将连续语句合并为人能直接阅读的逻辑步骤。
 > Protocol 方法的函数体只有 `...`，所以伪代码显示“接口占位（无具体实现）”；它表示接口契约，不是遗漏实现。
 
 本附录覆盖 `25` 个相关 Python 文件、`214` 个函数/方法。
@@ -4374,26 +4374,28 @@ Phase 47 之后再实现 Skill/Plugin 机制，会更容易为每个 Skill 声�
 
 #### `create_api_app`
 
-- **源码**：`app/api/app.py:82`
-- **签名**：`def create_api_app(job_service: JobService | None, artifact_catalog: ArtifactCatalog | None, artifact_delivery_service: ArtifactDeliveryService | None, api_token: str | None, secret_service: SecretService | None, service_host: Any | None, chat_service: ChatService | None, comparison_service: ComparisonService | None, rerun_service: RerunService | None, notification_service: NotificationService | None, failure_case_service: FailureCaseService | None, project_memory_service: ProjectMemoryService | None) -> FastAPI`
-- **作用**：App factory 允许测试注入临时 Job DB 和伪 checkpoint reader。
+- **源码**：`app/api/app.py:95`
+- **签名**：`def create_api_app(job_service: JobService | None, artifact_catalog: ArtifactCatalog | None, artifact_delivery_service: ArtifactDeliveryService | None, api_token: str | None, secret_service: SecretService | None, service_host: Any | None, chat_service: ChatService | None, comparison_service: ComparisonService | None, rerun_service: RerunService | None, notification_service: NotificationService | None, failure_case_service: FailureCaseService | None, project_memory_service: ProjectMemoryService | None, model_gateway: ModelGateway | None, research_browser_service: 'ResearchBrowserService | None') -> FastAPI`
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，App factory 允许测试注入临时 Job DB 和伪 checkpoint reader。该函数接收任务、Artifact、Artifact、当前处理结果等输入，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `FastAPI` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `job_service` | `JobService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 `空值` |
-| `artifact_catalog` | `ArtifactCatalog | None` | 名为 `artifact_catalog` 的 `ArtifactCatalog | None` 输入，具体约束由函数内分支和 Schema 决定。；默认 `空值` |
-| `artifact_delivery_service` | `ArtifactDeliveryService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 `空值` |
-| `api_token` | `str | None` | 敏感凭证或引用；不得写入日志、Prompt 或普通 Artifact。；默认 `空值` |
-| `secret_service` | `SecretService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 `空值` |
-| `service_host` | `Any | None` | 名为 `service_host` 的 `Any | None` 输入，具体约束由函数内分支和 Schema 决定。；默认 `空值` |
-| `chat_service` | `ChatService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 `空值` |
-| `comparison_service` | `ComparisonService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 `空值` |
-| `rerun_service` | `RerunService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 `空值` |
-| `notification_service` | `NotificationService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 `空值` |
-| `failure_case_service` | `FailureCaseService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 `空值` |
-| `project_memory_service` | `ProjectMemoryService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 `空值` |
+| `job_service` | `JobService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 空值 |
+| `artifact_catalog` | `ArtifactCatalog | None` | 名为 `artifact_catalog` 的 `ArtifactCatalog | None` 领域输入；用于当前函数的业务处理，具体约束见校验分支。；默认 空值 |
+| `artifact_delivery_service` | `ArtifactDeliveryService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 空值 |
+| `api_token` | `str | None` | 敏感凭证或其引用；不得写入日志、Prompt 或普通 Artifact。；默认 空值 |
+| `secret_service` | `SecretService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 空值 |
+| `service_host` | `Any | None` | 名为 `service_host` 的 `Any | None` 领域输入；用于当前函数的业务处理，具体约束见校验分支。；默认 空值 |
+| `chat_service` | `ChatService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 空值 |
+| `comparison_service` | `ComparisonService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 空值 |
+| `rerun_service` | `RerunService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 空值 |
+| `notification_service` | `NotificationService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 空值 |
+| `failure_case_service` | `FailureCaseService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 空值 |
+| `project_memory_service` | `ProjectMemoryService | None` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 空值 |
+| `model_gateway` | `ModelGateway | None` | 名为 `model_gateway` 的 `ModelGateway | None` 领域输入；用于当前函数的业务处理，具体约束见校验分支。；默认 空值 |
+| `research_browser_service` | `'ResearchBrowserService | None'` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。；默认 空值 |
 
 **输出**
 
@@ -4403,107 +4405,80 @@ Phase 47 之后再实现 Skill/Plugin 机制，会更容易为每个 Skill 声�
 **伪代码**
 
 ```text
-如果 settings.structured_logging_enabled
-    调用 configure_structured_logging()
-telemetry_runtime ← 调用 build_telemetry_runtime()
-telemetry ← telemetry_runtime.telemetry
-如果 secret_service 为空 且 api_token 为空
-    导入 from app.secrets.factory import build_secret_service
-    secret_service ← 调用 build_secret_service()
-storage ← 空值
-如果 job_service 为空 或 artifact_catalog 为空
-    storage ← 调用 build_artifact_storage()
-如果 job_service 为空
-    导入 from app.workspace.snapshot import WorkspaceSnapshotter
-    断言 storage 不为空
-    导入 from app.job_runtime.factory import build_job_store
-    job_service ← 调用 JobService(调用 build_job_store(), workspace_snapshotter=调用 WorkspaceSnapshotter(blob_store=storage.selected_store), telemetry=telemetry)
-selected_job_service ← job_service
-app ← 调用 FastAPI(title='Paper Reproduction Copilot API', version='1.0', docs_url='/docs', redoc_url=空值)
-selected_catalog ← 如果 artifact_catalog 不为空 则 artifact_catalog，否则 storage.catalog
-如果 selected_catalog 为空
-    抛出 RuntimeError：'Artifact delivery 需要可用的 ArtifactCatalog'
-selected_delivery_service ← 如果 artifact_delivery_service 不为空 则 artifact_delivery_service，否则 调用 ArtifactDeliveryService(catalog=selected_catalog, preview_max_bytes=settings.artifact_preview_max_bytes, stream_chunk_bytes=settings.artifact_stream_chunk_bytes, export_allowed_root=settings.job_export_allowed_root, export_staging_root=settings.job_export_staging_root, export_max_artifacts=settings.job_export_max_artifacts, export_max_uncompressed_bytes=settings.job_export_max_uncompressed_bytes, export_max_archive_bytes=settings.job_export_max_archive_bytes, export_staging_ttl_seconds=settings.job_export_staging_ttl_seconds)
-app.state.artifact_catalog ← selected_catalog
-app.state.artifact_delivery_service ← selected_delivery_service
-app.state.secret_service ← secret_service
-app.state.api_token_secret_name ← settings.api_token_secret_name
-app.state.api_token_override ← 如果 api_token 不为空 则 调用 SecretStr(api_token)，否则 空值
-resource_service ← 调用 build_resource_service(telemetry=telemetry)
-app.state.resource_service ← resource_service
-app.state.interaction_service ← 调用 InteractionService(selected_job_service, resource_service=resource_service)
-selected_comparison_service ← 如果 comparison_service 不为空 则 comparison_service，否则 调用 build_comparison_service(jobs=selected_job_service.store, artifact_catalog=selected_catalog)
-app.state.comparison_service ← selected_comparison_service
-selected_rerun_service ← 如果 rerun_service 不为空 则 rerun_service，否则 调用 build_rerun_service(job_service=selected_job_service, artifact_catalog=selected_catalog, comparison_service=selected_comparison_service)
-app.state.rerun_service ← selected_rerun_service
-selected_notification_service ← 如果 notification_service 不为空 则 notification_service，否则 调用 build_notification_service(jobs=selected_job_service)
-app.state.notification_service ← selected_notification_service
-selected_failure_case_service ← 如果 failure_case_service 不为空 则 failure_case_service，否则 调用 build_failure_case_service(job_service=selected_job_service, artifact_catalog=selected_catalog)
-app.state.failure_case_service ← selected_failure_case_service
-selected_project_memory_service ← project_memory_service
-如果 selected_project_memory_service 为空 且 settings.project_memory_enabled
-    chat_repo_for_pm ← 如果 selected_chat_service 为空 则 调用 SqliteChatRepository(settings.chat_db_path)，否则 空值
-    如果 chat_repo_for_pm 不为空
-        调用 chat_repo_for_pm.initialize()
-    selected_project_memory_service ← 调用 build_project_memory_service(job_service=selected_job_service, chat_repository=如果 chat_repo_for_pm 不为空 则 chat_repo_for_pm，否则 selected_chat_service.repository)
-app.state.project_memory_service ← selected_project_memory_service
-selected_chat_service ← chat_service
-如果 selected_chat_service 为空 且 settings.chat_enabled
-    如果 selected_catalog 为空
-        抛出 RuntimeError：'CHAT_ENABLED 需要可用的 ArtifactCatalog'
-    chat_repository ← 调用 SqliteChatRepository(settings.chat_db_path)
-    调用 chat_repository.initialize()
-    context_builder ← 调用 ChatContextBuilder(interaction=app.state.interaction_service, artifact_catalog=selected_catalog, artifacts_to_open=settings.chat_artifacts_to_open, source_limit=settings.chat_source_limit, artifact_max_bytes=settings.chat_artifact_max_bytes, total_context_chars=settings.chat_total_context_chars, log_max_bytes=settings.chat_log_max_bytes, comparison_reader=selected_comparison_service, comparison_limit=settings.comparison_chat_limit, comparison_max_chars=settings.comparison_chat_max_chars)
-    selected_chat_service ← 调用 build_chat_service(repository=chat_repository, interaction=app.state.interaction_service, context_builder=context_builder)
-app.state.chat_service ← selected_chat_service
-定义内部函数 db_check（其流程在独立条目中说明）
-定义内部函数 storage_check（其流程在独立条目中说明）
-定义内部函数 resource_db_check（其流程在独立条目中说明）
-probes ← [调用 ReadinessProbe(name='db_readiness', is_critical=真, check=db_check, timeout_seconds=settings.readiness_timeout_seconds), 调用 ReadinessProbe(name='resource_db_readiness', is_critical=真, check=resource_db_check, timeout_seconds=settings.readiness_timeout_seconds), 调用 ReadinessProbe(name='storage_readiness', is_critical=假, check=storage_check, timeout_seconds=settings.readiness_timeout_seconds)]
-如果 service_host 不为空
-    调用 probes.append(调用 ReadinessProbe(name='embedded_workers', is_critical=真, check=service_host.readiness, timeout_seconds=settings.readiness_timeout_seconds))
-定义内部函数 _chat_ping（其流程在独立条目中说明）
-如果 selected_chat_service 不为空
-    调用 probes.append(调用 ReadinessProbe(name='chat_db_readiness', is_critical=真, check=匿名函数：lambda : 'ready' if _chat_ping(selected_chat_service) else 'not_ready', timeout_seconds=settings.readiness_timeout_seconds))
-调用 probes.append(调用 ReadinessProbe(name='comparison_repository_readiness', is_critical=假, check=匿名函数：lambda : selected_comparison_service.repository.ping() or 'ready', timeout_seconds=settings.readiness_timeout_seconds))
-调用 probes.append(调用 ReadinessProbe(name='rerun_repository_readiness', is_critical=真, check=匿名函数：lambda : 'ready' if selected_rerun_service.repository.ping() else 'not_ready', timeout_seconds=settings.readiness_timeout_seconds))
-定义内部函数 notification_db_check（其流程在独立条目中说明）
-调用 probes.append(调用 ReadinessProbe(name='notification_db_readiness', is_critical=真, check=notification_db_check, timeout_seconds=settings.readiness_timeout_seconds))
-定义内部函数 failure_memory_db_check（其流程在独立条目中说明）
-调用 probes.append(调用 ReadinessProbe(name='failure_memory_db_readiness', is_critical=真, check=failure_memory_db_check, timeout_seconds=settings.readiness_timeout_seconds))
-如果 selected_project_memory_service 不为空
-    定义内部函数 project_memory_db_check（其流程在独立条目中说明）
-    调用 probes.append(调用 ReadinessProbe(name='project_memory_db_readiness', is_critical=真, check=project_memory_db_check, timeout_seconds=settings.readiness_timeout_seconds))
-readiness_service ← 调用 ReadinessService('api', probes, max_workers=settings.readiness_probe_workers)
-定义内部函数 observability_middleware（其流程在独立条目中说明）
-定义内部函数 healthz（其流程在独立条目中说明）
-定义内部函数 livez（其流程在独立条目中说明）
-定义内部函数 readyz（其流程在独立条目中说明）
-调用 app.include_router(router)
-调用 app.include_router(notification_router)
-调用 app.include_router(resource_router)
-调用 app.include_router(ui_router)
-调用 app.include_router(chat_router)
-调用 app.include_router(retention_router)
-调用 app.include_router(comparison_router)
-调用 app.include_router(rerun_router)
-调用 app.include_router(failure_case_router)
-调用 app.include_router(project_memory_router)
-调用 install_error_handlers(app)
-调用 mount_web_ui(app, dist_dir=settings.web_dist_dir, required=settings.web_ui_required)
-导入 from app.job_runtime.factory import build_job_store
-导入 from app.retention.factory import build_retention
-app.state.telemetry ← telemetry
-app.state.readiness ← readiness_service
-app.state.retention_bundle ← 调用 build_retention(job_store=如果 job_service 为空 则 调用 build_job_store()，否则 job_service.store, artifact_storage=storage 或 调用 build_artifact_storage(), project_memory_repository=如果 selected_project_memory_service 不为空 则 selected_project_memory_service.repository，否则 空值)
-返回 app
+如果当前处理结果有值或为真，就调用 `configure_structured_logging` 完成该函数的一项辅助处理。
+调用 `build_telemetry_runtime` 组装当前阶段需要的领域对象，并把结果记为 观测数据运行时；读取运行观测数据，并保存为 运行观测数据。
+如果凭据为空 且 当前处理结果为空，就加载这一步需要的外部依赖；调用 `build_secret_service` 组装当前阶段需要的领域对象，并把结果记为 凭据。
+计算使用固定配置或常量值，并保存为 当前处理结果。
+如果任务为空 或 Artifact为空，就调用 `build_artifact_storage` 组装当前阶段需要的领域对象，并把结果记为 该调用返回的结果。
+如果任务为空，就加载这一步需要的外部依赖；断言当前处理结果不为空；不满足就终止当前测试或流程；加载这一步需要的外部依赖；构造 `JobService` 结构化领域对象，并把结果记为 任务。
+读取任务，并保存为 任务；构造 `FastAPI` 结构化领域对象，并把结果记为 该调用返回的结果；计算根据条件从两个候选结果中选择一个，并保存为 当前处理结果。
+如果当前处理结果为空，就拒绝继续处理并抛出 `RuntimeError`，向调用方报告输入或运行失败。
+计算根据条件从两个候选结果中选择一个，并保存为 当前处理结果；读取当前处理结果，并保存为 Artifact；读取当前处理结果，并保存为 Artifact；读取凭据，并保存为 凭据。
+读取凭据的名称，并保存为 凭据的名称；计算根据条件从两个候选结果中选择一个，并保存为 当前处理结果；调用 `build_resource_service` 组装当前阶段需要的领域对象，并把结果记为 资源；读取资源，并保存为 资源。
+构造 `InteractionService` 结构化领域对象，并把结果记为 该调用返回的结果；计算根据条件从两个候选结果中选择一个，并保存为 当前处理结果；读取当前处理结果，并保存为 后续步骤使用的结果；计算根据条件从两个候选结果中选择一个，并保存为 当前处理结果。
+读取当前处理结果，并保存为 后续步骤使用的结果；计算根据条件从两个候选结果中选择一个，并保存为 通知；读取通知，并保存为 通知；计算根据条件从两个候选结果中选择一个，并保存为 失败用例。
+读取失败用例，并保存为 失败用例；读取项目记忆，并保存为 项目记忆。
+如果项目记忆为空 且 项目记忆有值或为真：
+    计算根据条件从两个候选结果中选择一个，并保存为 对话仓库。
+    如果对话仓库不为空，就调用 `initialize` 完成该函数的一项辅助处理。
+    调用 `build_project_memory_service` 组装当前阶段需要的领域对象，并把结果记为 项目记忆。
+读取项目记忆，并保存为 项目记忆；计算使用固定配置或常量值，并保存为 当前处理结果。
+如果当前处理结果有值或为真，就加载这一步需要的外部依赖；调用 `build_knowledge_service` 组装当前阶段需要的领域对象，并把结果记为 该调用返回的结果。
+读取当前处理结果，并保存为 后续步骤使用的结果。
+如果网关为空，就加载这一步需要的外部依赖；调用 `build_model_gateway` 组装当前阶段需要的领域对象，并把结果记为 网关。
+读取网关，并保存为 网关；读取当前处理结果，并保存为 后续步骤使用的结果。
+如果当前处理结果为空 且 当前处理结果有值或为真，就加载这一步需要的外部依赖；调用 `build_research_browser_service` 组装当前阶段需要的领域对象，并把结果记为 该调用返回的结果。
+读取当前处理结果，并保存为 后续步骤使用的结果；读取对话，并保存为 对话。
+如果对话为空 且 对话有值或为真：
+    如果当前处理结果为空，就拒绝继续处理并抛出 `RuntimeError`，向调用方报告输入或运行失败。
+    构造 `SqliteChatRepository` 结构化领域对象，并把结果记为 对话代码仓库；调用 `initialize` 完成该函数的一项辅助处理；计算使用固定配置或常量值，并保存为 检索器。
+    如果当前处理结果不为空，就读取证据检索器，并保存为 检索器。
+    构造 `ChatContextBuilder` 结构化领域对象，并把结果记为 上下文构造器；调用 `build_chat_service` 组装当前阶段需要的领域对象，并把结果记为 对话。
+读取对话，并保存为 对话。
+定义内部辅助函数 `db_check`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `storage_check`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `resource_db_check`，供当前函数在后续步骤中调用。
+计算初始化顺序集合，并保存为 当前处理结果。
+如果当前处理结果不为空，就把新的处理结果追加或合并到当前处理结果。
+定义内部辅助函数 `_chat_ping`，供当前函数在后续步骤中调用。
+如果对话不为空：
+    把新的处理结果追加或合并到当前处理结果。
+    如果对话工具有值或为真：
+        定义内部辅助函数 `_tool_calling_check`，供当前函数在后续步骤中调用。
+        把新的处理结果追加或合并到当前处理结果。
+把新的处理结果追加或合并到当前处理结果；把新的处理结果追加或合并到当前处理结果。
+定义内部辅助函数 `notification_db_check`，供当前函数在后续步骤中调用。
+把新的处理结果追加或合并到当前处理结果。
+定义内部辅助函数 `failure_memory_db_check`，供当前函数在后续步骤中调用。
+把新的处理结果追加或合并到当前处理结果。
+如果项目记忆不为空：
+    定义内部辅助函数 `project_memory_db_check`，供当前函数在后续步骤中调用。
+    把新的处理结果追加或合并到当前处理结果。
+把新的处理结果追加或合并到当前处理结果；构造 `ReadinessService` 结构化领域对象，并把结果记为 该调用返回的结果。
+定义内部辅助函数 `observability_middleware`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `healthz`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `livez`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `readyz`，供当前函数在后续步骤中调用。
+计算使用固定配置或常量值，并保存为 证据代码仓库。
+如果网关有值或为真，就加载这一步需要的外部依赖；构造 `SqliteMcpEvidenceRepository` 结构化领域对象，并把结果记为 代码仓库；调用 `initialize` 完成该函数的一项辅助处理；读取代码仓库，并保存为 证据代码仓库。
+调用 `include_router` 完成该函数的一项辅助处理；调用 `include_router` 完成该函数的一项辅助处理；调用 `include_router` 完成该函数的一项辅助处理；调用 `include_router` 完成该函数的一项辅助处理。
+调用 `include_router` 完成该函数的一项辅助处理；调用 `include_router` 完成该函数的一项辅助处理；调用 `include_router` 完成该函数的一项辅助处理；调用 `include_router` 完成该函数的一项辅助处理。
+调用 `include_router` 完成该函数的一项辅助处理；调用 `include_router` 完成该函数的一项辅助处理。
+如果当前处理结果不为空，就调用 `include_router` 完成该函数的一项辅助处理。
+调用 `include_router` 完成该函数的一项辅助处理。
+如果当前处理结果不为空，就调用 `include_router` 完成该函数的一项辅助处理。
+如果证据代码仓库不为空，就加载这一步需要的外部依赖；调用 `include_router` 完成该函数的一项辅助处理。
+调用 `install_error_handlers` 完成该函数的一项辅助处理；调用 `mount_web_ui` 完成该函数的一项辅助处理；加载这一步需要的外部依赖；加载这一步需要的外部依赖。
+读取运行观测数据，并保存为 运行观测数据；读取当前处理结果，并保存为 后续步骤使用的结果；计算使用固定配置或常量值，并保存为 仓库。
+如果当前处理结果不为空，就读取持久化仓库，并保存为 仓库。
+调用 `build_retention` 组装当前阶段需要的领域对象，并把结果记为 该调用返回的结果；返回前一步处理得到的结果。
 ```
 
 #### `create_api_app.project_memory_db_check`
 
-- **源码**：`app/api/app.py:471`
+- **源码**：`app/api/app.py:567`
 - **签名**：`def project_memory_db_check() -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
@@ -4512,31 +4487,30 @@ app.state.retention_bundle ← 调用 build_retention(job_store=如果 job_servi
 **输出**
 
 - **Python 类型**：`str`
-- **语义**：返回普通文本或领域字符串；结合函数名判断其是规范化文本、ID、状态还是序列化内容。
+- **语义**：返回文本或领域字符串；其具体用途由函数名和调用位置确定，例如路径、状态、报告或序列化内容。
 
 **伪代码**
 
 ```text
-尝试
-    调用 selected_project_memory_service.ping()
-    返回 'ready'
-如果捕获 Exception
-    返回 'not_ready'
+先尝试完成以下处理：
+    调用 `ping` 完成该函数的一项辅助处理；返回固定值 `'ready'`。
+如果出现 `Exception`：
+    返回固定值 `'not_ready'`。
 ```
 
 ### `app/api/errors.py`
 
 #### `install_error_handlers`
 
-- **源码**：`app/api/errors.py:84`
+- **源码**：`app/api/errors.py:109`
 - **签名**：`def install_error_handlers(app: FastAPI) -> None`
-- **作用**：把内部异常映射成稳定 HTTP 语义。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，把内部异常映射成稳定 HTTP 语义。该函数接收当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `app` | `FastAPI` | 名为 `app` 的 `FastAPI` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `app` | `FastAPI` | 名为 `app` 的 `FastAPI` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
 
 **输出**
 
@@ -4546,56 +4520,75 @@ app.state.retention_bundle ← 调用 build_retention(job_store=如果 job_servi
 **伪代码**
 
 ```text
-定义内部函数 handle_not_found（其流程在独立条目中说明）
-定义内部函数 handle_conflict（其流程在独立条目中说明）
-定义内部函数 handle_job_backend_unavailable（其流程在独立条目中说明）
-定义内部函数 handle_value_error（其流程在独立条目中说明）
-定义内部函数 handle_store_error（其流程在独立条目中说明）
-定义内部函数 handle_artifact_not_found（其流程在独立条目中说明）
-定义内部函数 handle_artifact_integrity（其流程在独立条目中说明）
-定义内部函数 handle_artifact_unavailable（其流程在独立条目中说明）
-定义内部函数 handle_preview_unsupported（其流程在独立条目中说明）
-定义内部函数 handle_export_limit（其流程在独立条目中说明）
-定义内部函数 handle_retention_not_found（其流程在独立条目中说明）
-定义内部函数 handle_retention_conflict（其流程在独立条目中说明）
-定义内部函数 handle_retention_path_unsafe（其流程在独立条目中说明）
-定义内部函数 handle_retention_backend_unsupported（其流程在独立条目中说明）
-定义内部函数 handle_storage_capacity（其流程在独立条目中说明）
-定义内部函数 handle_comparison_not_found（其流程在独立条目中说明）
-定义内部函数 handle_comparison_conflict（其流程在独立条目中说明）
-定义内部函数 handle_comparison_integrity（其流程在独立条目中说明）
-定义内部函数 handle_comparison_limit（其流程在独立条目中说明）
-定义内部函数 rerun_not_found_handler（其流程在独立条目中说明）
-定义内部函数 rerun_expired_handler（其流程在独立条目中说明）
-定义内部函数 rerun_conflict_handler（其流程在独立条目中说明）
-定义内部函数 rerun_command_rejected_handler（其流程在独立条目中说明）
-定义内部函数 rerun_integrity_handler（其流程在独立条目中说明）
-定义内部函数 handle_notification_not_found（其流程在独立条目中说明）
-定义内部函数 handle_notification_conflict（其流程在独立条目中说明）
-定义内部函数 failure_case_not_found_handler（其流程在独立条目中说明）
-定义内部函数 failure_case_conflict_handler（其流程在独立条目中说明）
-定义内部函数 failure_case_limit_handler（其流程在独立条目中说明）
-定义内部函数 failure_case_integrity_handler（其流程在独立条目中说明）
-定义内部函数 project_not_found_handler（其流程在独立条目中说明）
-定义内部函数 project_fact_not_found_handler（其流程在独立条目中说明）
-定义内部函数 project_memory_conflict_handler（其流程在独立条目中说明）
-定义内部函数 project_memory_integrity_handler（其流程在独立条目中说明）
-定义内部函数 project_memory_limit_handler（其流程在独立条目中说明）
-定义内部函数 project_memory_generic_handler（其流程在独立条目中说明）
+定义内部辅助函数 `handle_not_found`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_conflict`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_job_backend_unavailable`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_value_error`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_store_error`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_artifact_not_found`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_artifact_integrity`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_artifact_unavailable`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_preview_unsupported`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_export_limit`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_retention_not_found`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_retention_conflict`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_retention_path_unsafe`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_retention_backend_unsupported`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_storage_capacity`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_comparison_not_found`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_comparison_conflict`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_comparison_integrity`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_comparison_limit`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `rerun_not_found_handler`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `rerun_expired_handler`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `rerun_conflict_handler`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `rerun_command_rejected_handler`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `rerun_integrity_handler`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_notification_not_found`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_notification_conflict`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `failure_case_not_found_handler`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `failure_case_conflict_handler`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `failure_case_limit_handler`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `failure_case_integrity_handler`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `project_not_found_handler`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `project_fact_not_found_handler`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `project_memory_conflict_handler`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `project_memory_integrity_handler`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `project_memory_limit_handler`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `project_memory_generic_handler`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_knowledge_not_found`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_knowledge_conflict`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_knowledge_integrity`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_knowledge_limit`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_model_budget_exceeded`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_model_route_unavailable`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_model_catalog_error`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_model_ledger_integrity`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_research_not_found`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_research_conflict`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_research_policy`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_research_url_rejected`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_research_robots_denied`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_research_content_rejected`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_research_limit`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_research_transport`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_research_integrity`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_research_synthesis_rejected`，供当前函数在后续步骤中调用。
+定义内部辅助函数 `handle_research_resource_candidate_rejected`，供当前函数在后续步骤中调用。
 ```
 
 #### `install_error_handlers.project_fact_not_found_handler`
 
-- **源码**：`app/api/errors.py:482`
+- **源码**：`app/api/errors.py:507`
 - **签名**：`async def project_fact_not_found_handler(request: Request, exc: ProjectFactNotFoundError) -> JSONResponse`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收业务请求、捕获的异常，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `request` | `Request` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `exc` | `ProjectFactNotFoundError` | 异常、错误记录或错误分类信息。 |
+| `request` | `Request` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `exc` | `ProjectFactNotFoundError` | 异常、错误记录或错误分类信息，用于失败处理和诊断。 |
 
 **输出**
 
@@ -4605,21 +4598,21 @@ app.state.retention_bundle ← 调用 build_retention(job_store=如果 job_servi
 **伪代码**
 
 ```text
-返回 调用 _response(request, status_code=404, code='PROJECT_FACT_NOT_FOUND', message=调用 str(exc))
+调用 `_response` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `install_error_handlers.project_memory_conflict_handler`
 
-- **源码**：`app/api/errors.py:494`
+- **源码**：`app/api/errors.py:519`
 - **签名**：`async def project_memory_conflict_handler(request: Request, exc: ProjectMemoryConflictError) -> JSONResponse`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收业务请求、捕获的异常，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `request` | `Request` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `exc` | `ProjectMemoryConflictError` | 异常、错误记录或错误分类信息。 |
+| `request` | `Request` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `exc` | `ProjectMemoryConflictError` | 异常、错误记录或错误分类信息，用于失败处理和诊断。 |
 
 **输出**
 
@@ -4629,21 +4622,21 @@ app.state.retention_bundle ← 调用 build_retention(job_store=如果 job_servi
 **伪代码**
 
 ```text
-返回 调用 _response(request, status_code=409, code='PROJECT_MEMORY_CONFLICT', message=调用 str(exc))
+调用 `_response` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `install_error_handlers.project_memory_integrity_handler`
 
-- **源码**：`app/api/errors.py:506`
+- **源码**：`app/api/errors.py:531`
 - **签名**：`async def project_memory_integrity_handler(request: Request, exc: ProjectMemoryIntegrityError) -> JSONResponse`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收业务请求、捕获的异常，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `request` | `Request` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `exc` | `ProjectMemoryIntegrityError` | 异常、错误记录或错误分类信息。 |
+| `request` | `Request` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `exc` | `ProjectMemoryIntegrityError` | 异常、错误记录或错误分类信息，用于失败处理和诊断。 |
 
 **输出**
 
@@ -4653,22 +4646,21 @@ app.state.retention_bundle ← 调用 build_retention(job_store=如果 job_servi
 **伪代码**
 
 ```text
-删除 exc
-返回 调用 _response(request, status_code=409, code='PROJECT_MEMORY_INTEGRITY_ERROR', message='Project Memory integrity validation failed')
+移除捕获的异常中的当前内容；调用 `_response` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `install_error_handlers.project_memory_limit_handler`
 
-- **源码**：`app/api/errors.py:519`
+- **源码**：`app/api/errors.py:544`
 - **签名**：`async def project_memory_limit_handler(request: Request, exc: ProjectMemoryLimitExceededError) -> JSONResponse`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收业务请求、捕获的异常，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `request` | `Request` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `exc` | `ProjectMemoryLimitExceededError` | 异常、错误记录或错误分类信息。 |
+| `request` | `Request` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `exc` | `ProjectMemoryLimitExceededError` | 异常、错误记录或错误分类信息，用于失败处理和诊断。 |
 
 **输出**
 
@@ -4678,21 +4670,21 @@ app.state.retention_bundle ← 调用 build_retention(job_store=如果 job_servi
 **伪代码**
 
 ```text
-返回 调用 _response(request, status_code=413, code='PROJECT_MEMORY_LIMIT_EXCEEDED', message=调用 str(exc))
+调用 `_response` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `install_error_handlers.project_memory_generic_handler`
 
-- **源码**：`app/api/errors.py:531`
+- **源码**：`app/api/errors.py:556`
 - **签名**：`async def project_memory_generic_handler(request: Request, exc: ProjectMemoryError) -> JSONResponse`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收业务请求、捕获的异常，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `request` | `Request` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `exc` | `ProjectMemoryError` | 异常、错误记录或错误分类信息。 |
+| `request` | `Request` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `exc` | `ProjectMemoryError` | 异常、错误记录或错误分类信息，用于失败处理和诊断。 |
 
 **输出**
 
@@ -4702,8 +4694,7 @@ app.state.retention_bundle ← 调用 build_retention(job_store=如果 job_servi
 **伪代码**
 
 ```text
-删除 exc
-返回 调用 _response(request, status_code=500, code='PROJECT_MEMORY_ERROR', message='Project Memory operation failed')
+移除捕获的异常中的当前内容；调用 `_response` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 ### `app/api/project_memory_routes.py`
@@ -4712,416 +4703,415 @@ app.state.retention_bundle ← 调用 build_retention(job_store=如果 job_servi
 
 - **源码**：`app/api/project_memory_routes.py:36`
 - **签名**：`def service(request: Request)`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收业务请求，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `request` | `Request` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
+| `request` | `Request` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-返回 request.app.state.project_memory_service
+返回项目记忆的当前值。
 ```
 
 #### `create_project`
 
 - **源码**：`app/api/project_memory_routes.py:44`
 - **签名**：`def create_project(body: ProjectCreateRequest, key: IdempotencyKey, actor: Actor, svc: Service) -> 未显式标注（存在 return）`
-- **作用**：执行受约束的数据变更；具体 CAS、幂等和副作用见伪代码。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收请求正文、映射键或对象字段名、审计主体、领域服务对象，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `body` | `ProjectCreateRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `key` | `IdempotencyKey` | 名为 `key` 的 `IdempotencyKey` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `actor` | `Actor` | 执行该操作的审计主体标识，不是授权凭证本身。 |
-| `svc` | `Service` | 名为 `svc` 的 `Service` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `body` | `ProjectCreateRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `key` | `IdempotencyKey` | 映射键或对象字段名；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `actor` | `Actor` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
+| `svc` | `Service` | 领域服务对象；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-返回 调用 svc.create_project(request=body, idempotency_key=key, actor=actor)
+调用 `create_project` 组装当前阶段需要的领域对象，并返回处理结果。
 ```
 
 #### `list_projects`
 
 - **源码**：`app/api/project_memory_routes.py:56`
 - **签名**：`def list_projects(actor: Actor, svc: Service, include_archived: bool, limit: int) -> 未显式标注（存在 return）`
-- **作用**：读取或查询领域数据，不应隐式扩大权限。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收审计主体、领域服务对象、是否包含已归档记录的开关、结果数量上限，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `actor` | `Actor` | 执行该操作的审计主体标识，不是授权凭证本身。 |
-| `svc` | `Service` | 名为 `svc` 的 `Service` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `include_archived` | `bool` | 布尔条件或能力开关。；默认 `假` |
-| `limit` | `int` | 有界数量或容量限制，用于控制读取、输出或资源消耗。；默认 `调用 Query(default=100, ge=1, le=500)` |
+| `actor` | `Actor` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
+| `svc` | `Service` | 领域服务对象；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `include_archived` | `bool` | 布尔条件或能力开关，用于控制流程分支。；默认 假 |
+| `limit` | `int` | 输出、检索或读取的数量/容量上限，用于控制结果规模和资源消耗。；默认 调用 Query(default=100, ge=1, le=500) |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-删除 actor
-返回 调用 svc.repository.list_projects(include_archived=include_archived, limit=limit)
+移除审计主体中的当前内容；调用 `list_projects` 读取或查询当前阶段需要的数据，并返回处理结果。
 ```
 
 #### `get_project`
 
 - **源码**：`app/api/project_memory_routes.py:70`
 - **签名**：`def get_project(project_id: str, actor: Actor, svc: Service)`
-- **作用**：读取或查询领域数据，不应隐式扩大权限。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收复现项目 ID、审计主体、领域服务对象，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `actor` | `Actor` | 执行该操作的审计主体标识，不是授权凭证本身。 |
-| `svc` | `Service` | 名为 `svc` 的 `Service` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `actor` | `Actor` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
+| `svc` | `Service` | 领域服务对象；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-删除 actor
-返回 调用 svc.repository.get_project(project_id)
+移除审计主体中的当前内容；调用 `get_project` 读取或查询当前阶段需要的数据，并返回处理结果。
 ```
 
 #### `archive_project`
 
 - **源码**：`app/api/project_memory_routes.py:76`
 - **签名**：`def archive_project(project_id: str, body: ProjectArchiveRequest, key: IdempotencyKey, actor: Actor, svc: Service) -> 未显式标注（存在 return）`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收复现项目 ID、请求正文、映射键或对象字段名、审计主体等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `body` | `ProjectArchiveRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `key` | `IdempotencyKey` | 名为 `key` 的 `IdempotencyKey` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `actor` | `Actor` | 执行该操作的审计主体标识，不是授权凭证本身。 |
-| `svc` | `Service` | 名为 `svc` 的 `Service` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `body` | `ProjectArchiveRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `key` | `IdempotencyKey` | 映射键或对象字段名；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `actor` | `Actor` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
+| `svc` | `Service` | 领域服务对象；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-返回 调用 svc.archive_project(project_id=project_id, request=body, idempotency_key=key, actor=actor)
+调用 `archive_project` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `bind_job`
 
 - **源码**：`app/api/project_memory_routes.py:92`
 - **签名**：`def bind_job(project_id: str, body: ProjectBindJobRequest, key: IdempotencyKey, actor: Actor, svc: Service, expected_project_version: int, expected_project_hash: str) -> 未显式标注（存在 return）`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收复现项目 ID、请求正文、映射键或对象字段名、审计主体等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `body` | `ProjectBindJobRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `key` | `IdempotencyKey` | 名为 `key` 的 `IdempotencyKey` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `actor` | `Actor` | 执行该操作的审计主体标识，不是授权凭证本身。 |
-| `svc` | `Service` | 名为 `svc` 的 `Service` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `expected_project_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验。；默认 `调用 Header(alias='X-Project-Version')` |
-| `expected_project_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。；默认 `调用 Header(alias='X-Project-Hash')` |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `body` | `ProjectBindJobRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `key` | `IdempotencyKey` | 映射键或对象字段名；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `actor` | `Actor` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
+| `svc` | `Service` | 领域服务对象；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `expected_project_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验，防止覆盖并发更新。；默认 调用 Header(alias='X-Project-Version') |
+| `expected_project_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。；默认 调用 Header(alias='X-Project-Hash') |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-返回 调用 svc.bind_job(project_id=project_id, request=body, expected_project_version=expected_project_version, expected_project_hash=expected_project_hash, idempotency_key=key, actor=actor)
+调用 `bind_job` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `propose_manual`
 
 - **源码**：`app/api/project_memory_routes.py:115`
 - **签名**：`def propose_manual(project_id: str, body: ManualFactProposalRequest, key: IdempotencyKey, actor: Actor, svc: Service) -> 未显式标注（存在 return）`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收复现项目 ID、请求正文、映射键或对象字段名、审计主体等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `body` | `ManualFactProposalRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `key` | `IdempotencyKey` | 名为 `key` 的 `IdempotencyKey` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `actor` | `Actor` | 执行该操作的审计主体标识，不是授权凭证本身。 |
-| `svc` | `Service` | 名为 `svc` 的 `Service` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `body` | `ManualFactProposalRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `key` | `IdempotencyKey` | 映射键或对象字段名；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `actor` | `Actor` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
+| `svc` | `Service` | 领域服务对象；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-返回 调用 svc.propose_manual(project_id=project_id, request=body, idempotency_key=key, actor=actor)
+调用 `propose_manual` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `propose_from_chat`
 
 - **源码**：`app/api/project_memory_routes.py:134`
 - **签名**：`def propose_from_chat(project_id: str, body: ChatFactProposalRequest, key: IdempotencyKey, actor: Actor, svc: Service) -> 未显式标注（存在 return）`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收复现项目 ID、请求正文、映射键或对象字段名、审计主体等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `body` | `ChatFactProposalRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `key` | `IdempotencyKey` | 名为 `key` 的 `IdempotencyKey` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `actor` | `Actor` | 执行该操作的审计主体标识，不是授权凭证本身。 |
-| `svc` | `Service` | 名为 `svc` 的 `Service` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `body` | `ChatFactProposalRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `key` | `IdempotencyKey` | 映射键或对象字段名；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `actor` | `Actor` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
+| `svc` | `Service` | 领域服务对象；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-返回 调用 svc.propose_from_chat(project_id=project_id, request=body, idempotency_key=key, actor=actor)
+调用 `propose_from_chat` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `list_facts`
 
 - **源码**：`app/api/project_memory_routes.py:150`
 - **签名**：`def list_facts(project_id: str, actor: Actor, svc: Service, include_terminal: bool, limit: int) -> 未显式标注（存在 return）`
-- **作用**：读取或查询领域数据，不应隐式扩大权限。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收复现项目 ID、审计主体、领域服务对象、是否包含已终止运行的开关等输入，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `actor` | `Actor` | 执行该操作的审计主体标识，不是授权凭证本身。 |
-| `svc` | `Service` | 名为 `svc` 的 `Service` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `include_terminal` | `bool` | 布尔条件或能力开关。；默认 `假` |
-| `limit` | `int` | 有界数量或容量限制，用于控制读取、输出或资源消耗。；默认 `调用 Query(default=100, ge=1, le=1000)` |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `actor` | `Actor` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
+| `svc` | `Service` | 领域服务对象；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `include_terminal` | `bool` | 布尔条件或能力开关，用于控制流程分支。；默认 假 |
+| `limit` | `int` | 输出、检索或读取的数量/容量上限，用于控制结果规模和资源消耗。；默认 调用 Query(default=100, ge=1, le=1000) |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-删除 actor
-返回 调用 svc.repository.list_facts(project_id=project_id, include_terminal=include_terminal, limit=limit)
+移除审计主体中的当前内容；调用 `list_facts` 读取或查询当前阶段需要的数据，并返回处理结果。
 ```
 
 #### `fact_context`
 
 - **源码**：`app/api/project_memory_routes.py:166`
 - **签名**：`def fact_context(project_id: str, actor: Actor, svc: Service)`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收复现项目 ID、审计主体、领域服务对象，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `actor` | `Actor` | 执行该操作的审计主体标识，不是授权凭证本身。 |
-| `svc` | `Service` | 名为 `svc` 的 `Service` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `actor` | `Actor` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
+| `svc` | `Service` | 领域服务对象；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-删除 actor
-返回 调用 svc.retriever.for_project(project_id)
+移除审计主体中的当前内容；调用 `for_project` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `confirm_fact`
 
 - **源码**：`app/api/project_memory_routes.py:175`
 - **签名**：`def confirm_fact(project_id: str, fact_id: str, body: FactConfirmRequest, key: IdempotencyKey, actor: Actor, svc: Service) -> 未显式标注（存在 return）`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收复现项目 ID、项目事实记录的 ID、请求正文、映射键或对象字段名等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `body` | `FactConfirmRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `key` | `IdempotencyKey` | 名为 `key` 的 `IdempotencyKey` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `actor` | `Actor` | 执行该操作的审计主体标识，不是授权凭证本身。 |
-| `svc` | `Service` | 名为 `svc` 的 `Service` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `body` | `FactConfirmRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `key` | `IdempotencyKey` | 映射键或对象字段名；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `actor` | `Actor` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
+| `svc` | `Service` | 领域服务对象；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-fact ← 调用 svc.repository.get_fact(fact_id)
-如果 fact.project_id 不等于 project_id
-    抛出 ValueError：'fact 不属于当前 project'
-返回 调用 svc.confirm(fact_id=fact_id, request=body, idempotency_key=key, actor=actor)
+调用 `get_fact` 读取或查询当前阶段需要的数据，并把结果记为 项目事实记录。
+如果复现项目 ID不等于复现项目 ID，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+调用 `confirm` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `correct_fact`
 
 - **源码**：`app/api/project_memory_routes.py:195`
 - **签名**：`def correct_fact(project_id: str, fact_id: str, body: FactCorrectRequest, key: IdempotencyKey, actor: Actor, svc: Service) -> 未显式标注（存在 return）`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收复现项目 ID、项目事实记录的 ID、请求正文、映射键或对象字段名等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `body` | `FactCorrectRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `key` | `IdempotencyKey` | 名为 `key` 的 `IdempotencyKey` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `actor` | `Actor` | 执行该操作的审计主体标识，不是授权凭证本身。 |
-| `svc` | `Service` | 名为 `svc` 的 `Service` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `body` | `FactCorrectRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `key` | `IdempotencyKey` | 映射键或对象字段名；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `actor` | `Actor` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
+| `svc` | `Service` | 领域服务对象；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-fact ← 调用 svc.repository.get_fact(fact_id)
-如果 fact.project_id 不等于 project_id
-    抛出 ValueError：'fact 不属于当前 project'
-返回 调用 svc.correct(fact_id=fact_id, request=body, idempotency_key=key, actor=actor)
+调用 `get_fact` 读取或查询当前阶段需要的数据，并把结果记为 项目事实记录。
+如果复现项目 ID不等于复现项目 ID，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+调用 `correct` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `revoke_fact`
 
 - **源码**：`app/api/project_memory_routes.py:215`
 - **签名**：`def revoke_fact(project_id: str, fact_id: str, body: FactTerminalRequest, key: IdempotencyKey, actor: Actor, svc: Service) -> 未显式标注（存在 return）`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收复现项目 ID、项目事实记录的 ID、请求正文、映射键或对象字段名等输入，用于在版本、幂等键和内容 Hash 约束下保存、发布或变更复现记录和 Artifact，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `body` | `FactTerminalRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `key` | `IdempotencyKey` | 名为 `key` 的 `IdempotencyKey` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `actor` | `Actor` | 执行该操作的审计主体标识，不是授权凭证本身。 |
-| `svc` | `Service` | 名为 `svc` 的 `Service` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `body` | `FactTerminalRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `key` | `IdempotencyKey` | 映射键或对象字段名；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `actor` | `Actor` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
+| `svc` | `Service` | 领域服务对象；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-fact ← 调用 svc.repository.get_fact(fact_id)
-如果 fact.project_id 不等于 project_id
-    抛出 ValueError：'fact 不属于当前 project'
-返回 调用 svc.revoke(fact_id=fact_id, request=body, idempotency_key=key, actor=actor)
+调用 `get_fact` 读取或查询当前阶段需要的数据，并把结果记为 项目事实记录。
+如果复现项目 ID不等于复现项目 ID，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+调用 `revoke` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `delete_fact`
 
 - **源码**：`app/api/project_memory_routes.py:235`
 - **签名**：`def delete_fact(project_id: str, fact_id: str, body: FactTerminalRequest, key: IdempotencyKey, actor: Actor, svc: Service) -> 未显式标注（存在 return）`
-- **作用**：执行受约束的数据变更；具体 CAS、幂等和副作用见伪代码。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收复现项目 ID、项目事实记录的 ID、请求正文、映射键或对象字段名等输入，用于在版本、幂等键和内容 Hash 约束下保存、发布或变更复现记录和 Artifact，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `body` | `FactTerminalRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `key` | `IdempotencyKey` | 名为 `key` 的 `IdempotencyKey` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `actor` | `Actor` | 执行该操作的审计主体标识，不是授权凭证本身。 |
-| `svc` | `Service` | 名为 `svc` 的 `Service` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `body` | `FactTerminalRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `key` | `IdempotencyKey` | 映射键或对象字段名；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `actor` | `Actor` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
+| `svc` | `Service` | 领域服务对象；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-fact ← 调用 svc.repository.get_fact(fact_id)
-如果 fact.project_id 不等于 project_id
-    抛出 ValueError：'fact 不属于当前 project'
-返回 调用 svc.delete(fact_id=fact_id, request=body, idempotency_key=key, actor=actor)
+调用 `get_fact` 读取或查询当前阶段需要的数据，并把结果记为 项目事实记录。
+如果复现项目 ID不等于复现项目 ID，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+调用 `delete` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 ### `app/chat/context.py`
 
 #### `ChatContextBuilder.__init__`
 
-- **源码**：`app/chat/context.py:114`
-- **签名**：`def __init__(self: 未显式标注, interaction: InteractionService, artifact_catalog: ArtifactCatalog, artifacts_to_open: int, source_limit: int, artifact_max_bytes: int, total_context_chars: int, log_max_bytes: int, comparison_reader: ComparisonReader | None, comparison_limit: int, comparison_max_chars: int, project_fact_retriever: 未显式标注) -> None（隐式）`
-- **作用**：Python 协议方法；初始化、进入/退出上下文或把实例作为函数调用。
+- **源码**：`app/chat/context.py:126`
+- **签名**：`def __init__(self: 未显式标注, interaction: InteractionService, artifact_catalog: ArtifactCatalog, artifacts_to_open: int, source_limit: int, artifact_max_bytes: int, total_context_chars: int, log_max_bytes: int, comparison_reader: ComparisonReader | None, comparison_limit: int, comparison_max_chars: int, project_fact_retriever: 未显式标注, knowledge_retriever: 未显式标注, knowledge_max_entities: int, knowledge_max_relations: int, knowledge_max_chars: int, research_reader: ResearchPackReaderPort | None, research_pack_limit: int, research_max_chars: int) -> None（隐式）`
+- **作用**：在围绕复现运行进行问答、结果比较和受控重跑的阶段中，该函数接收用户交互记录、Artifact、当前处理结果、来源上限等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `interaction` | `InteractionService` | 名为 `interaction` 的 `InteractionService` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `artifact_catalog` | `ArtifactCatalog` | 名为 `artifact_catalog` 的 `ArtifactCatalog` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `artifacts_to_open` | `int` | 名为 `artifacts_to_open` 的 `int` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `source_limit` | `int` | 有界数量或容量限制，用于控制读取、输出或资源消耗。 |
-| `artifact_max_bytes` | `int` | 名为 `artifact_max_bytes` 的 `int` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `total_context_chars` | `int` | 名为 `total_context_chars` 的 `int` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `log_max_bytes` | `int` | 名为 `log_max_bytes` 的 `int` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `comparison_reader` | `ComparisonReader | None` | 只读证据或数据读取端口；负责把外部持久化内容投影为受约束领域输入。；默认 `空值` |
-| `comparison_limit` | `int` | 有界数量或容量限制，用于控制读取、输出或资源消耗。；默认 `3` |
-| `comparison_max_chars` | `int` | 名为 `comparison_max_chars` 的 `int` 输入，具体约束由函数内分支和 Schema 决定。；默认 `12000` |
-| `project_fact_retriever` | `未显式标注` | 检索服务或端口；返回有界候选及其可解释排序信息，不授予执行权限。；默认 `空值` |
+| `interaction` | `InteractionService` | 用户交互记录；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `artifact_catalog` | `ArtifactCatalog` | 名为 `artifact_catalog` 的 `ArtifactCatalog` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `artifacts_to_open` | `int` | 名为 `artifacts_to_open` 的数量、序号、分数或时间参数；有效范围由函数用途和校验分支确定。 |
+| `source_limit` | `int` | 名为 `source_limit` 的数量、序号、分数或时间参数；有效范围由函数用途和校验分支确定。 |
+| `artifact_max_bytes` | `int` | 名为 `artifact_max_bytes` 的数量、序号、分数或时间参数；有效范围由函数用途和校验分支确定。 |
+| `total_context_chars` | `int` | 名为 `total_context_chars` 的数量、序号、分数或时间参数；有效范围由函数用途和校验分支确定。 |
+| `log_max_bytes` | `int` | 名为 `log_max_bytes` 的数量、序号、分数或时间参数；有效范围由函数用途和校验分支确定。 |
+| `comparison_reader` | `ComparisonReader | None` | 只读证据或数据读取端口；负责把外部持久化内容投影为受约束领域输入。；默认 空值 |
+| `comparison_limit` | `int` | 名为 `comparison_limit` 的数量、序号、分数或时间参数；有效范围由函数用途和校验分支确定。；默认 3 |
+| `comparison_max_chars` | `int` | 名为 `comparison_max_chars` 的数量、序号、分数或时间参数；有效范围由函数用途和校验分支确定。；默认 12000 |
+| `project_fact_retriever` | `未显式标注` | 检索服务或端口；返回有界候选及可解释排序信息，不授予执行权限。；默认 空值 |
+| `knowledge_retriever` | `未显式标注` | 检索服务或端口；返回有界候选及可解释排序信息，不授予执行权限。；默认 空值 |
+| `knowledge_max_entities` | `int` | 名为 `knowledge_max_entities` 的数量、序号、分数或时间参数；有效范围由函数用途和校验分支确定。；默认 12 |
+| `knowledge_max_relations` | `int` | 名为 `knowledge_max_relations` 的数量、序号、分数或时间参数；有效范围由函数用途和校验分支确定。；默认 24 |
+| `knowledge_max_chars` | `int` | 名为 `knowledge_max_chars` 的数量、序号、分数或时间参数；有效范围由函数用途和校验分支确定。；默认 16000 |
+| `research_reader` | `ResearchPackReaderPort | None` | 只读证据或数据读取端口；负责把外部持久化内容投影为受约束领域输入。；默认 空值 |
+| `research_pack_limit` | `int` | 名为 `research_pack_limit` 的数量、序号、分数或时间参数；有效范围由函数用途和校验分支确定。；默认 3 |
+| `research_max_chars` | `int` | 名为 `research_max_chars` 的数量、序号、分数或时间参数；有效范围由函数用途和校验分支确定。；默认 12000 |
 
 **输出**
 
@@ -5131,32 +5121,22 @@ fact ← 调用 svc.repository.get_fact(fact_id)
 **伪代码**
 
 ```text
-self.interaction ← interaction
-self.artifact_catalog ← artifact_catalog
-self.artifacts_to_open ← artifacts_to_open
-self.source_limit ← source_limit
-self.artifact_max_bytes ← artifact_max_bytes
-self.total_context_chars ← total_context_chars
-self.log_max_bytes ← log_max_bytes
-self.comparison_reader ← comparison_reader
-self.comparison_limit ← comparison_limit
-self.comparison_max_chars ← comparison_max_chars
-self.project_fact_retriever ← project_fact_retriever
+把传入的 用户交互记录、Artifact、当前处理结果、来源上限、Artifact的字节内容、上下文字符数、当前处理结果的字节内容、读取器、上限、字符数、项目事实检索器、检索器、当前处理结果、当前处理结果、字符数、读取器、上限、字符数 分别保存到同名实例字段。
 ```
 
 #### `ChatContextBuilder._project_fact_sources`
 
-- **源码**：`app/chat/context.py:266`
+- **源码**：`app/chat/context.py:292`
 - **签名**：`def _project_fact_sources(self: 未显式标注, job_id: str, keywords: set[str]) -> list[GroundingSource]`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在围绕复现运行进行问答、结果比较和受控重跑的阶段中，该函数接收复现任务 ID、检索关键词集合，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `keywords` | `set[str]` | `set[str]` 元素集合；具体元素含义由参数名 `keywords` 和函数内校验决定。 |
+| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `keywords` | `set[str]` | 用于精确检索或文件分类的关键词集合；匹配范围由当前工具决定。 |
 
 **输出**
 
@@ -5166,31 +5146,27 @@ self.project_fact_retriever ← project_fact_retriever
 **伪代码**
 
 ```text
-如果 self.project_fact_retriever 为空
-    返回 []
-pack ← 调用 self.project_fact_retriever.for_job(job_id)
-如果 pack 为空
-    返回 []
-sources ← []
-对于 item 属于 pack.items
-    content ← 调用 json.dumps({'category': item.category, 'key': item.key, 'value': 调用 item.value.model_dump(mode='json'), 'authority': item.authority, 'expires_at': item.expires_at}, ensure_ascii=假, sort_keys=真, separators=(',', ':'))
-    调用 sources.append(调用 GroundingSource(citation=调用 ChatCitation(citation_id=格式化文本：f'project_fact:{item.fact_id}', source_type='project_fact', label=格式化文本：f'Project fact: {item.category}/{item.key}', locator=格式化文本：f'record hash {item.fact_hash[:12]}', project_id=pack.project_id, project_fact_id=item.fact_id, project_fact_hash=item.fact_hash), content=content, score=调用 _score(content, keywords, 88)))
-返回 sources
+如果项目事实检索器为空，就返回当前构造的顺序或去重集合。
+调用 `for_job` 完成该函数的一项辅助处理，并把结果记为 检索或映射证据包。
+如果检索或映射证据包为空，就返回当前构造的顺序或去重集合。
+将 证据来源集合 初始化为空列表，用来收集后续结果。
+遍历当前可迭代输入，每次把当前项记为当前处理项，然后将结构化内容序列化或编码为可传输表示，并把结果记为 业务内容；把新的处理结果追加或合并到证据来源集合。
+返回证据来源集合的当前值。
 ```
 
 #### `ChatContextBuilder.build`
 
-- **源码**：`app/chat/context.py:309`
+- **源码**：`app/chat/context.py:524`
 - **签名**：`def build(self: 未显式标注, job_id: str, question: str) -> GroundingBundle`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在围绕复现运行进行问答、结果比较和受控重跑的阶段中，该函数接收复现任务 ID、论文复现问题或用户问题，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `GroundingBundle` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `question` | `str` | 名为 `question` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `question` | `str` | 论文复现问题或用户问题；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -5200,56 +5176,39 @@ sources ← []
 **伪代码**
 
 ```text
-job ← 调用 self.interaction.get_job(job_id)
-keywords ← 调用 _keywords(question)
-job_content ← 调用 json.dumps({'status': job.status, 'attempt_count': job.attempt_count, 'max_attempts': job.max_attempts, 'input': 调用 job.input.model_dump(), 'result': 如果 job.result 不为空 则 调用 job.result.model_dump()，否则 空值, 'error': job.error}, ensure_ascii=假, separators=(',', ':'), default=str)
-candidates ← [调用 GroundingSource(citation=调用 ChatCitation(citation_id='job:current', source_type='job', label='Current job state', locator=格式化文本：f'version {job.version}'), content=job_content, score=调用 _score(job_content, keywords, 120))]
-events ← []
-cursor ← 0
-对于 _ 属于 调用 range(10)
-    page ← 调用 self.interaction.events_after(job_id=job_id, after_event_id=cursor, limit=100)
-    调用 events.extend(page)
-    如果 page 的长度 小于 100
-        结束当前循环
-    cursor ← page[负 1].event_id
-events ← events[负 20:空值:空值]
-对于 event 属于 events
-    event_content ← 调用 json.dumps({'event_type': event.event_type, 'created_at': event.created_at}, ensure_ascii=假, separators=(',', ':'))
-    调用 candidates.append(调用 GroundingSource(citation=调用 ChatCitation(citation_id=格式化文本：f'event:{event.event_id}', source_type='event', label=event.event_type, event_id=event.event_id, locator=event.created_at), content=event_content, score=调用 _score(event_content, keywords, 20)))
-log ← 调用 self.interaction.tail_log(job_id=job_id, lines=100, max_bytes=self.log_max_bytes)
-如果 去除 log.content 的首尾空白
-    log_base ← 如果 调用 keywords.intersection({'error', 'failed', 'failure', 'log', '报错', '失败', '日志'}) 则 75，否则 8
-    调用 candidates.append(调用 GroundingSource(citation=调用 ChatCitation(citation_id='log:tail', source_type='log', label=log.relative_path 或 'execution log', relative_path=log.relative_path, locator='last 100 lines'), content=log.content, score=调用 _score(log.content, keywords, log_base)))
-调用 candidates.extend(调用 self._artifact_sources(job_id=job_id, keywords=keywords))
-调用 candidates.extend(调用 self._comparison_sources(job_id=job_id, keywords=keywords))
-调用 candidates.extend(调用 self._project_fact_sources(job_id=job_id, keywords=keywords))
-job_source ← candidates[0]
-ranked ← 调用 sorted(candidates[1:空值:空值], key=匿名函数：lambda item: item.score, reverse=真)
-selected ← [job_source]
-used_chars ← job_source.content 的长度
-对于 source 属于 ranked
-    如果 selected 的长度 大于等于 self.source_limit
-        结束当前循环
-    如果 used_chars + source.content 的长度 大于 self.total_context_chars
-        继续下一轮循环
-    调用 selected.append(source)
-    used_chars ← used_chars + source.content 的长度
-返回 调用 GroundingBundle(job=job, sources=selected)
+调用 `get_job` 读取或查询当前阶段需要的数据，并把结果记为 复现任务记录；调用 `_keywords` 完成该函数的一项辅助处理，并把结果记为 检索关键词集合；计算初始化顺序集合，并保存为 候选结果集合；将 审计事件集合 初始化为空列表，用来收集后续结果。
+计算使用固定配置或常量值，并保存为 增量读取游标。
+遍历限定范围内的序列，每次把当前项记为当前处理结果：
+    调用 `events_after` 完成该函数的一项辅助处理，并把结果记为 论文页码；把论文页码追加或合并到审计事件集合。
+    如果论文页码 的长度小于100，就立即结束当前循环。
+    读取事件的 ID，并保存为 增量读取游标。
+读取审计事件集合中的对应字段，并保存为 审计事件集合。
+遍历由审计事件集合组成的集合或迭代器，每次把当前项记为事件，然后将结构化内容序列化或编码为可传输表示，并把结果记为 事件内容；把新的处理结果追加或合并到候选结果集合。
+调用 `tail_log` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+如果“对业务内容中的文本执行规范化或拆分”后得到肯定结果，就计算根据条件从两个候选结果中选择一个，并保存为 当前处理结果；把新的处理结果追加或合并到候选结果集合。
+把新的处理结果追加或合并到候选结果集合；把新的处理结果追加或合并到候选结果集合；把新的处理结果追加或合并到候选结果集合；把新的处理结果追加或合并到候选结果集合。
+把新的处理结果追加或合并到候选结果集合；读取候选结果集合中的对应字段，并保存为 任务来源；按稳定规则整理结果顺序，并把结果记为 该调用返回的结果；计算初始化顺序集合，并保存为 选中的候选项。
+计算数量、边界或类型判断结果，并把结果记为 字符数。
+遍历由当前处理结果组成的集合或迭代器，每次把当前项记为数据来源标记：
+    如果选中的候选项 的长度不小于来源上限，就立即结束当前循环。
+    如果当前输入内容大于上下文字符数，就跳过本轮剩余处理，直接进入下一轮。
+    把数据来源标记追加或合并到选中的候选项；将新的计算结果累加或合并到字符数。
+构造并返回 `GroundingBundle` 结构化领域对象。
 ```
 
 ### `app/chat/memory.py`
 
 #### `_memory_body_hash_payload`
 
-- **源码**：`app/chat/memory.py:101`
+- **源码**：`app/chat/memory.py:115`
 - **签名**：`def _memory_body_hash_payload(body: ConversationMemoryBody) -> dict`
-- **作用**：按 body 创建时的 Citation schema 生成稳定 hash 投影。
+- **作用**：在围绕复现运行进行问答、结果比较和受控重跑的阶段中，按 body 创建时的 Citation schema 生成稳定 hash 投影。该函数接收请求正文，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终包含复现状态、索引或序列化字段的结构化映射。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `body` | `ConversationMemoryBody` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
+| `body` | `ConversationMemoryBody` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
 
 **输出**
 
@@ -5259,35 +5218,38 @@ used_chars ← job_source.content 的长度
 **伪代码**
 
 ```text
-payload ← 调用 body.model_dump(mode='json')
-version ← body.citation_schema_version
-如果 version 等于 'phase36-v1'
-    调用 payload.pop('citation_schema_version', 空值)
-    对于 citation 属于 从 payload 读取 'citation_anchors', []
-        对于 field_name 属于 PHASE38_CITATION_FIELDS 合并 PHASE46_CITATION_FIELDS
-            调用 citation.pop(field_name, 空值)
-否则
-    如果 version 等于 'phase38-v2'
-        对于 citation 属于 从 payload 读取 'citation_anchors', []
-            对于 field_name 属于 PHASE46_CITATION_FIELDS
-                调用 citation.pop(field_name, 空值)
-返回 payload
+复制、序列化或校验结构化领域对象，并把结果记为 结构化请求载荷；读取版本，并保存为 记录版本号。
+如果记录版本号等于'phase36-v1'：
+    从结构化请求载荷取出并移除最后一项；计算组合或计算已有值，并保存为 当前处理结果。
+    遍历辅助操作产生的可迭代结果（从结构化请求载荷读取所需的状态或领域记录），每次把当前项记为论文引用证据：
+        遍历由当前处理结果组成的集合或迭代器，每次把当前项记为结构化对象字段的名称，然后从论文引用证据取出并移除最后一项。
+否则：
+    如果记录版本号等于'phase38-v2'：
+        计算组合或计算已有值，并保存为 当前处理结果。
+        遍历辅助操作产生的可迭代结果（从结构化请求载荷读取所需的状态或领域记录），每次把当前项记为论文引用证据：
+            遍历由当前处理结果组成的集合或迭代器，每次把当前项记为结构化对象字段的名称，然后从论文引用证据取出并移除最后一项。
+    否则：
+        如果记录版本号等于'phase46-v3'：
+            读取当前处理结果，并保存为 后续步骤使用的结果。
+            遍历辅助操作产生的可迭代结果（从结构化请求载荷读取所需的状态或领域记录），每次把当前项记为论文引用证据：
+                遍历由当前处理结果组成的集合或迭代器，每次把当前项记为结构化对象字段的名称，然后从论文引用证据取出并移除最后一项。
+返回结构化请求载荷的当前值。
 ```
 
 #### `ConversationMemoryCompactor._project_body`
 
-- **源码**：`app/chat/memory.py:339`
+- **源码**：`app/chat/memory.py:364`
 - **签名**：`def _project_body(self: 未显式标注, draft: MemoryDraft, previous: ConversationMemory | None, delta: list[ChatMessage]) -> ConversationMemoryBody`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在围绕复现运行进行问答、结果比较和受控重跑的阶段中，该函数接收草稿对象、前一项、当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ConversationMemoryBody` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `draft` | `MemoryDraft` | 名为 `draft` 的 `MemoryDraft` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `previous` | `ConversationMemory | None` | 名为 `previous` 的 `ConversationMemory | None` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `delta` | `list[ChatMessage]` | `list[ChatMessage]` 元素集合；具体元素含义由参数名 `delta` 和函数内校验决定。 |
+| `draft` | `MemoryDraft` | 草稿对象；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `previous` | `ConversationMemory | None` | 前一项；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `delta` | `list[ChatMessage]` | `list[ChatMessage]` 元素集合；元素代表的业务对象由参数名 `delta` 和调用位置确定。 |
 
 **输出**
 
@@ -5297,24 +5259,20 @@ version ← body.citation_schema_version
 **伪代码**
 
 ```text
-调用 self._validate_statement_sources(draft=draft, previous=previous, delta=delta)
-citation_map ← 调用 self._citation_map(previous=previous, delta=delta)
-unknown ← 按推导式生成结果：[item for item in draft.citation_ids_to_preserve if item not in citation_map]
-如果 unknown
-    抛出 ChatMemoryConflict：格式化文本：f'MemoryDraft 返回未知 citation IDs：{unknown[:3]}'
-body ← 调用 ConversationMemoryBody(summary=draft.summary, user_constraints=draft.user_constraints, decisions=draft.decisions, open_questions=draft.open_questions, citation_anchors=按推导式生成结果：[citation_map[item] for item in dict.fromkeys(draft.citation_ids_to_preserve)], citation_schema_version=如果 调用 any(按推导式生成结果：(item.source_type == 'project_fact' for item in [citation_map[cid] for cid in dict.fromkeys(draft.citation_ids_to_preserve)])) 则 'phase46-v3'，否则 'phase38-v2')
-如果 调用 _canonical(调用 body.model_dump(mode='json')) 的长度 大于 self.memory_max_chars
-    抛出 ChatMemoryConflict：'ConversationMemory 超过字符预算'
-返回 body
+调用 `_validate_statement_sources` 校验当前输入或状态；调用 `_citation_map` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；遍历并筛选输入，将整理后的结果保存为 当前处理结果。
+如果当前处理结果有值或为真，就拒绝继续处理并抛出 `ChatMemoryConflict`，向调用方报告输入或运行失败。
+构造 `ConversationMemoryBody` 结构化领域对象，并把结果记为 请求正文。
+如果辅助操作“调用 `_canonical` 完成该函数的一项辅助处理”的结果 的长度大于记忆字符数，就拒绝继续处理并抛出 `ChatMemoryConflict`，向调用方报告输入或运行失败。
+返回请求正文的当前值。
 ```
 
 ### `app/chat/schemas.py`
 
 #### `ChatCitation.validate_citation_identity`
 
-- **源码**：`app/chat/schemas.py:68`
+- **源码**：`app/chat/schemas.py:155`
 - **签名**：`def validate_citation_identity(self) -> "ChatCitation"`
-- **作用**：校验输入或领域对象；非法时抛出稳定异常。
+- **作用**：在约束论文复现请求、运行状态、证据和结果结构的契约校验阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终标注为 `'ChatCitation'` 的领域结果。
 
 **输入**
 
@@ -5330,28 +5288,40 @@ body ← 调用 ConversationMemoryBody(summary=draft.summary, user_constraints=d
 **伪代码**
 
 ```text
-comparison_values ← (self.comparison_id, self.comparison_hash, self.base_job_id, self.target_job_id)
-project_values ← (self.project_id, self.project_fact_id, self.project_fact_hash)
-如果 self.source_type 等于 'comparison'
-    如果 调用 any(按推导式生成结果：(value is None for value in comparison_values))
-        抛出 ValueError：'comparison citation 必须包含完整 comparison identity'
-否则
-    如果 调用 any(按推导式生成结果：(value is not None for value in comparison_values))
-        抛出 ValueError：'非 comparison citation 不能携带 comparison identity'
-如果 self.source_type 等于 'project_fact'
-    如果 调用 any(按推导式生成结果：(value is None for value in project_values))
-        抛出 ValueError：'project_fact citation 必须包含完整事实身份'
-否则
-    如果 调用 any(按推导式生成结果：(value is not None for value in project_values))
-        抛出 ValueError：'非 project_fact citation 不能携带项目事实身份'
-返回 self
+计算组合多个值形成元组，并保存为 当前处理结果；计算组合多个值形成元组，并保存为 项目集合。
+如果来源类型等于'comparison'：
+    如果由当前处理结果组成的集合或迭代器中存在满足“当前字段值为空”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+否则：
+    如果由当前处理结果组成的集合或迭代器中存在满足“当前字段值不为空”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+如果来源类型等于'project_fact'：
+    如果由项目集合组成的集合或迭代器中存在满足“当前字段值为空”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+否则：
+    如果由项目集合组成的集合或迭代器中存在满足“当前字段值不为空”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+计算组合多个值形成元组，并保存为 当前处理结果。
+如果来源类型等于'knowledge'：
+    如果由当前处理结果组成的集合或迭代器中存在满足“当前字段值为空”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+    如果“证据集合有值或为真”不成立，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+    如果证据集合 的长度不等于辅助操作“构造临时集合、映射或轻量领域对象”的结果 的长度，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+否则：
+    如果由当前处理结果组成的集合或迭代器中存在满足“当前字段值不为空”的项 或 证据集合有值或为真，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+计算组合多个值形成元组，并保存为 当前处理结果。
+如果来源类型等于'web'：
+    如果由当前处理结果组成的集合或迭代器中存在满足“当前字段值为空”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+否则：
+    如果由当前处理结果组成的集合或迭代器中存在满足“当前字段值不为空”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+计算组合多个值形成元组，并保存为 当前处理结果。
+如果来源类型等于'mcp'：
+    如果由当前处理结果组成的集合或迭代器中存在满足“当前字段值为空”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+否则：
+    如果由当前处理结果组成的集合或迭代器中存在满足“当前字段值不为空”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+返回当前对象的当前值。
 ```
 
 #### `ConversationMemoryBody.validate_citation_schema`
 
-- **源码**：`app/chat/schemas.py:245`
+- **源码**：`app/chat/schemas.py:436`
 - **签名**：`def validate_citation_schema(self) -> "ConversationMemoryBody"`
-- **作用**：校验输入或领域对象；非法时抛出稳定异常。
+- **作用**：在约束论文复现请求、运行状态、证据和结果结构的契约校验阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终标注为 `'ConversationMemoryBody'` 的领域结果。
 
 **输入**
 
@@ -5367,11 +5337,11 @@ project_values ← (self.project_id, self.project_fact_id, self.project_fact_has
 **伪代码**
 
 ```text
-如果 self.citation_schema_version 等于 'phase36-v1' 且 调用 any(按推导式生成结果：(item.source_type == 'comparison' for item in self.citation_anchors))
-    抛出 ValueError：'comparison citation 必须使用 phase38-v2 memory body'
-如果 self.citation_schema_version 属于 ('phase36-v1', 'phase38-v2') 且 调用 any(按推导式生成结果：(item.source_type == 'project_fact' for item in self.citation_anchors))
-    抛出 ValueError：'project_fact citation 必须使用 phase46-v3 memory body'
-返回 self
+如果版本等于'phase36-v1' 且 当前可迭代输入中存在满足“来源类型等于'comparison'”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+如果版本属于('phase36-v1', 'phase38-v2') 且 当前可迭代输入中存在满足“来源类型等于'project_fact'”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+如果版本不等于'phase49-v4' 且 版本不等于'phase51-v5' 且 当前可迭代输入中存在满足“来源类型等于'knowledge'”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+如果版本不等于'phase51-v5' 且 当前可迭代输入中存在满足“来源类型等于'web'”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+返回当前对象的当前值。
 ```
 
 ### `app/project_memory/evidence.py`
@@ -5380,40 +5350,39 @@ project_values ← (self.project_id, self.project_fact_id, self.project_fact_has
 
 - **源码**：`app/project_memory/evidence.py:17`
 - **签名**：`def _paper_sha256(manifest: WorkspaceManifest) -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收运行或工作区 Manifest，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `manifest` | `WorkspaceManifest` | 持久化领域记录、Manifest 或证据对象，通常携带版本与内容身份。 |
+| `manifest` | `WorkspaceManifest` | 持久化领域记录、Manifest 或证据对象，通常携带版本、关联 ID 和内容身份。 |
 
 **输出**
 
 - **Python 类型**：`str`
-- **语义**：返回内容身份摘要，通常为 SHA-256 十六进制字符串。
+- **语义**：返回输入内容的 SHA-256 身份摘要，用于完整性校验，不是加密后的正文。
 
 **伪代码**
 
 ```text
-papers ← 按推导式生成结果：[item for item in manifest.entries if item.role == 'paper']
-如果 papers 的长度 不等于 1
-    抛出 ProjectMemoryIntegrityError：'Workspace Manifest 必须包含唯一 paper entry'
-返回 papers[0].sha256
+遍历并筛选输入，将整理后的结果保存为 当前处理结果。
+如果当前处理结果 的长度不等于1，就拒绝继续处理并抛出 `ProjectMemoryIntegrityError`，向调用方报告输入或运行失败。
+返回内容 SHA-256的当前值。
 ```
 
 #### `ProjectJobEvidenceReader.__init__`
 
 - **源码**：`app/project_memory/evidence.py:32`
 - **签名**：`def __init__(self, jobs: JobService) -> None`
-- **作用**：Python 协议方法；初始化、进入/退出上下文或把实例作为函数调用。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现任务记录集合，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `jobs` | `JobService` | 名为 `jobs` 的 `JobService` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `jobs` | `JobService` | 复现任务记录集合；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -5423,21 +5392,21 @@ papers ← 按推导式生成结果：[item for item in manifest.entries if item
 **伪代码**
 
 ```text
-self.jobs ← jobs
+把传入的 复现任务记录集合 分别保存到同名实例字段。
 ```
 
 #### `ProjectJobEvidenceReader.read`
 
 - **源码**：`app/project_memory/evidence.py:35`
 - **签名**：`def read(self, job_id: str) -> ProjectJobSnapshot`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现任务 ID，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ProjectJobSnapshot` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
+| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 
 **输出**
 
@@ -5447,23 +5416,18 @@ self.jobs ← jobs
 **伪代码**
 
 ```text
-job ← 从 self.jobs 读取 job_id
-manifest ← 调用 self.jobs.store.get_workspace_manifest(job.workspace_manifest_id)
-调用 validate_manifest_hash(manifest)
-如果 manifest.job_id 不等于 job.job_id 或 manifest.run_id 不等于 job.run_id
-    抛出 ProjectMemoryIntegrityError：'Job 与 Workspace Manifest 身份不一致'
-如果 manifest.manifest_id 不等于 job.workspace_manifest_id
-    抛出 ProjectMemoryIntegrityError：'Job manifest pointer 已漂移'
-如果 manifest.generation 不等于 job.workspace_manifest_generation
-    抛出 ProjectMemoryConflictError：'Workspace generation 已变化'
-返回 调用 ProjectJobSnapshot(anchor=调用 ProjectAnchor(job_id=job.job_id, job_version=job.version, run_id=job.run_id, workspace_manifest_id=manifest.manifest_id, workspace_manifest_hash=manifest.manifest_hash, paper_sha256=调用 _paper_sha256(manifest), repository_commit=manifest.repository.commit_sha, repository_clean=manifest.repository.clean))
+从复现任务记录集合读取所需的状态或领域记录，并把结果记为 复现任务记录；从数据存储端口读取所需的状态或领域记录，并把结果记为 运行或工作区 Manifest；调用 `validate_manifest_hash` 校验当前输入或状态。
+如果复现任务 ID不等于复现任务 ID 或 本次复现运行 ID不等于本次复现运行 ID，就拒绝继续处理并抛出 `ProjectMemoryIntegrityError`，向调用方报告输入或运行失败。
+如果运行或工作区 Manifest的 ID不等于Manifest的 ID，就拒绝继续处理并抛出 `ProjectMemoryIntegrityError`，向调用方报告输入或运行失败。
+如果工作区生成代次不等于Manifest，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+构造并返回 `ProjectJobSnapshot` 结构化领域对象。
 ```
 
 #### `ProjectChatEvidenceReader.__init__`
 
 - **源码**：`app/project_memory/evidence.py:65`
 - **签名**：`def __init__(self, repository: ChatRepository) -> None`
-- **作用**：Python 协议方法；初始化、进入/退出上下文或把实例作为函数调用。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收持久化仓库，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -5480,58 +5444,57 @@ manifest ← 调用 self.jobs.store.get_workspace_manifest(job.workspace_manifes
 **伪代码**
 
 ```text
-self.repository ← repository
+把传入的 持久化仓库 分别保存到同名实例字段。
 ```
 
 #### `ProjectChatEvidenceReader.message_at`
 
 - **源码**：`app/project_memory/evidence.py:68`
 - **签名**：`def message_at(self, *, job_id: str, sequence: int)`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现任务 ID、当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `sequence` | `int` | 分页或事件序列位置，用于确定增量读取起点。 |
+| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `sequence` | `int` | 分页、文本切片或事件序列位置；用于确定本次读取的起止边界。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-rows ← 调用 self.repository.list_messages_range(job_id=job_id, start_sequence=sequence, end_sequence=sequence, limit=1)
-如果 rows 的长度 不等于 1 或 rows[0].sequence 不等于 sequence
-    抛出 ProjectMemoryConflictError：'未找到指定 Chat message sequence'
-返回 rows[0]
+调用 `list_messages_range` 读取或查询当前阶段需要的数据，并把结果记为 数据库记录行集合。
+如果数据库记录行集合 的长度不等于1 或 当前处理结果不等于当前处理结果，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+返回数据库记录行集合中的对应字段的当前值。
 ```
 
 #### `chat_message_sha256`
 
 - **源码**：`app/project_memory/evidence.py:80`
 - **签名**：`def chat_message_sha256(message) -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收面向用户或日志的提示信息，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `message` | `未显式标注` | 对话消息记录或消息文本；其角色、顺序和内容 Hash 可能参与证据校验。 |
+| `message` | `未显式标注` | 对话消息记录或消息文本；角色、顺序和内容 Hash 可能参与证据校验。 |
 
 **输出**
 
 - **Python 类型**：`str`
-- **语义**：返回内容身份摘要，通常为 SHA-256 十六进制字符串。
+- **语义**：返回输入内容的 SHA-256 身份摘要，用于完整性校验，不是加密后的正文。
 
 **伪代码**
 
 ```text
-返回 调用 canonical_sha256({'message_id': message.message_id, 'job_id': message.job_id, 'sequence': message.sequence, 'role': message.role, 'content': message.content, 'created_at': message.created_at})
+调用 `canonical_sha256` 计算内容身份、分数或派生结果，并返回处理结果。
 ```
 
 ### `app/project_memory/factory.py`
@@ -5540,7 +5503,7 @@ rows ← 调用 self.repository.list_messages_range(job_id=job_id, start_sequenc
 
 - **源码**：`app/project_memory/factory.py:14`
 - **签名**：`def build_project_memory_service(*, job_service, chat_repository)`
-- **作用**：装配或构造领域对象及其依赖。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收任务、对话代码仓库，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
@@ -5552,16 +5515,13 @@ rows ← 调用 self.repository.list_messages_range(job_id=job_id, start_sequenc
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-repository ← 调用 SqliteProjectMemoryRepository(settings.project_memory_db_path)
-调用 repository.initialize()
-retriever ← 调用 ProjectFactRetriever(repository, top_k=settings.project_memory_top_k, max_chars=settings.project_memory_pack_max_chars, clock=utc_now)
-redactor ← 调用 调用 build_secret_service().build_redactor(actor='runtime:project-memory-redactor')
-返回 调用 ProjectMemoryService(repository=repository, jobs=调用 ProjectJobEvidenceReader(job_service), chats=调用 ProjectChatEvidenceReader(chat_repository), retriever=retriever, redactor=redactor)
+构造 `SqliteProjectMemoryRepository` 结构化领域对象，并把结果记为 持久化仓库；调用 `initialize` 完成该函数的一项辅助处理；构造 `ProjectFactRetriever` 结构化领域对象，并把结果记为 证据检索器；调用 `build_redactor` 组装当前阶段需要的领域对象，并把结果记为 敏感信息脱敏器。
+构造并返回 `ProjectMemoryService` 结构化领域对象。
 ```
 
 ### `app/project_memory/identity.py`
@@ -5570,53 +5530,53 @@ redactor ← 调用 调用 build_secret_service().build_redactor(actor='runtime:
 
 - **源码**：`app/project_memory/identity.py:16`
 - **签名**：`def canonical_json(value: object) -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前字段值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `value` | `object` | 待处理的业务内容或类型化值；是否为文本、记录或字节由类型标注与 Schema 决定。 |
+| `value` | `object` | 待处理的业务内容或类型化值；具体是文本、记录还是字节由类型标注和调用位置确定。 |
 
 **输出**
 
 - **Python 类型**：`str`
-- **语义**：返回普通文本或领域字符串；结合函数名判断其是规范化文本、ID、状态还是序列化内容。
+- **语义**：返回文本或领域字符串；其具体用途由函数名和调用位置确定，例如路径、状态、报告或序列化内容。
 
 **伪代码**
 
 ```text
-返回 调用 json.dumps(value, ensure_ascii=假, sort_keys=真, separators=(',', ':'), default=str)
+将结构化内容序列化或编码为可传输表示，并返回处理结果。
 ```
 
 #### `canonical_sha256`
 
 - **源码**：`app/project_memory/identity.py:26`
 - **签名**：`def canonical_sha256(value: object) -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前字段值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `value` | `object` | 待处理的业务内容或类型化值；是否为文本、记录或字节由类型标注与 Schema 决定。 |
+| `value` | `object` | 待处理的业务内容或类型化值；具体是文本、记录还是字节由类型标注和调用位置确定。 |
 
 **输出**
 
 - **Python 类型**：`str`
-- **语义**：返回内容身份摘要，通常为 SHA-256 十六进制字符串。
+- **语义**：返回输入内容的 SHA-256 身份摘要，用于完整性校验，不是加密后的正文。
 
 **伪代码**
 
 ```text
-返回 调用 调用 hashlib.sha256(调用 调用 canonical_json(value).encode('utf-8')).hexdigest()
+计算输入内容的 SHA-256 身份摘要，并返回处理结果。
 ```
 
 #### `new_project_id`
 
 - **源码**：`app/project_memory/identity.py:30`
 - **签名**：`def new_project_id() -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
@@ -5630,14 +5590,14 @@ redactor ← 调用 调用 build_secret_service().build_redactor(actor='runtime:
 **伪代码**
 
 ```text
-返回 格式化文本：f'project_{uuid4().hex[:24]}'
+返回当前计算得到的结果。
 ```
 
 #### `new_fact_id`
 
 - **源码**：`app/project_memory/identity.py:35`
 - **签名**：`def new_fact_id() -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
@@ -5651,20 +5611,20 @@ redactor ← 调用 调用 build_secret_service().build_redactor(actor='runtime:
 **伪代码**
 
 ```text
-返回 格式化文本：f'fact_{uuid4().hex[:24]}'
+返回当前计算得到的结果。
 ```
 
 #### `compute_content_hash`
 
 - **源码**：`app/project_memory/identity.py:39`
 - **签名**：`def compute_content_hash(content: ProjectFactContent) -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收业务内容，用于计算输入、命令、运行配置或证据的稳定派生值，保证复现链路中的身份校验和 stale 检测，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `content` | `ProjectFactContent` | 待处理的业务内容或类型化值；是否为文本、记录或字节由类型标注与 Schema 决定。 |
+| `content` | `ProjectFactContent` | 待处理的业务内容或类型化值；具体是文本、记录还是字节由类型标注和调用位置确定。 |
 
 **输出**
 
@@ -5674,14 +5634,14 @@ redactor ← 调用 调用 build_secret_service().build_redactor(actor='runtime:
 **伪代码**
 
 ```text
-返回 调用 canonical_sha256(调用 content.model_dump(mode='json'))
+调用 `canonical_sha256` 计算内容身份、分数或派生结果，并返回处理结果。
 ```
 
 #### `compute_project_hash`
 
 - **源码**：`app/project_memory/identity.py:43`
 - **签名**：`def compute_project_hash(project: ProjectRecord) -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目记录，用于计算输入、命令、运行配置或证据的稳定派生值，保证复现链路中的身份校验和 stale 检测，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
@@ -5697,16 +5657,14 @@ redactor ← 调用 调用 build_secret_service().build_redactor(actor='runtime:
 **伪代码**
 
 ```text
-payload ← 调用 project.model_dump(mode='json')
-调用 payload.pop('record_hash', 空值)
-返回 调用 canonical_sha256(payload)
+复制、序列化或校验结构化领域对象，并把结果记为 结构化请求载荷；从结构化请求载荷取出并移除最后一项；调用 `canonical_sha256` 计算内容身份、分数或派生结果，并返回处理结果。
 ```
 
 #### `compute_fact_hash`
 
 - **源码**：`app/project_memory/identity.py:49`
 - **签名**：`def compute_fact_hash(fact: ProjectFactRecord) -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收项目事实记录，用于计算输入、命令、运行配置或证据的稳定派生值，保证复现链路中的身份校验和 stale 检测，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
@@ -5722,22 +5680,20 @@ payload ← 调用 project.model_dump(mode='json')
 **伪代码**
 
 ```text
-payload ← 调用 fact.model_dump(mode='json')
-调用 payload.pop('record_hash', 空值)
-返回 调用 canonical_sha256(payload)
+复制、序列化或校验结构化领域对象，并把结果记为 结构化请求载荷；从结构化请求载荷取出并移除最后一项；调用 `canonical_sha256` 计算内容身份、分数或派生结果，并返回处理结果。
 ```
 
 #### `compute_pack_hash`
 
 - **源码**：`app/project_memory/identity.py:55`
 - **签名**：`def compute_pack_hash(pack: ProjectFactPack) -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收检索或映射证据包，用于计算输入、命令、运行配置或证据的稳定派生值，保证复现链路中的身份校验和 stale 检测，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `pack` | `ProjectFactPack` | 名为 `pack` 的 `ProjectFactPack` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `pack` | `ProjectFactPack` | 检索或映射证据包；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -5747,16 +5703,14 @@ payload ← 调用 fact.model_dump(mode='json')
 **伪代码**
 
 ```text
-payload ← 调用 pack.model_dump(mode='json')
-调用 payload.pop('pack_hash', 空值)
-返回 调用 canonical_sha256(payload)
+复制、序列化或校验结构化领域对象，并把结果记为 结构化请求载荷；从结构化请求载荷取出并移除最后一项；调用 `canonical_sha256` 计算内容身份、分数或派生结果，并返回处理结果。
 ```
 
 #### `validate_project_hash`
 
 - **源码**：`app/project_memory/identity.py:61`
 - **签名**：`def validate_project_hash(project: ProjectRecord) -> None`
-- **作用**：校验输入或领域对象；非法时抛出稳定异常。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目记录，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -5772,15 +5726,14 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-如果 调用 compute_project_hash(project) 不等于 project.record_hash
-    抛出 ProjectMemoryIntegrityError：'Project record hash 不一致'
+如果辅助操作“调用 `compute_project_hash` 计算内容身份、分数或派生结果”的结果不等于领域记录的 Hash，就拒绝继续处理并抛出 `ProjectMemoryIntegrityError`，向调用方报告输入或运行失败。
 ```
 
 #### `validate_fact_hash`
 
 - **源码**：`app/project_memory/identity.py:66`
 - **签名**：`def validate_fact_hash(fact: ProjectFactRecord) -> None`
-- **作用**：校验输入或领域对象；非法时抛出稳定异常。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收项目事实记录，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -5796,11 +5749,9 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-如果 fact.content 不为空
-    如果 调用 compute_content_hash(fact.content) 不等于 fact.content_hash
-        抛出 ProjectMemoryIntegrityError：'Project fact content hash 不一致'
-如果 调用 compute_fact_hash(fact) 不等于 fact.record_hash
-    抛出 ProjectMemoryIntegrityError：'Project fact record hash 不一致'
+如果业务内容不为空：
+    如果辅助操作“调用 `compute_content_hash` 计算内容身份、分数或派生结果”的结果不等于业务内容的 Hash，就拒绝继续处理并抛出 `ProjectMemoryIntegrityError`，向调用方报告输入或运行失败。
+如果辅助操作“调用 `compute_fact_hash` 计算内容身份、分数或派生结果”的结果不等于领域记录的 Hash，就拒绝继续处理并抛出 `ProjectMemoryIntegrityError`，向调用方报告输入或运行失败。
 ```
 
 ### `app/project_memory/ports.py`
@@ -5809,7 +5760,7 @@ payload ← 调用 pack.model_dump(mode='json')
 
 - **源码**：`app/project_memory/ports.py:14`
 - **签名**：`def initialize(self: 未显式标注) -> None`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -5825,14 +5776,14 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.ping`
 
 - **源码**：`app/project_memory/ports.py:15`
 - **签名**：`def ping(self: 未显式标注) -> None`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -5848,14 +5799,14 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.create_project`
 
 - **源码**：`app/project_memory/ports.py:17`
 - **签名**：`def create_project(self: 未显式标注, project: ProjectRecord, anchor_binding: ProjectJobBinding, operation_key: str, request_hash: str) -> tuple[ProjectRecord, bool]`
-- **作用**：执行受约束的数据变更；具体 CAS、幂等和副作用见伪代码。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目记录、绑定、操作键、请求内容 Hash，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
@@ -5863,9 +5814,9 @@ payload ← 调用 pack.model_dump(mode='json')
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
 | `project` | `ProjectRecord` | 项目注册记录；定义稳定项目身份及其不可变锚点。 |
-| `anchor_binding` | `ProjectJobBinding` | 名为 `anchor_binding` 的 `ProjectJobBinding` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `operation_key` | `str` | 名为 `operation_key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
+| `anchor_binding` | `ProjectJobBinding` | 名为 `anchor_binding` 的 `ProjectJobBinding` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `operation_key` | `str` | 名为 `operation_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
 
 **输出**
 
@@ -5875,21 +5826,21 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.get_project`
 
 - **源码**：`app/project_memory/ports.py:26`
 - **签名**：`def get_project(self: 未显式标注, project_id: str) -> ProjectRecord`
-- **作用**：读取或查询领域数据，不应隐式扩大权限。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 
 **输出**
 
@@ -5899,22 +5850,22 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.list_projects`
 
 - **源码**：`app/project_memory/ports.py:27`
 - **签名**：`def list_projects(self: 未显式标注, include_archived: bool, limit: int) -> list[ProjectRecord]`
-- **作用**：读取或查询领域数据，不应隐式扩大权限。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收是否包含已归档记录的开关、结果数量上限，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `include_archived` | `bool` | 布尔条件或能力开关。 |
-| `limit` | `int` | 有界数量或容量限制，用于控制读取、输出或资源消耗。 |
+| `include_archived` | `bool` | 布尔条件或能力开关，用于控制流程分支。 |
+| `limit` | `int` | 输出、检索或读取的数量/容量上限，用于控制结果规模和资源消耗。 |
 
 **输出**
 
@@ -5924,14 +5875,14 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.archive_project`
 
 - **源码**：`app/project_memory/ports.py:31`
 - **签名**：`def archive_project(self: 未显式标注, project: ProjectRecord, expected_version: int, expected_hash: str, operation_key: str, request_hash: str) -> tuple[ProjectRecord, bool]`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目记录、调用方看到的旧版本号、调用方看到的旧内容 Hash、操作键等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
@@ -5939,10 +5890,10 @@ payload ← 调用 pack.model_dump(mode='json')
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
 | `project` | `ProjectRecord` | 项目注册记录；定义稳定项目身份及其不可变锚点。 |
-| `expected_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验。 |
-| `expected_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
-| `operation_key` | `str` | 名为 `operation_key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
+| `expected_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验，防止覆盖并发更新。 |
+| `expected_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
+| `operation_key` | `str` | 名为 `operation_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
 
 **输出**
 
@@ -5952,25 +5903,25 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.bind_job`
 
 - **源码**：`app/project_memory/ports.py:41`
 - **签名**：`def bind_job(self: 未显式标注, binding: ProjectJobBinding, expected_project_version: int, expected_project_hash: str, operation_key: str, request_hash: str) -> tuple[ProjectJobBinding, bool]`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收资源绑定记录、期望项目版本、期望项目的 Hash、操作键等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `binding` | `ProjectJobBinding` | 名为 `binding` 的 `ProjectJobBinding` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `expected_project_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验。 |
-| `expected_project_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
-| `operation_key` | `str` | 名为 `operation_key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
+| `binding` | `ProjectJobBinding` | 资源绑定记录；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `expected_project_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验，防止覆盖并发更新。 |
+| `expected_project_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
+| `operation_key` | `str` | 名为 `operation_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
 
 **输出**
 
@@ -5980,21 +5931,21 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.project_for_job`
 
 - **源码**：`app/project_memory/ports.py:51`
 - **签名**：`def project_for_job(self: 未显式标注, job_id: str) -> ProjectRecord | None`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现任务 ID，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
+| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 
 **输出**
 
@@ -6004,21 +5955,21 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.list_bindings`
 
 - **源码**：`app/project_memory/ports.py:52`
 - **签名**：`def list_bindings(self: 未显式标注, project_id: str) -> list[ProjectJobBinding]`
-- **作用**：读取或查询领域数据，不应隐式扩大权限。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 
 **输出**
 
@@ -6028,14 +5979,14 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.create_fact`
 
 - **源码**：`app/project_memory/ports.py:54`
 - **签名**：`def create_fact(self: 未显式标注, fact: ProjectFactRecord, operation_key: str, request_hash: str) -> tuple[ProjectFactRecord, bool]`
-- **作用**：执行受约束的数据变更；具体 CAS、幂等和副作用见伪代码。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收项目事实记录、操作键、请求内容 Hash，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
@@ -6043,8 +5994,8 @@ payload ← 调用 pack.model_dump(mode='json')
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
 | `fact` | `ProjectFactRecord` | 项目事实记录或类型化事实值；包含来源、状态、版本与内容身份。 |
-| `operation_key` | `str` | 名为 `operation_key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
+| `operation_key` | `str` | 名为 `operation_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
 
 **输出**
 
@@ -6054,21 +6005,21 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.get_fact`
 
 - **源码**：`app/project_memory/ports.py:62`
 - **签名**：`def get_fact(self: 未显式标注, fact_id: str) -> ProjectFactRecord`
-- **作用**：读取或查询领域数据，不应隐式扩大权限。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收项目事实记录的 ID，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
+| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 
 **输出**
 
@@ -6078,23 +6029,23 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.list_facts`
 
 - **源码**：`app/project_memory/ports.py:64`
 - **签名**：`def list_facts(self: 未显式标注, project_id: str, include_terminal: bool, limit: int) -> list[ProjectFactRecord]`
-- **作用**：读取或查询领域数据，不应隐式扩大权限。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID、是否包含已终止运行的开关、结果数量上限，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `include_terminal` | `bool` | 布尔条件或能力开关。 |
-| `limit` | `int` | 有界数量或容量限制，用于控制读取、输出或资源消耗。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `include_terminal` | `bool` | 布尔条件或能力开关，用于控制流程分支。 |
+| `limit` | `int` | 输出、检索或读取的数量/容量上限，用于控制结果规模和资源消耗。 |
 
 **输出**
 
@@ -6104,14 +6055,14 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.replace_fact`
 
 - **源码**：`app/project_memory/ports.py:72`
 - **签名**：`def replace_fact(self: 未显式标注, fact: ProjectFactRecord, expected_version: int, expected_hash: str, operation_key: str, request_hash: str) -> tuple[ProjectFactRecord, bool]`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收项目事实记录、调用方看到的旧版本号、调用方看到的旧内容 Hash、操作键等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
@@ -6119,10 +6070,10 @@ payload ← 调用 pack.model_dump(mode='json')
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
 | `fact` | `ProjectFactRecord` | 项目事实记录或类型化事实值；包含来源、状态、版本与内容身份。 |
-| `expected_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验。 |
-| `expected_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
-| `operation_key` | `str` | 名为 `operation_key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
+| `expected_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验，防止覆盖并发更新。 |
+| `expected_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
+| `operation_key` | `str` | 名为 `operation_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
 
 **输出**
 
@@ -6132,26 +6083,26 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.replace_with_successor`
 
 - **源码**：`app/project_memory/ports.py:82`
 - **签名**：`def replace_with_successor(self: 未显式标注, previous: ProjectFactRecord, successor: ProjectFactRecord, expected_version: int, expected_hash: str, operation_key: str, request_hash: str) -> ProjectFactCorrectionResponse`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收前一项、当前处理结果、调用方看到的旧版本号、调用方看到的旧内容 Hash等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `previous` | `ProjectFactRecord` | 名为 `previous` 的 `ProjectFactRecord` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `successor` | `ProjectFactRecord` | 名为 `successor` 的 `ProjectFactRecord` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `expected_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验。 |
-| `expected_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
-| `operation_key` | `str` | 名为 `operation_key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
+| `previous` | `ProjectFactRecord` | 前一项；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `successor` | `ProjectFactRecord` | 名为 `successor` 的 `ProjectFactRecord` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `expected_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验，防止覆盖并发更新。 |
+| `expected_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
+| `operation_key` | `str` | 名为 `operation_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
 
 **输出**
 
@@ -6161,23 +6112,23 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.active_facts`
 
 - **源码**：`app/project_memory/ports.py:93`
 - **签名**：`def active_facts(self: 未显式标注, project_id: str, now: str, limit: int) -> list[ProjectFactRecord]`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID、当前时间、结果数量上限，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 | `now` | `str` | 时间值或可注入时钟，用于排序、过期、租约或可重复测试。 |
-| `limit` | `int` | 有界数量或容量限制，用于控制读取、输出或资源消耗。 |
+| `limit` | `int` | 输出、检索或读取的数量/容量上限，用于控制结果规模和资源消耗。 |
 
 **输出**
 
@@ -6187,23 +6138,23 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.expire_due`
 
 - **源码**：`app/project_memory/ports.py:96`
 - **签名**：`def expire_due(self: 未显式标注, project_id: str, now: str, actor: str) -> int`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID、当前时间、审计主体，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终数量、序号、字节数或版本等整数结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 | `now` | `str` | 时间值或可注入时钟，用于排序、过期、租约或可重复测试。 |
-| `actor` | `str` | 执行该操作的审计主体标识，不是授权凭证本身。 |
+| `actor` | `str` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
 
 **输出**
 
@@ -6213,14 +6164,14 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 #### `ProjectMemoryRepository.active_referenced_job_ids`
 
 - **源码**：`app/project_memory/ports.py:97`
 - **签名**：`def active_referenced_job_ids(self: 未显式标注) -> set[str]`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
@@ -6236,7 +6187,7 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-接口占位（无具体实现）
+仅声明接口契约，这里没有具体实现。
 ```
 
 ### `app/project_memory/repository.py`
@@ -6245,14 +6196,14 @@ payload ← 调用 pack.model_dump(mode='json')
 
 - **源码**：`app/project_memory/repository.py:31`
 - **签名**：`def __init__(self, path: Path) -> None`
-- **作用**：Python 协议方法；初始化、进入/退出上下文或把实例作为函数调用。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收文件或目录路径，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `path` | `Path` | 文件或目录位置；可能是 `Path`，也可能是尚待受控解析的路径字符串。 |
+| `path` | `Path` | 待读取、写入或校验的文件系统路径；是否允许访问由函数内的路径边界检查决定。 |
 
 **输出**
 
@@ -6262,14 +6213,14 @@ payload ← 调用 pack.model_dump(mode='json')
 **伪代码**
 
 ```text
-self.path ← path
+把传入的 文件或目录路径 分别保存到同名实例字段。
 ```
 
 #### `SqliteProjectMemoryRepository._connect`
 
 - **源码**：`app/project_memory/repository.py:34`
 - **签名**：`def _connect(self) -> sqlite3.Connection`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于在固定 MCP Policy、Schema Pin、调用预算和只读职责边界内连接或调用外部能力，并把返回内容转换为可追溯的复现证据，最终标注为 `sqlite3.Connection` 的领域结果。
 
 **输入**
 
@@ -6285,19 +6236,15 @@ self.path ← path
 **伪代码**
 
 ```text
-connection ← 调用 sqlite3.connect(self.path, timeout=30.0)
-connection.row_factory ← sqlite3.Row
-调用 connection.execute('PRAGMA foreign_keys=ON')
-调用 connection.execute('PRAGMA journal_mode=WAL')
-调用 connection.execute('PRAGMA busy_timeout=30000')
-返回 connection
+调用 `connect` 完成该函数的一项辅助处理，并把结果记为 数据库连接；读取数据库记录行，并保存为 记录行；通过数据库连接执行数据查询或命令；通过数据库连接执行数据查询或命令。
+通过数据库连接执行数据查询或命令；返回数据库连接的当前值。
 ```
 
 #### `SqliteProjectMemoryRepository.initialize`
 
 - **源码**：`app/project_memory/repository.py:42`
 - **签名**：`def initialize(self) -> None`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -6313,16 +6260,15 @@ connection.row_factory ← sqlite3.Row
 **伪代码**
 
 ```text
-调用 self.path.parent.mkdir(parents=真, exist_ok=真)
-在上下文 调用 self._connect() 绑定为 connection 中
-    调用 connection.executescript(文本（2389 个字符）)
+创建父级目录或父领域对象对应的目录。
+在上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”中调用 `executescript` 完成该函数的一项辅助处理，退出时自动清理资源。
 ```
 
 #### `SqliteProjectMemoryRepository.ping`
 
 - **源码**：`app/project_memory/repository.py:100`
 - **签名**：`def ping(self) -> None`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -6338,21 +6284,20 @@ connection.row_factory ← sqlite3.Row
 **伪代码**
 
 ```text
-在上下文 调用 self._connect() 绑定为 connection 中
-    调用 调用 connection.execute('SELECT 1').fetchone()
+在上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”中调用 `fetchone` 完成该函数的一项辅助处理，退出时自动清理资源。
 ```
 
 #### `SqliteProjectMemoryRepository._project`
 
 - **源码**：`app/project_memory/repository.py:105`
 - **签名**：`def _project(row: sqlite3.Row) -> ProjectRecord`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收数据库记录行，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `row` | `sqlite3.Row` | 名为 `row` 的 `sqlite3.Row` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `row` | `sqlite3.Row` | 数据库记录行；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -6362,27 +6307,25 @@ connection.row_factory ← sqlite3.Row
 **伪代码**
 
 ```text
-尝试
-    record ← 调用 ProjectRecord.model_validate_json(row['record_json'])
-    调用 validate_project_hash(record)
-如果捕获 (ValidationError, ProjectMemoryIntegrityError) 记为 exc
-    抛出 ProjectMemoryIntegrityError：'Project row 损坏'
-如果 record.project_id 不等于 row['project_id'] 或 record.status 不等于 row['status'] 或 record.version 不等于 row['version'] 或 record.record_hash 不等于 row['record_hash']
-    抛出 ProjectMemoryIntegrityError：'Project 索引列与 JSON 不一致'
-返回 record
+先尝试完成以下处理：
+    调用 `model_validate_json` 完成该函数的一项辅助处理，并把结果记为 领域记录；调用 `validate_project_hash` 校验当前输入或状态。
+如果出现 `(ValidationError, ProjectMemoryIntegrityError)`并把异常保存为捕获的异常对象：
+    拒绝继续处理并抛出 `ProjectMemoryIntegrityError`，向调用方报告输入或运行失败。
+如果复现项目 ID不等于数据库记录行中的对应字段 或 当前状态不等于数据库记录行中的对应字段 或 记录版本号不等于数据库记录行中的对应字段 或 领域记录的 Hash不等于数据库记录行中的对应字段，就拒绝继续处理并抛出 `ProjectMemoryIntegrityError`，向调用方报告输入或运行失败。
+返回领域记录的当前值。
 ```
 
 #### `SqliteProjectMemoryRepository._fact`
 
 - **源码**：`app/project_memory/repository.py:121`
 - **签名**：`def _fact(row: sqlite3.Row) -> ProjectFactRecord`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收数据库记录行，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `row` | `sqlite3.Row` | 名为 `row` 的 `sqlite3.Row` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `row` | `sqlite3.Row` | 数据库记录行；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -6392,21 +6335,19 @@ connection.row_factory ← sqlite3.Row
 **伪代码**
 
 ```text
-尝试
-    record ← 调用 ProjectFactRecord.model_validate_json(row['record_json'])
-    调用 validate_fact_hash(record)
-如果捕获 (ValidationError, ProjectMemoryIntegrityError) 记为 exc
-    抛出 ProjectMemoryIntegrityError：'Project fact row 损坏'
-如果 record.fact_id 不等于 row['fact_id'] 或 record.project_id 不等于 row['project_id'] 或 record.status 不等于 row['status'] 或 record.version 不等于 row['version'] 或 record.record_hash 不等于 row['record_hash']
-    抛出 ProjectMemoryIntegrityError：'Fact 索引列与 JSON 不一致'
-返回 record
+先尝试完成以下处理：
+    调用 `model_validate_json` 完成该函数的一项辅助处理，并把结果记为 领域记录；调用 `validate_fact_hash` 校验当前输入或状态。
+如果出现 `(ValidationError, ProjectMemoryIntegrityError)`并把异常保存为捕获的异常对象：
+    拒绝继续处理并抛出 `ProjectMemoryIntegrityError`，向调用方报告输入或运行失败。
+如果项目事实记录的 ID不等于数据库记录行中的对应字段 或 复现项目 ID不等于数据库记录行中的对应字段 或 当前状态不等于数据库记录行中的对应字段 或 记录版本号不等于数据库记录行中的对应字段 或 领域记录的 Hash不等于数据库记录行中的对应字段，就拒绝继续处理并抛出 `ProjectMemoryIntegrityError`，向调用方报告输入或运行失败。
+返回领域记录的当前值。
 ```
 
 #### `SqliteProjectMemoryRepository._source_job_id`
 
 - **源码**：`app/project_memory/repository.py:138`
 - **签名**：`def _source_job_id(fact: ProjectFactRecord) -> str | None`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收项目事实记录，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `str | None` 的领域结果。
 
 **输入**
 
@@ -6422,16 +6363,15 @@ connection.row_factory ← sqlite3.Row
 **伪代码**
 
 ```text
-如果 调用 isinstance(fact.source, ChatUserMessageFactSource)
-    返回 fact.source.job_id
-返回 空值
+如果“计算数量、边界或类型判断结果”后得到肯定结果，就返回复现任务 ID的当前值。
+返回固定值 `空值`。
 ```
 
 #### `SqliteProjectMemoryRepository._fact_columns`
 
 - **源码**：`app/project_memory/repository.py:144`
 - **签名**：`def _fact_columns(fact: ProjectFactRecord) -> tuple`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收项目事实记录，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `tuple` 的领域结果。
 
 **输入**
 
@@ -6447,25 +6387,23 @@ connection.row_factory ← sqlite3.Row
 **伪代码**
 
 ```text
-category ← 如果 fact.content 不为空 则 fact.content.category，否则 空值
-key ← 如果 fact.content 不为空 则 fact.content.key，否则 空值
-返回 (fact.project_id, category, key, fact.status, fact.version, fact.content_hash, fact.record_hash, fact.expires_at, 调用 SqliteProjectMemoryRepository._source_job_id(fact), 调用 fact.model_dump_json(), fact.created_at, fact.updated_at)
+计算根据条件从两个候选结果中选择一个，并保存为 评测类别；计算根据条件从两个候选结果中选择一个，并保存为 映射键或对象字段名；返回当前构造的顺序或去重集合。
 ```
 
 #### `SqliteProjectMemoryRepository._replay`
 
 - **源码**：`app/project_memory/repository.py:163`
 - **签名**：`def _replay(connection: sqlite3.Connection, operation_key: str, request_hash: str, response_kind: str) -> dict | None`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收数据库连接、操作键、请求内容 Hash、响应类别，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `dict | None` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `connection` | `sqlite3.Connection` | 数据库连接对象；事务边界由调用代码控制。 |
-| `operation_key` | `str` | 名为 `operation_key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
-| `response_kind` | `str` | 前序调用产生的结构化响应、结果或执行结论。 |
+| `connection` | `sqlite3.Connection` | 数据库连接；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `operation_key` | `str` | 名为 `operation_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
+| `response_kind` | `str` | 前序调用产生的结构化响应、结果或执行结论，供当前函数继续判断或投影。 |
 
 **输出**
 
@@ -6475,31 +6413,28 @@ key ← 如果 fact.content 不为空 则 fact.content.key，否则 空值
 **伪代码**
 
 ```text
-row ← 调用 调用 connection.execute('SELECT * FROM project_memory_operations WHERE operation_key=?', (operation_key)).fetchone()
-如果 row 为空
-    返回 空值
-如果 row['request_hash'] 不等于 request_hash
-    抛出 ProjectMemoryConflictError：'同一 Idempotency-Key 对应不同 request payload'
-如果 row['response_kind'] 不等于 response_kind
-    抛出 ProjectMemoryConflictError：'幂等 operation kind 冲突'
-返回 调用 json.loads(row['response_json'])
+调用 `fetchone` 完成该函数的一项辅助处理，并把结果记为 数据库记录行。
+如果数据库记录行为空，就返回固定值 `空值`。
+如果数据库记录行中的对应字段不等于请求内容 Hash，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+如果数据库记录行中的对应字段不等于响应类别，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+将外部表示解析为结构化内容，并返回处理结果。
 ```
 
 #### `SqliteProjectMemoryRepository._save_operation`
 
 - **源码**：`app/project_memory/repository.py:185`
 - **签名**：`def _save_operation(connection: sqlite3.Connection, operation_key: str, request_hash: str, response_kind: str, response: dict) -> None`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收数据库连接、操作键、请求内容 Hash、响应类别等输入，用于在版本、幂等键和内容 Hash 约束下保存、发布或变更复现记录和 Artifact，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `connection` | `sqlite3.Connection` | 数据库连接对象；事务边界由调用代码控制。 |
-| `operation_key` | `str` | 名为 `operation_key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
-| `response_kind` | `str` | 前序调用产生的结构化响应、结果或执行结论。 |
-| `response` | `dict` | 前序调用产生的结构化响应、结果或执行结论。 |
+| `connection` | `sqlite3.Connection` | 数据库连接；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `operation_key` | `str` | 名为 `operation_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
+| `response_kind` | `str` | 前序调用产生的结构化响应、结果或执行结论，供当前函数继续判断或投影。 |
+| `response` | `dict` | 前序调用产生的结构化响应、结果或执行结论，供当前函数继续判断或投影。 |
 
 **输出**
 
@@ -6509,21 +6444,21 @@ row ← 调用 调用 connection.execute('SELECT * FROM project_memory_operation
 **伪代码**
 
 ```text
-调用 connection.execute(文本（172 个字符）, (operation_key, request_hash, response_kind, 调用 json.dumps(response, ensure_ascii=假, separators=(',', ':'))))
+通过数据库连接执行数据查询或命令。
 ```
 
 #### `SqliteProjectMemoryRepository.get_project`
 
 - **源码**：`app/project_memory/repository.py:207`
 - **签名**：`def get_project(self, project_id: str) -> ProjectRecord`
-- **作用**：读取或查询领域数据，不应隐式扩大权限。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 
 **输出**
 
@@ -6533,26 +6468,24 @@ row ← 调用 调用 connection.execute('SELECT * FROM project_memory_operation
 **伪代码**
 
 ```text
-在上下文 调用 self._connect() 绑定为 connection 中
-    row ← 调用 调用 connection.execute('SELECT * FROM projects WHERE project_id=?', (project_id)).fetchone()
-如果 row 为空
-    抛出 ProjectNotFoundError：格式化文本：f'未找到 project_id={project_id}'
-返回 调用 self._project(row)
+在上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”中调用 `fetchone` 完成该函数的一项辅助处理，并把结果记为 数据库记录行，退出时自动清理资源。
+如果数据库记录行为空，就拒绝继续处理并抛出 `ProjectNotFoundError`，向调用方报告输入或运行失败。
+调用 `_project` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `SqliteProjectMemoryRepository.list_projects`
 
 - **源码**：`app/project_memory/repository.py:217`
 - **签名**：`def list_projects(self: 未显式标注, include_archived: bool, limit: int) -> list[ProjectRecord]`
-- **作用**：读取或查询领域数据，不应隐式扩大权限。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收是否包含已归档记录的开关、结果数量上限，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `include_archived` | `bool` | 布尔条件或能力开关。 |
-| `limit` | `int` | 有界数量或容量限制，用于控制读取、输出或资源消耗。 |
+| `include_archived` | `bool` | 布尔条件或能力开关，用于控制流程分支。 |
+| `limit` | `int` | 输出、检索或读取的数量/容量上限，用于控制结果规模和资源消耗。 |
 
 **输出**
 
@@ -6562,30 +6495,25 @@ row ← 调用 调用 connection.execute('SELECT * FROM project_memory_operation
 **伪代码**
 
 ```text
-bounded ← 调用 max(1, 调用 min(limit, 500))
-query ← 'SELECT * FROM projects'
-parameters ← ()
-如果 include_archived 为空或为假
-    query ← query + " WHERE status='active'"
-query ← query + ' ORDER BY created_at DESC, project_id DESC LIMIT ?'
-parameters ← parameters + (bounded)
-在上下文 调用 self._connect() 绑定为 connection 中
-    rows ← 调用 调用 connection.execute(query, parameters).fetchall()
-返回 按推导式生成结果：[self._project(row) for row in rows]
+计算数量、边界或类型判断结果，并把结果记为 该调用返回的结果；计算使用固定配置或常量值，并保存为 语义检索问题；计算组合多个值形成元组，并保存为 调用参数集合。
+如果是否包含已归档记录的开关为空或为假，就将新的计算结果累加或合并到语义检索问题。
+将新的计算结果累加或合并到语义检索问题；将新的计算结果累加或合并到调用参数集合。
+在上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”中调用 `fetchall` 完成该函数的一项辅助处理，并把结果记为 数据库记录行集合，退出时自动清理资源。
+返回当前计算得到的结果。
 ```
 
 #### `SqliteProjectMemoryRepository.project_for_job`
 
 - **源码**：`app/project_memory/repository.py:234`
 - **签名**：`def project_for_job(self, job_id: str) -> ProjectRecord | None`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现任务 ID，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
+| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 
 **输出**
 
@@ -6595,23 +6523,22 @@ parameters ← parameters + (bounded)
 **伪代码**
 
 ```text
-在上下文 调用 self._connect() 绑定为 connection 中
-    row ← 调用 调用 connection.execute(文本（172 个字符）, (job_id)).fetchone()
-返回 如果 row 不为空 则 调用 self._project(row)，否则 空值
+在上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”中调用 `fetchone` 完成该函数的一项辅助处理，并把结果记为 数据库记录行，退出时自动清理资源。
+返回按条件选出的结果。
 ```
 
 #### `SqliteProjectMemoryRepository.list_bindings`
 
 - **源码**：`app/project_memory/repository.py:246`
 - **签名**：`def list_bindings(self, project_id: str) -> list[ProjectJobBinding]`
-- **作用**：读取或查询领域数据，不应隐式扩大权限。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 
 **输出**
 
@@ -6621,24 +6548,23 @@ parameters ← parameters + (bounded)
 **伪代码**
 
 ```text
-调用 self.get_project(project_id)
-在上下文 调用 self._connect() 绑定为 connection 中
-    rows ← 调用 调用 connection.execute(文本（140 个字符）, (project_id)).fetchall()
-返回 按推导式生成结果：[ProjectJobBinding.model_validate_json(row['binding_json']) for row in rows]
+调用 `get_project` 读取或查询当前阶段需要的数据。
+在上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”中调用 `fetchall` 完成该函数的一项辅助处理，并把结果记为 数据库记录行集合，退出时自动清理资源。
+返回当前计算得到的结果。
 ```
 
 #### `SqliteProjectMemoryRepository.get_fact`
 
 - **源码**：`app/project_memory/repository.py:262`
 - **签名**：`def get_fact(self, fact_id: str) -> ProjectFactRecord`
-- **作用**：读取或查询领域数据，不应隐式扩大权限。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收项目事实记录的 ID，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
+| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 
 **输出**
 
@@ -6648,27 +6574,25 @@ parameters ← parameters + (bounded)
 **伪代码**
 
 ```text
-在上下文 调用 self._connect() 绑定为 connection 中
-    row ← 调用 调用 connection.execute('SELECT * FROM project_facts WHERE fact_id=?', (fact_id)).fetchone()
-如果 row 为空
-    抛出 ProjectFactNotFoundError：格式化文本：f'未找到 fact_id={fact_id}'
-返回 调用 self._fact(row)
+在上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”中调用 `fetchone` 完成该函数的一项辅助处理，并把结果记为 数据库记录行，退出时自动清理资源。
+如果数据库记录行为空，就拒绝继续处理并抛出 `ProjectFactNotFoundError`，向调用方报告输入或运行失败。
+调用 `_fact` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `SqliteProjectMemoryRepository.list_facts`
 
 - **源码**：`app/project_memory/repository.py:272`
 - **签名**：`def list_facts(self: 未显式标注, project_id: str, include_terminal: bool, limit: int) -> list[ProjectFactRecord]`
-- **作用**：读取或查询领域数据，不应隐式扩大权限。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID、是否包含已终止运行的开关、结果数量上限，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `include_terminal` | `bool` | 布尔条件或能力开关。 |
-| `limit` | `int` | 有界数量或容量限制，用于控制读取、输出或资源消耗。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `include_terminal` | `bool` | 布尔条件或能力开关，用于控制流程分支。 |
+| `limit` | `int` | 输出、检索或读取的数量/容量上限，用于控制结果规模和资源消耗。 |
 
 **输出**
 
@@ -6678,32 +6602,27 @@ parameters ← parameters + (bounded)
 **伪代码**
 
 ```text
-调用 self.get_project(project_id)
-query ← 'SELECT * FROM project_facts WHERE project_id=?'
-params ← [project_id]
-如果 include_terminal 为空或为假
-    query ← query + " AND status IN ('proposed','confirmed')"
-query ← query + ' ORDER BY created_at DESC, fact_id DESC LIMIT ?'
-调用 params.append(调用 max(1, 调用 min(limit, 1000)))
-在上下文 调用 self._connect() 绑定为 connection 中
-    rows ← 调用 调用 connection.execute(query, 调用 tuple(params)).fetchall()
-返回 按推导式生成结果：[self._fact(row) for row in rows]
+调用 `get_project` 读取或查询当前阶段需要的数据；计算使用固定配置或常量值，并保存为 语义检索问题；计算初始化顺序集合，并保存为 当前处理结果。
+如果是否包含已终止运行的开关为空或为假，就将新的计算结果累加或合并到语义检索问题。
+将新的计算结果累加或合并到语义检索问题；把新的处理结果追加或合并到当前处理结果。
+在上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”中调用 `fetchall` 完成该函数的一项辅助处理，并把结果记为 数据库记录行集合，退出时自动清理资源。
+返回当前计算得到的结果。
 ```
 
 #### `SqliteProjectMemoryRepository.active_facts`
 
 - **源码**：`app/project_memory/repository.py:290`
 - **签名**：`def active_facts(self: 未显式标注, project_id: str, now: str, limit: int) -> list[ProjectFactRecord]`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID、当前时间、结果数量上限，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 | `now` | `str` | 时间值或可注入时钟，用于排序、过期、租约或可重复测试。 |
-| `limit` | `int` | 有界数量或容量限制，用于控制读取、输出或资源消耗。 |
+| `limit` | `int` | 输出、检索或读取的数量/容量上限，用于控制结果规模和资源消耗。 |
 
 **输出**
 
@@ -6713,19 +6632,17 @@ query ← query + ' ORDER BY created_at DESC, fact_id DESC LIMIT ?'
 **伪代码**
 
 ```text
-project ← 调用 self.get_project(project_id)
-如果 project.status 不等于 'active'
-    返回 []
-在上下文 调用 self._connect() 绑定为 connection 中
-    rows ← 调用 调用 connection.execute(文本（297 个字符）, (project_id, now, 调用 max(1, 调用 min(limit, 500)))).fetchall()
-返回 按推导式生成结果：[self._fact(row) for row in rows]
+调用 `get_project` 读取或查询当前阶段需要的数据，并把结果记为 复现项目记录。
+如果当前状态不等于'active'，就返回当前构造的顺序或去重集合。
+在上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”中调用 `fetchall` 完成该函数的一项辅助处理，并把结果记为 数据库记录行集合，退出时自动清理资源。
+返回当前计算得到的结果。
 ```
 
 #### `SqliteProjectMemoryRepository.active_referenced_job_ids`
 
 - **源码**：`app/project_memory/repository.py:314`
 - **签名**：`def active_referenced_job_ids(self) -> set[str]`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
@@ -6741,17 +6658,16 @@ project ← 调用 self.get_project(project_id)
 **伪代码**
 
 ```text
-now ← 调用 调用 datetime.now(timezone.utc).isoformat()
-在上下文 调用 self._connect() 绑定为 connection 中
-    rows ← 调用 调用 connection.execute(文本（367 个字符）, (now)).fetchall()
-返回 按推导式生成结果：{str(row[0]) for row in rows}
+调用 `isoformat` 完成该函数的一项辅助处理，并把结果记为 当前时间。
+在上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”中调用 `fetchall` 完成该函数的一项辅助处理，并把结果记为 数据库记录行集合，退出时自动清理资源。
+返回当前计算得到的结果。
 ```
 
 #### `SqliteProjectMemoryRepository.create_project`
 
 - **源码**：`app/project_memory/repository.py:332`
 - **签名**：`def create_project(self: 未显式标注, project: ProjectRecord, anchor_binding: ProjectJobBinding, operation_key: str, request_hash: str) -> tuple[ProjectRecord, bool]`
-- **作用**：执行受约束的数据变更；具体 CAS、幂等和副作用见伪代码。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目记录、绑定、操作键、请求内容 Hash，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
@@ -6759,9 +6675,9 @@ now ← 调用 调用 datetime.now(timezone.utc).isoformat()
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
 | `project` | `ProjectRecord` | 项目注册记录；定义稳定项目身份及其不可变锚点。 |
-| `anchor_binding` | `ProjectJobBinding` | 名为 `anchor_binding` 的 `ProjectJobBinding` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `operation_key` | `str` | 名为 `operation_key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
+| `anchor_binding` | `ProjectJobBinding` | 名为 `anchor_binding` 的 `ProjectJobBinding` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `operation_key` | `str` | 名为 `operation_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
 
 **输出**
 
@@ -6771,31 +6687,26 @@ now ← 调用 调用 datetime.now(timezone.utc).isoformat()
 **伪代码**
 
 ```text
-调用 validate_project_hash(project)
-如果 anchor_binding.project_id 不等于 project.project_id
-    抛出 ProjectMemoryConflictError：'Anchor binding project_id 不一致'
-如果 anchor_binding.job_id 不等于 project.anchor.job_id
-    抛出 ProjectMemoryConflictError：'Anchor binding job_id 不一致'
-在上下文 调用 self._connect() 绑定为 connection 中
-    调用 connection.execute('BEGIN IMMEDIATE')
-    replay ← 调用 self._replay(connection, operation_key=operation_key, request_hash=request_hash, response_kind='project')
-    如果 replay 不为空
-        返回 (调用 ProjectRecord.model_validate(replay['project']), 真)
-    调用 connection.execute(文本（216 个字符）, (project.project_id, project.status, project.version, project.record_hash, 调用 project.model_dump_json(), project.created_at, project.updated_at))
-    尝试
-        调用 connection.execute(文本（182 个字符）, (anchor_binding.job_id, anchor_binding.project_id, 调用 anchor_binding.model_dump_json(), anchor_binding.bound_at))
-    如果捕获 sqlite3.IntegrityError 记为 exc
-        抛出 ProjectMemoryConflictError：'Job 已绑定某个 Project'
-    调用 self._save_operation(connection, operation_key=operation_key, request_hash=request_hash, response_kind='project', response={'project': 调用 project.model_dump(mode='json')})
-    调用 connection.commit()
-返回 (project, 假)
+调用 `validate_project_hash` 校验当前输入或状态。
+如果复现项目 ID不等于复现项目 ID，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+如果复现任务 ID不等于复现任务 ID，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+进入上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”，退出时自动清理资源：
+    通过数据库连接执行数据查询或命令；调用 `_replay` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+    如果当前处理结果不为空，就返回当前构造的顺序或去重集合。
+    通过数据库连接执行数据查询或命令。
+    先尝试完成以下处理：
+        通过数据库连接执行数据查询或命令。
+    如果出现 `sqlite3.IntegrityError`并把异常保存为捕获的异常对象：
+        拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    调用 `_save_operation` 持久化或更新当前领域数据；提交数据库连接中已完成的数据变更。
+返回当前构造的顺序或去重集合。
 ```
 
 #### `SqliteProjectMemoryRepository.archive_project`
 
 - **源码**：`app/project_memory/repository.py:401`
 - **签名**：`def archive_project(self: 未显式标注, project: ProjectRecord, expected_version: int, expected_hash: str, operation_key: str, request_hash: str) -> tuple[ProjectRecord, bool]`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目记录、调用方看到的旧版本号、调用方看到的旧内容 Hash、操作键等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
@@ -6803,10 +6714,10 @@ now ← 调用 调用 datetime.now(timezone.utc).isoformat()
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
 | `project` | `ProjectRecord` | 项目注册记录；定义稳定项目身份及其不可变锚点。 |
-| `expected_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验。 |
-| `expected_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
-| `operation_key` | `str` | 名为 `operation_key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
+| `expected_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验，防止覆盖并发更新。 |
+| `expected_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
+| `operation_key` | `str` | 名为 `operation_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
 
 **输出**
 
@@ -6816,46 +6727,38 @@ now ← 调用 调用 datetime.now(timezone.utc).isoformat()
 **伪代码**
 
 ```text
-调用 validate_project_hash(project)
-在上下文 调用 self._connect() 绑定为 connection 中
-    调用 connection.execute('BEGIN IMMEDIATE')
-    replay ← 调用 self._replay(connection, operation_key=operation_key, request_hash=request_hash, response_kind='project')
-    如果 replay 不为空
-        返回 (调用 ProjectRecord.model_validate(replay['project']), 真)
-    row ← 调用 调用 connection.execute('SELECT * FROM projects WHERE project_id=?', (project.project_id)).fetchone()
-    如果 row 为空
-        抛出 ProjectNotFoundError：格式化文本：f'未找到 project_id={project.project_id}'
-    current ← 调用 self._project(row)
-    如果 current.version 不等于 expected_version 或 current.record_hash 不等于 expected_hash
-        抛出 ProjectMemoryConflictError：'Project version/hash 已变化'
-    如果 current.status 不等于 'active' 或 project.status 不等于 'archived'
-        抛出 ProjectMemoryConflictError：'Project archive 状态迁移非法'
-    如果 project.version 不等于 current.version + 1
-        抛出 ProjectMemoryConflictError：'Project version 没有递增'
-    changed ← 调用 connection.execute(文本（202 个字符）, (project.status, project.version, project.record_hash, 调用 project.model_dump_json(), project.updated_at, project.project_id, expected_version, expected_hash)).rowcount
-    如果 changed 不等于 1
-        抛出 ProjectMemoryConflictError：'Project archive CAS 失败'
-    调用 self._save_operation(connection, operation_key=operation_key, request_hash=request_hash, response_kind='project', response={'project': 调用 project.model_dump(mode='json')})
-    调用 connection.commit()
-返回 (project, 假)
+调用 `validate_project_hash` 校验当前输入或状态。
+进入上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”，退出时自动清理资源：
+    通过数据库连接执行数据查询或命令；调用 `_replay` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+    如果当前处理结果不为空，就返回当前构造的顺序或去重集合。
+    调用 `fetchone` 完成该函数的一项辅助处理，并把结果记为 数据库记录行。
+    如果数据库记录行为空，就拒绝继续处理并抛出 `ProjectNotFoundError`，向调用方报告输入或运行失败。
+    调用 `_project` 完成该函数的一项辅助处理，并把结果记为 当前值。
+    如果记录版本号不等于调用方看到的旧版本号 或 领域记录的 Hash不等于调用方看到的旧内容 Hash，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    如果当前状态不等于'active' 或 当前状态不等于'archived'，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    如果记录版本号不等于记录版本号 + 1，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    读取前一步操作返回对象的当前处理结果，并保存为 发生变化的内容。
+    如果发生变化的内容不等于1，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    调用 `_save_operation` 持久化或更新当前领域数据；提交数据库连接中已完成的数据变更。
+返回当前构造的顺序或去重集合。
 ```
 
 #### `SqliteProjectMemoryRepository.bind_job`
 
 - **源码**：`app/project_memory/repository.py:469`
 - **签名**：`def bind_job(self: 未显式标注, binding: ProjectJobBinding, expected_project_version: int, expected_project_hash: str, operation_key: str, request_hash: str) -> tuple[ProjectJobBinding, bool]`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收资源绑定记录、期望项目版本、期望项目的 Hash、操作键等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `binding` | `ProjectJobBinding` | 名为 `binding` 的 `ProjectJobBinding` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `expected_project_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验。 |
-| `expected_project_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
-| `operation_key` | `str` | 名为 `operation_key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
+| `binding` | `ProjectJobBinding` | 资源绑定记录；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `expected_project_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验，防止覆盖并发更新。 |
+| `expected_project_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
+| `operation_key` | `str` | 名为 `operation_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
 
 **输出**
 
@@ -6865,33 +6768,27 @@ now ← 调用 调用 datetime.now(timezone.utc).isoformat()
 **伪代码**
 
 ```text
-在上下文 调用 self._connect() 绑定为 connection 中
-    调用 connection.execute('BEGIN IMMEDIATE')
-    replay ← 调用 self._replay(connection, operation_key=operation_key, request_hash=request_hash, response_kind='binding')
-    如果 replay 不为空
-        返回 (调用 ProjectJobBinding.model_validate(replay['binding']), 真)
-    row ← 调用 调用 connection.execute('SELECT * FROM projects WHERE project_id=?', (binding.project_id)).fetchone()
-    如果 row 为空
-        抛出 ProjectNotFoundError：格式化文本：f'未找到 project_id={binding.project_id}'
-    project ← 调用 self._project(row)
-    如果 project.version 不等于 expected_project_version 或 project.record_hash 不等于 expected_project_hash
-        抛出 ProjectMemoryConflictError：'Project version/hash 已变化'
-    如果 project.status 不等于 'active'
-        抛出 ProjectMemoryConflictError：'Archived Project 不能绑定 Job'
-    尝试
-        调用 connection.execute(文本（182 个字符）, (binding.job_id, binding.project_id, 调用 binding.model_dump_json(), binding.bound_at))
-    如果捕获 sqlite3.IntegrityError 记为 exc
-        抛出 ProjectMemoryConflictError：'Job 已绑定某个 Project'
-    调用 self._save_operation(connection, operation_key=operation_key, request_hash=request_hash, response_kind='binding', response={'binding': 调用 binding.model_dump(mode='json')})
-    调用 connection.commit()
-返回 (binding, 假)
+进入上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”，退出时自动清理资源：
+    通过数据库连接执行数据查询或命令；调用 `_replay` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+    如果当前处理结果不为空，就返回当前构造的顺序或去重集合。
+    调用 `fetchone` 完成该函数的一项辅助处理，并把结果记为 数据库记录行。
+    如果数据库记录行为空，就拒绝继续处理并抛出 `ProjectNotFoundError`，向调用方报告输入或运行失败。
+    调用 `_project` 完成该函数的一项辅助处理，并把结果记为 复现项目记录。
+    如果记录版本号不等于期望项目版本 或 领域记录的 Hash不等于期望项目的 Hash，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    如果当前状态不等于'active'，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    先尝试完成以下处理：
+        通过数据库连接执行数据查询或命令。
+    如果出现 `sqlite3.IntegrityError`并把异常保存为捕获的异常对象：
+        拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    调用 `_save_operation` 持久化或更新当前领域数据；提交数据库连接中已完成的数据变更。
+返回当前构造的顺序或去重集合。
 ```
 
 #### `SqliteProjectMemoryRepository.create_fact`
 
 - **源码**：`app/project_memory/repository.py:532`
 - **签名**：`def create_fact(self: 未显式标注, fact: ProjectFactRecord, operation_key: str, request_hash: str) -> tuple[ProjectFactRecord, bool]`
-- **作用**：执行受约束的数据变更；具体 CAS、幂等和副作用见伪代码。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收项目事实记录、操作键、请求内容 Hash，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
@@ -6899,8 +6796,8 @@ now ← 调用 调用 datetime.now(timezone.utc).isoformat()
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
 | `fact` | `ProjectFactRecord` | 项目事实记录或类型化事实值；包含来源、状态、版本与内容身份。 |
-| `operation_key` | `str` | 名为 `operation_key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
+| `operation_key` | `str` | 名为 `operation_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
 
 **输出**
 
@@ -6910,30 +6807,23 @@ now ← 调用 调用 datetime.now(timezone.utc).isoformat()
 **伪代码**
 
 ```text
-调用 validate_fact_hash(fact)
-如果 fact.status 不等于 'proposed'
-    抛出 ProjectMemoryConflictError：'create_fact 只能写 proposed'
-在上下文 调用 self._connect() 绑定为 connection 中
-    调用 connection.execute('BEGIN IMMEDIATE')
-    replay ← 调用 self._replay(connection, operation_key=operation_key, request_hash=request_hash, response_kind='fact')
-    如果 replay 不为空
-        返回 (调用 ProjectFactRecord.model_validate(replay['fact']), 真)
-    project_row ← 调用 调用 connection.execute('SELECT * FROM projects WHERE project_id=?', (fact.project_id)).fetchone()
-    如果 project_row 为空
-        抛出 ProjectNotFoundError：格式化文本：f'未找到 project_id={fact.project_id}'
-    如果 调用 self._project(project_row).status 不等于 'active'
-        抛出 ProjectMemoryConflictError：'Archived Project 不能新增 Fact'
-    调用 connection.execute(文本（327 个字符）, (fact.fact_id, *self._fact_columns(fact)))
-    调用 self._save_operation(connection, operation_key=operation_key, request_hash=request_hash, response_kind='fact', response={'fact': 调用 fact.model_dump(mode='json')})
-    调用 connection.commit()
-返回 (fact, 假)
+调用 `validate_fact_hash` 校验当前输入或状态。
+如果当前状态不等于'proposed'，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+进入上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”，退出时自动清理资源：
+    通过数据库连接执行数据查询或命令；调用 `_replay` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+    如果当前处理结果不为空，就返回当前构造的顺序或去重集合。
+    调用 `fetchone` 完成该函数的一项辅助处理，并把结果记为 项目记录行。
+    如果项目记录行为空，就拒绝继续处理并抛出 `ProjectNotFoundError`，向调用方报告输入或运行失败。
+    如果前一步操作返回对象的当前状态不等于'active'，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    通过数据库连接执行数据查询或命令；调用 `_save_operation` 持久化或更新当前领域数据；提交数据库连接中已完成的数据变更。
+返回当前构造的顺序或去重集合。
 ```
 
 #### `SqliteProjectMemoryRepository.replace_fact`
 
 - **源码**：`app/project_memory/repository.py:582`
 - **签名**：`def replace_fact(self: 未显式标注, fact: ProjectFactRecord, expected_version: int, expected_hash: str, operation_key: str, request_hash: str) -> tuple[ProjectFactRecord, bool]`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收项目事实记录、调用方看到的旧版本号、调用方看到的旧内容 Hash、操作键等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
@@ -6941,10 +6831,10 @@ now ← 调用 调用 datetime.now(timezone.utc).isoformat()
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
 | `fact` | `ProjectFactRecord` | 项目事实记录或类型化事实值；包含来源、状态、版本与内容身份。 |
-| `expected_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验。 |
-| `expected_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
-| `operation_key` | `str` | 名为 `operation_key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
+| `expected_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验，防止覆盖并发更新。 |
+| `expected_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
+| `operation_key` | `str` | 名为 `operation_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
 
 **输出**
 
@@ -6954,52 +6844,42 @@ now ← 调用 调用 datetime.now(timezone.utc).isoformat()
 **伪代码**
 
 ```text
-调用 validate_fact_hash(fact)
-在上下文 调用 self._connect() 绑定为 connection 中
-    调用 connection.execute('BEGIN IMMEDIATE')
-    replay ← 调用 self._replay(connection, operation_key=operation_key, request_hash=request_hash, response_kind='fact')
-    如果 replay 不为空
-        返回 (调用 ProjectFactRecord.model_validate(replay['fact']), 真)
-    row ← 调用 调用 connection.execute('SELECT * FROM project_facts WHERE fact_id=?', (fact.fact_id)).fetchone()
-    如果 row 为空
-        抛出 ProjectFactNotFoundError：格式化文本：f'未找到 fact_id={fact.fact_id}'
-    current ← 调用 self._fact(row)
-    如果 current.version 不等于 expected_version 或 current.record_hash 不等于 expected_hash
-        抛出 ProjectMemoryConflictError：'Project Fact version/hash 已变化'
-    如果 fact.version 不等于 current.version + 1
-        抛出 ProjectMemoryConflictError：'Project Fact version 没有递增'
-    如果 fact.project_id 不等于 current.project_id 或 fact.created_at 不等于 current.created_at 或 fact.source 不等于 current.source 或 fact.content_hash 不等于 current.content_hash
-        抛出 ProjectMemoryConflictError：'Fact immutable identity 被修改'
-    如果 fact.status 等于 'confirmed' 且 fact.content 不为空
-        conflict ← 调用 调用 connection.execute(文本（319 个字符）, (fact.project_id, fact.content.category, fact.content.key, fact.updated_at, fact.fact_id)).fetchone()
-        如果 conflict 不为空
-            抛出 ProjectMemoryConflictError：'slot 已有 active fact；请使用 correct'
-    columns ← 调用 self._fact_columns(fact)
-    changed ← 调用 connection.execute(文本（339 个字符）, (*columns, fact.fact_id, expected_version, expected_hash)).rowcount
-    如果 changed 不等于 1
-        抛出 ProjectMemoryConflictError：'Project Fact CAS 失败'
-    调用 self._save_operation(connection, operation_key=operation_key, request_hash=request_hash, response_kind='fact', response={'fact': 调用 fact.model_dump(mode='json')})
-    调用 connection.commit()
-返回 (fact, 假)
+调用 `validate_fact_hash` 校验当前输入或状态。
+进入上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”，退出时自动清理资源：
+    通过数据库连接执行数据查询或命令；调用 `_replay` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+    如果当前处理结果不为空，就返回当前构造的顺序或去重集合。
+    调用 `fetchone` 完成该函数的一项辅助处理，并把结果记为 数据库记录行。
+    如果数据库记录行为空，就拒绝继续处理并抛出 `ProjectFactNotFoundError`，向调用方报告输入或运行失败。
+    调用 `_fact` 完成该函数的一项辅助处理，并把结果记为 当前值。
+    如果记录版本号不等于调用方看到的旧版本号 或 领域记录的 Hash不等于调用方看到的旧内容 Hash，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    如果记录版本号不等于记录版本号 + 1，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    如果复现项目 ID不等于复现项目 ID 或 创建时间不等于创建时间 或 数据来源标记不等于数据来源标记 或 业务内容的 Hash不等于业务内容的 Hash，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    如果当前状态等于'confirmed' 且 业务内容不为空：
+        调用 `fetchone` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+        如果当前处理结果不为空，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    调用 `_fact_columns` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；读取前一步操作返回对象的当前处理结果，并保存为 发生变化的内容。
+    如果发生变化的内容不等于1，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    调用 `_save_operation` 持久化或更新当前领域数据；提交数据库连接中已完成的数据变更。
+返回当前构造的顺序或去重集合。
 ```
 
 #### `SqliteProjectMemoryRepository.replace_with_successor`
 
 - **源码**：`app/project_memory/repository.py:672`
 - **签名**：`def replace_with_successor(self: 未显式标注, previous: ProjectFactRecord, successor: ProjectFactRecord, expected_version: int, expected_hash: str, operation_key: str, request_hash: str) -> ProjectFactCorrectionResponse`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收前一项、当前处理结果、调用方看到的旧版本号、调用方看到的旧内容 Hash等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `previous` | `ProjectFactRecord` | 名为 `previous` 的 `ProjectFactRecord` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `successor` | `ProjectFactRecord` | 名为 `successor` 的 `ProjectFactRecord` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `expected_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验。 |
-| `expected_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
-| `operation_key` | `str` | 名为 `operation_key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
+| `previous` | `ProjectFactRecord` | 前一项；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `successor` | `ProjectFactRecord` | 名为 `successor` 的 `ProjectFactRecord` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `expected_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验，防止覆盖并发更新。 |
+| `expected_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
+| `operation_key` | `str` | 名为 `operation_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `request_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
 
 **输出**
 
@@ -7009,54 +6889,40 @@ now ← 调用 调用 datetime.now(timezone.utc).isoformat()
 **伪代码**
 
 ```text
-调用 validate_fact_hash(previous)
-调用 validate_fact_hash(successor)
-在上下文 调用 self._connect() 绑定为 connection 中
-    调用 connection.execute('BEGIN IMMEDIATE')
-    replay ← 调用 self._replay(connection, operation_key=operation_key, request_hash=request_hash, response_kind='fact_correction')
-    如果 replay 不为空
-        返回 调用 ProjectFactCorrectionResponse.model_validate({**replay, 'replayed': 真})
-    row ← 调用 调用 connection.execute('SELECT * FROM project_facts WHERE fact_id=?', (previous.fact_id)).fetchone()
-    如果 row 为空
-        抛出 ProjectFactNotFoundError：格式化文本：f'未找到 fact_id={previous.fact_id}'
-    current ← 调用 self._fact(row)
-    如果 current.version 不等于 expected_version 或 current.record_hash 不等于 expected_hash
-        抛出 ProjectMemoryConflictError：'Project Fact version/hash 已变化'
-    如果 current.status 不等于 'confirmed'
-        抛出 ProjectMemoryConflictError：'只有 confirmed fact 可以 correct'
-    如果 previous.status 不等于 'superseded' 或 previous.version 不等于 current.version + 1 或 previous.superseded_by_fact_id 不等于 successor.fact_id 或 previous.source 不等于 current.source 或 previous.created_at 不等于 current.created_at 或 previous.content_hash 不等于 current.content_hash 或 successor.supersedes_fact_id 不等于 current.fact_id 或 successor.supersedes_record_hash 不等于 current.record_hash 或 successor.project_id 不等于 current.project_id
-        抛出 ProjectMemoryConflictError：'Correction revision identity 不一致'
-    如果 current.content 为空 或 successor.content 为空
-        抛出 ProjectMemoryConflictError：'Correction 缺少内容'
-    如果 successor.content.category 不等于 current.content.category 或 successor.content.key 不等于 current.content.key
-        抛出 ProjectMemoryConflictError：'Correction 不能改变 slot'
-    conflict ← 调用 调用 connection.execute(文本（291 个字符）, (current.project_id, current.content.category, current.content.key, successor.created_at, current.fact_id)).fetchone()
-    如果 conflict 不为空
-        抛出 ProjectMemoryConflictError：'slot 存在另一个 active fact'
-    changed ← 调用 connection.execute(文本（339 个字符）, (*self._fact_columns(previous), current.fact_id, expected_version, expected_hash)).rowcount
-    如果 changed 不等于 1
-        抛出 ProjectMemoryConflictError：'Correction previous CAS 失败'
-    调用 connection.execute(文本（327 个字符）, (successor.fact_id, *self._fact_columns(successor)))
-    response ← 调用 ProjectFactCorrectionResponse(previous=previous, successor=successor, replayed=假)
-    调用 self._save_operation(connection, operation_key=operation_key, request_hash=request_hash, response_kind='fact_correction', response=调用 response.model_dump(mode='json'))
-    调用 connection.commit()
-返回 response
+调用 `validate_fact_hash` 校验当前输入或状态；调用 `validate_fact_hash` 校验当前输入或状态。
+进入上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”，退出时自动清理资源：
+    通过数据库连接执行数据查询或命令；调用 `_replay` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+    如果当前处理结果不为空，就复制、序列化或校验结构化领域对象，并返回处理结果。
+    调用 `fetchone` 完成该函数的一项辅助处理，并把结果记为 数据库记录行。
+    如果数据库记录行为空，就拒绝继续处理并抛出 `ProjectFactNotFoundError`，向调用方报告输入或运行失败。
+    调用 `_fact` 完成该函数的一项辅助处理，并把结果记为 当前值。
+    如果记录版本号不等于调用方看到的旧版本号 或 领域记录的 Hash不等于调用方看到的旧内容 Hash，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    如果当前状态不等于'confirmed'，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    如果当前状态不等于'superseded' 或 记录版本号不等于记录版本号 + 1 或 事实的 ID不等于项目事实记录的 ID 或 数据来源标记不等于数据来源标记 或 创建时间不等于创建时间 或 业务内容的 Hash不等于业务内容的 Hash 或 事实的 ID不等于项目事实记录的 ID 或 记录的 Hash不等于领域记录的 Hash 或 复现项目 ID不等于复现项目 ID，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    如果业务内容为空 或 业务内容为空，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    如果评测类别不等于评测类别 或 映射键或对象字段名不等于映射键或对象字段名，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    调用 `fetchone` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+    如果当前处理结果不为空，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    读取前一步操作返回对象的当前处理结果，并保存为 发生变化的内容。
+    如果发生变化的内容不等于1，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+    通过数据库连接执行数据查询或命令；构造 `ProjectFactCorrectionResponse` 结构化领域对象，并把结果记为 结构化响应；调用 `_save_operation` 持久化或更新当前领域数据；提交数据库连接中已完成的数据变更。
+返回结构化响应的当前值。
 ```
 
 #### `SqliteProjectMemoryRepository.expire_due`
 
 - **源码**：`app/project_memory/repository.py:794`
 - **签名**：`def expire_due(self, *, project_id: str, now: str, actor: str) -> int`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID、当前时间、审计主体，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终数量、序号、字节数或版本等整数结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 | `now` | `str` | 时间值或可注入时钟，用于排序、过期、租约或可重复测试。 |
-| `actor` | `str` | 执行该操作的审计主体标识，不是授权凭证本身。 |
+| `actor` | `str` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
 
 **输出**
 
@@ -7066,22 +6932,15 @@ now ← 调用 调用 datetime.now(timezone.utc).isoformat()
 **伪代码**
 
 ```text
-changed ← 0
-在上下文 调用 self._connect() 绑定为 connection 中
-    调用 connection.execute('BEGIN IMMEDIATE')
-    rows ← 调用 调用 connection.execute(文本（233 个字符）, (project_id, now)).fetchall()
-    对于 row 属于 rows
-        current ← 调用 self._fact(row)
-        raw ← 调用 current.model_dump(mode='json')
-        调用 raw.update({'version': current.version + 1, 'status': 'expired', 'terminal_event': {'status': 'expired', 'actor': actor, 'reason': 'expires_at reached', 'occurred_at': now}, 'updated_at': now, 'record_hash': '0' × 64})
-        draft ← 调用 ProjectFactRecord.model_validate(raw)
-        raw['record_hash'] ← 调用 compute_fact_hash(draft)
-        expired ← 调用 ProjectFactRecord.model_validate(raw)
-        columns ← 调用 self._fact_columns(expired)
-        updated ← 调用 connection.execute(文本（363 个字符）, (*columns, current.fact_id, current.version, current.record_hash)).rowcount
-        changed ← changed + updated
-    调用 connection.commit()
-返回 changed
+计算使用固定配置或常量值，并保存为 发生变化的内容。
+进入上下文“调用 `_connect` 完成该函数的一项辅助处理，并把上下文资源交给数据库连接”，退出时自动清理资源：
+    通过数据库连接执行数据查询或命令；调用 `fetchall` 完成该函数的一项辅助处理，并把结果记为 数据库记录行集合。
+    遍历由数据库记录行集合组成的集合或迭代器，每次把当前项记为数据库记录行：
+        调用 `_fact` 完成该函数的一项辅助处理，并把结果记为 当前值；复制、序列化或校验结构化领域对象，并把结果记为 原始内容；把新的处理结果追加或合并到原始内容；复制、序列化或校验结构化领域对象，并把结果记为 草稿对象。
+        调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 原始内容中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；调用 `_fact_columns` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；读取前一步操作返回对象的当前处理结果，并保存为 更新后的记录。
+        将新的计算结果累加或合并到发生变化的内容。
+    提交数据库连接中已完成的数据变更。
+返回发生变化的内容的当前值。
 ```
 
 ### `app/project_memory/retrieval.py`
@@ -7090,7 +6949,7 @@ changed ← 0
 
 - **源码**：`app/project_memory/retrieval.py:21`
 - **签名**：`def __init__(self, repository, *, top_k: int, max_chars: int, clock)`
-- **作用**：Python 协议方法；初始化、进入/退出上下文或把实例作为函数调用。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收持久化仓库、保留的前 K 个结果数、最大字符数、统一时间来源，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -7098,8 +6957,8 @@ changed ← 0
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
 | `repository` | `未显式标注` | 持久化或目录访问端口；负责读取、CAS 更新或 Artifact 定位。 |
-| `top_k` | `int` | 有界数量或容量限制，用于控制读取、输出或资源消耗。 |
-| `max_chars` | `int` | 名为 `max_chars` 的 `int` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `top_k` | `int` | 输出、检索或读取的数量/容量上限，用于控制结果规模和资源消耗。 |
+| `max_chars` | `int` | 名为 `max_chars` 的数量、序号、分数或时间参数；有效范围由函数用途和校验分支确定。 |
 | `clock` | `未显式标注` | 时间值或可注入时钟，用于排序、过期、租约或可重复测试。 |
 
 **输出**
@@ -7110,24 +6969,21 @@ changed ← 0
 **伪代码**
 
 ```text
-self.repository ← repository
-self.top_k ← top_k
-self.max_chars ← max_chars
-self.clock ← clock
+把传入的 持久化仓库、保留的前 K 个结果数、最大字符数、统一时间来源 分别保存到同名实例字段。
 ```
 
 #### `ProjectFactRetriever.for_project`
 
 - **源码**：`app/project_memory/retrieval.py:27`
 - **签名**：`def for_project(self, project_id: str) -> ProjectFactPack`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ProjectFactPack` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 
 **输出**
 
@@ -7137,42 +6993,29 @@ self.clock ← clock
 **伪代码**
 
 ```text
-now ← 调用 self.clock()
-调用 self.repository.expire_due(project_id=project_id, now=now, actor='system:expiry')
-project ← 调用 self.repository.get_project(project_id)
-records ← 调用 self.repository.active_facts(project_id=project_id, now=now, limit=调用 max(self.top_k × 4, self.top_k))
-调用 records.sort(key=匿名函数：lambda item: (-CATEGORY_PRIORITY[item.content.category], item.content.key, item.created_at, item.fact_id))
-items ← []
-used ← 0
-对于 record 属于 records
-    如果 record.content 为空
-        继续下一轮循环
-    item ← 调用 ProjectFactPackItem(fact_id=record.fact_id, fact_hash=record.record_hash, category=record.content.category, key=record.content.key, value=record.content.value, source_kind=record.source.kind, expires_at=record.expires_at)
-    size ← 调用 item.model_dump_json() 的长度
-    如果 used + size 大于 self.max_chars
-        继续下一轮循环
-    调用 items.append(item)
-    used ← used + size
-    如果 items 的长度 大于等于 self.top_k
-        结束当前循环
-draft ← 调用 ProjectFactPack(project_id=project.project_id, project_hash=project.record_hash, items=items, pack_hash='0' × 64, generated_at=now)
-payload ← 调用 draft.model_dump(mode='json')
-payload['pack_hash'] ← 调用 compute_pack_hash(draft)
-返回 调用 ProjectFactPack.model_validate(payload)
+读取当前时间，作为状态变更的统一时间戳，并把结果记为 当前时间；调用 `expire_due` 完成该函数的一项辅助处理；调用 `get_project` 读取或查询当前阶段需要的数据，并把结果记为 复现项目记录；调用 `active_facts` 完成该函数的一项辅助处理，并把结果记为 领域记录集合。
+按稳定规则整理结果顺序；将 待处理项集合 初始化为空列表，用来收集后续结果；计算使用固定配置或常量值，并保存为 当前处理结果。
+遍历由领域记录集合组成的集合或迭代器，每次把当前项记为领域记录：
+    如果业务内容为空，就跳过本轮剩余处理，直接进入下一轮。
+    构造 `ProjectFactPackItem` 结构化领域对象，并把结果记为 当前处理项；计算数量、边界或类型判断结果，并把结果记为 对象大小。
+    如果当前输入内容大于最大字符数，就跳过本轮剩余处理，直接进入下一轮。
+    把当前处理项追加或合并到待处理项集合；将新的计算结果累加或合并到当前处理结果。
+    如果待处理项集合 的长度不小于保留的前 K 个结果数，就立即结束当前循环。
+构造 `ProjectFactPack` 结构化领域对象，并把结果记为 草稿对象；复制、序列化或校验结构化领域对象，并把结果记为 结构化请求载荷；调用 `compute_pack_hash` 计算内容身份、分数或派生结果，并把结果记为 结构化请求载荷中的对应字段；复制、序列化或校验结构化领域对象，并返回处理结果。
 ```
 
 #### `ProjectFactRetriever.for_job`
 
 - **源码**：`app/project_memory/retrieval.py:83`
 - **签名**：`def for_job(self, job_id: str) -> ProjectFactPack | None`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现任务 ID，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ProjectFactPack | None` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
+| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 
 **输出**
 
@@ -7182,10 +7025,9 @@ payload['pack_hash'] ← 调用 compute_pack_hash(draft)
 **伪代码**
 
 ```text
-project ← 调用 self.repository.project_for_job(job_id)
-如果 project 为空 或 project.status 不等于 'active'
-    返回 空值
-返回 调用 self.for_project(project.project_id)
+调用 `project_for_job` 完成该函数的一项辅助处理，并把结果记为 复现项目记录。
+如果复现项目记录为空 或 当前状态不等于'active'，就返回固定值 `空值`。
+调用 `for_project` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 ### `app/project_memory/schemas.py`
@@ -7194,7 +7036,7 @@ project ← 调用 self.repository.project_for_job(job_id)
 
 - **源码**：`app/project_memory/schemas.py:70`
 - **签名**：`def validate_archive_shape(self) -> "ProjectRecord"`
-- **作用**：校验输入或领域对象；非法时抛出稳定异常。
+- **作用**：在约束论文复现请求、运行状态、证据和结果结构的契约校验阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
@@ -7210,71 +7052,67 @@ project ← 调用 self.repository.project_for_job(job_id)
 **伪代码**
 
 ```text
-如果 self.status 等于 'archived' 且 self.archived_reason 为空或为假
-    抛出 ValueError：'archived project 必须说明原因'
-如果 self.status 等于 'active' 且 self.archived_reason 不为空
-    抛出 ValueError：'active project 不能携带 archived_reason'
-返回 self
+如果当前状态等于'archived' 且 “原因有值或为真”不成立，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+如果当前状态等于'active' 且 原因不为空，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+返回当前对象的当前值。
 ```
 
 #### `_normalized_key`
 
 - **源码**：`app/project_memory/schemas.py:149`
 - **签名**：`def _normalized_key(value: str) -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在约束论文复现请求、运行状态、证据和结果结构的契约校验阶段中，该函数接收当前字段值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `value` | `str` | 待处理的业务内容或类型化值；是否为文本、记录或字节由类型标注与 Schema 决定。 |
+| `value` | `str` | 待处理的业务内容或类型化值；具体是文本、记录还是字节由类型标注和调用位置确定。 |
 
 **输出**
 
 - **Python 类型**：`str`
-- **语义**：返回普通文本或领域字符串；结合函数名判断其是规范化文本、ID、状态还是序列化内容。
+- **语义**：返回文本或领域字符串；其具体用途由函数名和调用位置确定，例如路径、状态、报告或序列化内容。
 
 **伪代码**
 
 ```text
-normalized ← 调用 调用 去除 value 的首尾空白.lower().replace(' ', '_')
-如果 normalized 为空或为假
-    抛出 ValueError：'fact key 不能为空'
-allowed ← 调用 set('abcdefghijklmnopqrstuvwxyz0123456789._:-')
-如果 调用 any(按推导式生成结果：(char not in allowed for char in normalized))
-    抛出 ValueError：'fact key 只能包含小写字母、数字、点、下划线、冒号和连字符'
-返回 normalized
+调用 `replace` 完成该函数的一项辅助处理，并把结果记为 规范化后的文本。
+如果规范化后的文本为空或为假，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+构造临时集合、映射或轻量领域对象，并把结果记为 该调用返回的结果。
+如果由规范化后的文本组成的集合或迭代器中存在满足“当前处理结果不属于当前处理结果”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+返回规范化后的文本的当前值。
 ```
 
 #### `ProjectFactContent.normalize_key`
 
 - **源码**：`app/project_memory/schemas.py:168`
 - **签名**：`def normalize_key(cls, value: str) -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在约束论文复现请求、运行状态、证据和结果结构的契约校验阶段中，该函数接收当前字段值，用于读取并整理论文、源码或运行产物，把原始输入转换成带位置和身份信息的结构化证据，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `cls` | `未显式标注` | 当前类对象，用于类级构造或校验。 |
-| `value` | `str` | 待处理的业务内容或类型化值；是否为文本、记录或字节由类型标注与 Schema 决定。 |
+| `value` | `str` | 待处理的业务内容或类型化值；具体是文本、记录还是字节由类型标注和调用位置确定。 |
 
 **输出**
 
 - **Python 类型**：`str`
-- **语义**：返回普通文本或领域字符串；结合函数名判断其是规范化文本、ID、状态还是序列化内容。
+- **语义**：返回整理、格式化或规范化后的文本表示。
 
 **伪代码**
 
 ```text
-返回 调用 _normalized_key(value)
+调用 `_normalized_key` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `ProjectFactContent.validate_category_value`
 
 - **源码**：`app/project_memory/schemas.py:172`
 - **签名**：`def validate_category_value(self) -> "ProjectFactContent"`
-- **作用**：校验输入或领域对象；非法时抛出稳定异常。
+- **作用**：在约束论文复现请求、运行状态、证据和结果结构的契约校验阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终标注为 `'ProjectFactContent'` 的领域结果。
 
 **输入**
 
@@ -7290,48 +7128,45 @@ allowed ← 调用 set('abcdefghijklmnopqrstuvwxyz0123456789._:-')
 **伪代码**
 
 ```text
-如果 self.category 等于 'dataset_binding'
-    如果 调用 isinstance(self.value, DatasetBindingFactValue) 为空或为假
-        抛出 ValueError：'dataset_binding 必须使用 dataset_binding value'
-否则
-    如果 self.category 等于 'execution_default'
-        如果 调用 isinstance(self.value, ExecutionProfileFactValue) 为空或为假
-            抛出 ValueError：'execution_default 必须使用 execution_profile value'
-    否则
-        如果 调用 isinstance(self.value, (TextFactValue, BooleanFactValue)) 为空或为假
-            抛出 ValueError：格式化文本：f'{self.category} 只能使用 text/boolean value'
-返回 self
+如果评测类别等于'dataset_binding'：
+    如果“计算数量、边界或类型判断结果”后未得到肯定结果，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+否则：
+    如果评测类别等于'execution_default'：
+        如果“计算数量、边界或类型判断结果”后未得到肯定结果，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+    否则：
+        如果“计算数量、边界或类型判断结果”后未得到肯定结果，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+返回当前对象的当前值。
 ```
 
 #### `ProjectFactDraftContent.normalize_key`
 
 - **源码**：`app/project_memory/schemas.py:191`
 - **签名**：`def normalize_key(cls, value: str) -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在约束论文复现请求、运行状态、证据和结果结构的契约校验阶段中，该函数接收当前字段值，用于读取并整理论文、源码或运行产物，把原始输入转换成带位置和身份信息的结构化证据，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `cls` | `未显式标注` | 当前类对象，用于类级构造或校验。 |
-| `value` | `str` | 待处理的业务内容或类型化值；是否为文本、记录或字节由类型标注与 Schema 决定。 |
+| `value` | `str` | 待处理的业务内容或类型化值；具体是文本、记录还是字节由类型标注和调用位置确定。 |
 
 **输出**
 
 - **Python 类型**：`str`
-- **语义**：返回普通文本或领域字符串；结合函数名判断其是规范化文本、ID、状态还是序列化内容。
+- **语义**：返回整理、格式化或规范化后的文本表示。
 
 **伪代码**
 
 ```text
-返回 调用 _normalized_key(value)
+调用 `_normalized_key` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `ProjectFactRecord.validate_lifecycle_shape`
 
 - **源码**：`app/project_memory/schemas.py:266`
 - **签名**：`def validate_lifecycle_shape(self) -> "ProjectFactRecord"`
-- **作用**：校验输入或领域对象；非法时抛出稳定异常。
+- **作用**：在约束论文复现请求、运行状态、证据和结果结构的契约校验阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
@@ -7347,34 +7182,24 @@ allowed ← 调用 set('abcdefghijklmnopqrstuvwxyz0123456789._:-')
 **伪代码**
 
 ```text
-如果 self.status 等于 'proposed'
-    如果 self.authority 不等于 'unconfirmed_proposal'
-        抛出 ValueError：'proposed authority 必须是 unconfirmed_proposal'
-    如果 self.confirmation 不为空 或 self.terminal_event 不为空
-        抛出 ValueError：'proposed 不能已有确认或终态事件'
-否则
-    如果 self.status 等于 'confirmed'
-        如果 self.authority 不等于 'explicit_user' 或 self.confirmation 为空
-            抛出 ValueError：'confirmed 必须有 explicit_user confirmation'
-        如果 self.terminal_event 不为空
-            抛出 ValueError：'confirmed 不能已有终态事件'
-    否则
-        如果 self.terminal_event 为空
-            抛出 ValueError：'终态 fact 必须记录 terminal_event'
-        如果 self.terminal_event.status 不等于 self.status
-            抛出 ValueError：'terminal_event.status 必须等于当前 status'
-如果 self.status 等于 'deleted'
-    如果 self.content 不为空
-        抛出 ValueError：'deleted tombstone 不能保留 content'
-否则
-    如果 self.content 为空
-        抛出 ValueError：'非 deleted fact 必须保留 content'
-supersedes ← self.supersedes_fact_id 不为空
-如果 supersedes 不等于 self.supersedes_record_hash 不为空
-    抛出 ValueError：'supersedes id/hash 必须同时出现'
-如果 self.status 等于 'superseded' 且 self.superseded_by_fact_id 为空
-    抛出 ValueError：'superseded fact 必须指向 successor'
-返回 self
+如果当前状态等于'proposed'：
+    如果职责权限不等于'unconfirmed_proposal'，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+    如果当前处理结果不为空 或 事件不为空，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+否则：
+    如果当前状态等于'confirmed'：
+        如果职责权限不等于'explicit_user' 或 当前处理结果为空，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+        如果事件不为空，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+    否则：
+        如果事件为空，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+        如果当前状态不等于当前状态，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+如果当前状态等于'deleted'：
+    如果业务内容不为空，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+否则：
+    如果业务内容为空，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+计算计算当前表达式的结果，并保存为 当前处理结果。
+如果当前处理结果不等于self.supersedes_record_hash 不为空，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+如果当前状态等于'superseded' 且 事实的 ID为空，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+返回当前对象的当前值。
 ```
 
 ### `app/project_memory/service.py`
@@ -7383,7 +7208,7 @@ supersedes ← self.supersedes_fact_id 不为空
 
 - **源码**：`app/project_memory/service.py:53`
 - **签名**：`def utc_now() -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
@@ -7392,75 +7217,74 @@ supersedes ← self.supersedes_fact_id 不为空
 **输出**
 
 - **Python 类型**：`str`
-- **语义**：返回普通文本或领域字符串；结合函数名判断其是规范化文本、ID、状态还是序列化内容。
+- **语义**：返回文本或领域字符串；其具体用途由函数名和调用位置确定，例如路径、状态、报告或序列化内容。
 
 **伪代码**
 
 ```text
-返回 调用 调用 datetime.now(timezone.utc).isoformat()
+调用 `isoformat` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `_required_key`
 
 - **源码**：`app/project_memory/service.py:57`
 - **签名**：`def _required_key(value: str) -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前字段值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `value` | `str` | 待处理的业务内容或类型化值；是否为文本、记录或字节由类型标注与 Schema 决定。 |
+| `value` | `str` | 待处理的业务内容或类型化值；具体是文本、记录还是字节由类型标注和调用位置确定。 |
 
 **输出**
 
 - **Python 类型**：`str`
-- **语义**：返回普通文本或领域字符串；结合函数名判断其是规范化文本、ID、状态还是序列化内容。
+- **语义**：返回文本或领域字符串；其具体用途由函数名和调用位置确定，例如路径、状态、报告或序列化内容。
 
 **伪代码**
 
 ```text
-key ← 去除 value 的首尾空白
-如果 key 为空或为假 或 key 的长度 大于 300
-    抛出 ValueError：'Idempotency-Key 长度必须为 1..300'
-返回 key
+去除当前字段值的首尾空白，并把规范化后的文本记为 映射键或对象字段名。
+如果映射键或对象字段名为空或为假 或 映射键或对象字段名 的长度大于300，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+返回映射键或对象字段名的当前值。
 ```
 
 #### `_operation`
 
 - **源码**：`app/project_memory/service.py:64`
 - **签名**：`def _operation(kind: str, key: str) -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收业务类别、映射键或对象字段名，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `kind` | `str` | 名为 `kind` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `key` | `str` | 名为 `key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `kind` | `str` | 来源、类别、用途、后端、状态或操作原因等控制字段；通常对应有限的业务枚举或审计文本。 |
+| `key` | `str` | 映射键或对象字段名；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
 - **Python 类型**：`str`
-- **语义**：返回普通文本或领域字符串；结合函数名判断其是规范化文本、ID、状态还是序列化内容。
+- **语义**：返回文本或领域字符串；其具体用途由函数名和调用位置确定，例如路径、状态、报告或序列化内容。
 
 **伪代码**
 
 ```text
-返回 格式化文本：f'phase46:{kind}:{_required_key(key)}'
+返回当前计算得到的结果。
 ```
 
 #### `_request_hash`
 
 - **源码**：`app/project_memory/service.py:68`
 - **签名**：`def _request_hash(value) -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前字段值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `value` | `未显式标注` | 待处理的业务内容或类型化值；是否为文本、记录或字节由类型标注与 Schema 决定。 |
+| `value` | `未显式标注` | 待处理的业务内容或类型化值；具体是文本、记录还是字节由类型标注和调用位置确定。 |
 
 **输出**
 
@@ -7470,20 +7294,20 @@ key ← 去除 value 的首尾空白
 **伪代码**
 
 ```text
-返回 调用 canonical_sha256(调用 value.model_dump(mode='json'))
+调用 `canonical_sha256` 计算内容身份、分数或派生结果，并返回处理结果。
 ```
 
 #### `_normalized_expiry`
 
 - **源码**：`app/project_memory/service.py:72`
 - **签名**：`def _normalized_expiry(value: str | None, *, now: str) -> str | None`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前字段值、当前时间，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `str | None` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `value` | `str | None` | 待处理的业务内容或类型化值；是否为文本、记录或字节由类型标注与 Schema 决定。 |
+| `value` | `str | None` | 待处理的业务内容或类型化值；具体是文本、记录还是字节由类型标注和调用位置确定。 |
 | `now` | `str` | 时间值或可注入时钟，用于排序、过期、租约或可重复测试。 |
 
 **输出**
@@ -7494,27 +7318,22 @@ key ← 去除 value 的首尾空白
 **伪代码**
 
 ```text
-如果 value 为空
-    返回 空值
-尝试
-    parsed ← 调用 datetime.fromisoformat(调用 value.replace('Z', '+00:00'))
-    current ← 调用 datetime.fromisoformat(调用 now.replace('Z', '+00:00'))
-如果捕获 ValueError 记为 exc
-    抛出 ValueError：'expires_at 必须是 ISO-8601 时间'
-如果 parsed.tzinfo 为空 或 current.tzinfo 为空
-    抛出 ValueError：'expires_at 和 clock 必须包含时区'
-parsed ← 调用 parsed.astimezone(timezone.utc)
-current ← 调用 current.astimezone(timezone.utc)
-如果 parsed 小于等于 current
-    抛出 ValueError：'expires_at 必须晚于当前时间'
-返回 调用 parsed.isoformat()
+如果当前字段值为空，就返回固定值 `空值`。
+先尝试完成以下处理：
+    调用 `fromisoformat` 完成该函数的一项辅助处理，并把结果记为 解析后的结果；调用 `fromisoformat` 完成该函数的一项辅助处理，并把结果记为 当前值。
+如果出现 `ValueError`并把异常保存为捕获的异常对象：
+    拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+如果当前处理结果为空 或 当前处理结果为空，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+调用 `astimezone` 完成该函数的一项辅助处理，并把结果记为 解析后的结果；调用 `astimezone` 完成该函数的一项辅助处理，并把结果记为 当前值。
+如果解析后的结果不大于当前值，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+调用 `isoformat` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `_with_project_hash`
 
 - **源码**：`app/project_memory/service.py:90`
 - **签名**：`def _with_project_hash(project: ProjectRecord) -> ProjectRecord`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目记录，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
@@ -7530,18 +7349,15 @@ current ← 调用 current.astimezone(timezone.utc)
 **伪代码**
 
 ```text
-raw ← 调用 project.model_dump(mode='json')
-raw['record_hash'] ← '0' × 64
-draft ← 调用 ProjectRecord.model_validate(raw)
-raw['record_hash'] ← 调用 compute_project_hash(draft)
-返回 调用 ProjectRecord.model_validate(raw)
+复制、序列化或校验结构化领域对象，并把结果记为 原始内容；计算组合或计算已有值，并保存为 原始内容中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 草稿对象；调用 `compute_project_hash` 计算内容身份、分数或派生结果，并把结果记为 原始内容中的对应字段。
+复制、序列化或校验结构化领域对象，并返回处理结果。
 ```
 
 #### `_with_fact_hash`
 
 - **源码**：`app/project_memory/service.py:98`
 - **签名**：`def _with_fact_hash(fact: ProjectFactRecord) -> ProjectFactRecord`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收项目事实记录，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
@@ -7557,18 +7373,15 @@ raw['record_hash'] ← 调用 compute_project_hash(draft)
 **伪代码**
 
 ```text
-raw ← 调用 fact.model_dump(mode='json')
-raw['record_hash'] ← '0' × 64
-draft ← 调用 ProjectFactRecord.model_validate(raw)
-raw['record_hash'] ← 调用 compute_fact_hash(draft)
-返回 调用 ProjectFactRecord.model_validate(raw)
+复制、序列化或校验结构化领域对象，并把结果记为 原始内容；计算组合或计算已有值，并保存为 原始内容中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 草稿对象；调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 原始内容中的对应字段。
+复制、序列化或校验结构化领域对象，并返回处理结果。
 ```
 
 #### `ProjectMemoryService.__init__`
 
 - **源码**：`app/project_memory/service.py:107`
 - **签名**：`def __init__(self: 未显式标注, repository: 未显式标注, jobs: ProjectJobEvidenceReader, chats: ProjectChatEvidenceReader, retriever: 未显式标注, redactor: SecretRedactor, clock: Callable[[], str]) -> None`
-- **作用**：Python 协议方法；初始化、进入/退出上下文或把实例作为函数调用。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收持久化仓库、复现任务记录集合、当前处理结果、证据检索器等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -7576,11 +7389,11 @@ raw['record_hash'] ← 调用 compute_fact_hash(draft)
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
 | `repository` | `未显式标注` | 持久化或目录访问端口；负责读取、CAS 更新或 Artifact 定位。 |
-| `jobs` | `ProjectJobEvidenceReader` | 名为 `jobs` 的 `ProjectJobEvidenceReader` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `chats` | `ProjectChatEvidenceReader` | 名为 `chats` 的 `ProjectChatEvidenceReader` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `retriever` | `未显式标注` | 检索服务或端口；返回有界候选及其可解释排序信息，不授予执行权限。 |
-| `redactor` | `SecretRedactor` | 名为 `redactor` 的 `SecretRedactor` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `clock` | `Callable[[], str]` | 时间值或可注入时钟，用于排序、过期、租约或可重复测试。；默认 `utc_now` |
+| `jobs` | `ProjectJobEvidenceReader` | 复现任务记录集合；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `chats` | `ProjectChatEvidenceReader` | 名为 `chats` 的 `ProjectChatEvidenceReader` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `retriever` | `未显式标注` | 检索服务或端口；返回有界候选及可解释排序信息，不授予执行权限。 |
+| `redactor` | `SecretRedactor` | 敏感信息脱敏器；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `clock` | `Callable[[], str]` | 时间值或可注入时钟，用于排序、过期、租约或可重复测试。；默认 utc_now |
 
 **输出**
 
@@ -7590,20 +7403,14 @@ raw['record_hash'] ← 调用 compute_fact_hash(draft)
 **伪代码**
 
 ```text
-self.repository ← repository
-self.jobs ← jobs
-self.chats ← chats
-self.retriever ← retriever
-self.redactor ← redactor
-self.clock ← clock
-调用 self.repository.initialize()
+把传入的 持久化仓库、复现任务记录集合、当前处理结果、证据检索器、敏感信息脱敏器、统一时间来源 分别保存到同名实例字段；调用 `initialize` 完成该函数的一项辅助处理。
 ```
 
 #### `ProjectMemoryService.ping`
 
 - **源码**：`app/project_memory/service.py:125`
 - **签名**：`def ping(self) -> None`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -7619,49 +7426,48 @@ self.clock ← clock
 **伪代码**
 
 ```text
-调用 self.repository.ping()
+调用 `ping` 完成该函数的一项辅助处理。
 ```
 
 #### `ProjectMemoryService._clean`
 
 - **源码**：`app/project_memory/service.py:128`
 - **签名**：`def _clean(self, value: str, *, limit: int) -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收当前字段值、结果数量上限，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `value` | `str` | 待处理的业务内容或类型化值；是否为文本、记录或字节由类型标注与 Schema 决定。 |
-| `limit` | `int` | 有界数量或容量限制，用于控制读取、输出或资源消耗。 |
+| `value` | `str` | 待处理的业务内容或类型化值；具体是文本、记录还是字节由类型标注和调用位置确定。 |
+| `limit` | `int` | 输出、检索或读取的数量/容量上限，用于控制结果规模和资源消耗。 |
 
 **输出**
 
 - **Python 类型**：`str`
-- **语义**：返回普通文本或领域字符串；结合函数名判断其是规范化文本、ID、状态还是序列化内容。
+- **语义**：返回文本或领域字符串；其具体用途由函数名和调用位置确定，例如路径、状态、报告或序列化内容。
 
 **伪代码**
 
 ```text
-cleaned ← 去除 调用 self.redactor.redact_text(value, max_chars=limit) 的首尾空白
-如果 cleaned 为空或为假
-    抛出 ValueError：'Project Memory 文本脱敏后不能为空'
-返回 cleaned
+去除辅助操作“调用 `redact_text` 解析、规范化或转换当前输入”的结果的首尾空白，并把规范化后的文本记为 清理后的文本或记录。
+如果清理后的文本或记录为空或为假，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+返回清理后的文本或记录的当前值。
 ```
 
 #### `ProjectMemoryService._normalize_content`
 
 - **源码**：`app/project_memory/service.py:134`
 - **签名**：`def _normalize_content(self: 未显式标注, draft: ProjectFactDraftContent) -> ProjectFactContent`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收草稿对象，用于读取并整理论文、源码或运行产物，把原始输入转换成带位置和身份信息的结构化证据，最终标注为 `ProjectFactContent` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `draft` | `ProjectFactDraftContent` | 名为 `draft` 的 `ProjectFactDraftContent` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `draft` | `ProjectFactDraftContent` | 草稿对象；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -7671,37 +7477,32 @@ cleaned ← 去除 调用 self.redactor.redact_text(value, max_chars=limit) 的�
 **伪代码**
 
 ```text
-value ← draft.value
-如果 调用 isinstance(value, TextFactValue)
-    normalized ← 调用 TextFactValue(text=调用 self._clean(value.text, limit=2000))
-否则
-    如果 调用 isinstance(value, DatasetBindingFactValue)
-        如果 调用 value.required_worker_label.startswith('/')
-            抛出 ValueError：'dataset_binding 不能保存绝对路径'
-        normalized ← 调用 DatasetBindingFactValue(dataset_name=调用 self._clean(value.dataset_name, limit=200), required_worker_label=调用 self._clean(value.required_worker_label, limit=200), fingerprint=如果 value.fingerprint 则 调用 self._clean(value.fingerprint, limit=300)，否则 空值)
-    否则
-        如果 调用 isinstance(value, ExecutionProfileDraftValue)
-            profile ← 调用 get_execution_profile(value.profile_id)
-            normalized ← 调用 ExecutionProfileFactValue(profile_id=profile.profile_id, profile_fingerprint=调用 compute_execution_profile_fingerprint(profile), execution_policy_hash=调用 compute_execution_policy_hash(profile))
-        否则
-            normalized ← value
-返回 调用 ProjectFactContent(category=draft.category, key=draft.key, value=normalized)
+读取当前字段值，并保存为 当前字段值。
+如果“计算数量、边界或类型判断结果”后得到肯定结果：
+    构造 `TextFactValue` 结构化领域对象，并把结果记为 规范化后的文本。
+否则：
+    如果“计算数量、边界或类型判断结果”后得到肯定结果：
+        如果“检查当前处理结果是否满足文本匹配条件”后得到肯定结果，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+        构造 `DatasetBindingFactValue` 结构化领域对象，并把结果记为 规范化后的文本。
+    否则：
+        如果“计算数量、边界或类型判断结果”后得到肯定结果，就调用 `get_execution_profile` 读取或查询当前阶段需要的数据，并把结果记为 MCP Client 配置档案；构造 `ExecutionProfileFactValue` 结构化领域对象，并把结果记为 规范化后的文本；否则读取当前字段值，并保存为 规范化后的文本。
+构造并返回 `ProjectFactContent` 结构化领域对象。
 ```
 
 #### `ProjectMemoryService.create_project`
 
 - **源码**：`app/project_memory/service.py:176`
 - **签名**：`def create_project(self: 未显式标注, request: ProjectCreateRequest, idempotency_key: str, actor: str) -> ProjectMutationResponse`
-- **作用**：执行受约束的数据变更；具体 CAS、幂等和副作用见伪代码。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收业务请求、请求幂等键、审计主体，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `request` | `ProjectCreateRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应命中同一操作结果，而不是再次产生副作用。 |
-| `actor` | `str` | 执行该操作的审计主体标识，不是授权凭证本身。 |
+| `request` | `ProjectCreateRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应复用同一结果，而不是再次产生副作用。 |
+| `actor` | `str` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
 
 **输出**
 
@@ -7711,34 +7512,28 @@ value ← draft.value
 **伪代码**
 
 ```text
-snapshot ← 调用 self.jobs.read(request.anchor_job_id)
-anchor ← snapshot.anchor
-如果 anchor.job_version 不等于 request.expected_anchor_job_version
-    抛出 ProjectMemoryConflictError：'Anchor Job version 已变化'
-如果 anchor.workspace_manifest_hash 不等于 request.expected_workspace_manifest_hash
-    抛出 ProjectMemoryConflictError：'Anchor Workspace Manifest hash 已变化'
-now ← 调用 self.clock()
-project ← 调用 _with_project_hash(调用 ProjectRecord(project_id=调用 new_project_id(), display_name=调用 self._clean(request.display_name, limit=200), status='active', anchor=anchor, version=0, record_hash='0' × 64, created_by=actor, created_at=now, updated_at=now))
-binding ← 调用 ProjectJobBinding(project_id=project.project_id, job_id=anchor.job_id, job_version_at_binding=anchor.job_version, run_id=anchor.run_id, workspace_manifest_id=anchor.workspace_manifest_id, workspace_manifest_hash=anchor.workspace_manifest_hash, paper_sha256=anchor.paper_sha256, repository_commit=anchor.repository_commit, role='anchor', bound_by=actor, bound_at=now)
-(saved, replayed) ← 调用 self.repository.create_project(project=project, anchor_binding=binding, operation_key=调用 _operation('create_project', idempotency_key), request_hash=调用 _request_hash(request))
-返回 调用 ProjectMutationResponse(project=saved, replayed=replayed)
+调用 `read` 完成该函数的一项辅助处理，并把结果记为 MCP 能力快照；读取源码或文档锚点，并保存为 源码或文档锚点。
+如果任务版本不等于期望任务版本，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+如果Manifest的 Hash不等于期望Manifest的 Hash，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+读取当前时间，作为状态变更的统一时间戳，并把结果记为 当前时间；调用 `_with_project_hash` 完成该函数的一项辅助处理，并把结果记为 复现项目记录；构造 `ProjectJobBinding` 结构化领域对象，并把结果记为 资源绑定记录；调用 `create_project` 组装当前阶段需要的领域对象，并把结果记为 多个解包结果。
+构造并返回 `ProjectMutationResponse` 结构化领域对象。
 ```
 
 #### `ProjectMemoryService.archive_project`
 
 - **源码**：`app/project_memory/service.py:225`
 - **签名**：`def archive_project(self: 未显式标注, project_id: str, request: ProjectArchiveRequest, idempotency_key: str, actor: str) -> ProjectMutationResponse`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID、业务请求、请求幂等键、审计主体，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `request` | `ProjectArchiveRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应命中同一操作结果，而不是再次产生副作用。 |
-| `actor` | `str` | 执行该操作的审计主体标识，不是授权凭证本身。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `request` | `ProjectArchiveRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应复用同一结果，而不是再次产生副作用。 |
+| `actor` | `str` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
 
 **输出**
 
@@ -7748,32 +7543,28 @@ binding ← 调用 ProjectJobBinding(project_id=project.project_id, job_id=ancho
 **伪代码**
 
 ```text
-current ← 调用 self.repository.get_project(project_id)
-如果 current.status 不等于 'active'
-    抛出 ProjectMemoryConflictError：'Project 已经 archived'
-now ← 调用 self.clock()
-archived ← 调用 _with_project_hash(调用 ProjectRecord.model_validate({**调用 current.model_dump(mode='json'), 'status': 'archived', 'version': current.version + 1, 'archived_reason': 调用 self._clean(request.reason, limit=1000), 'updated_at': now, 'record_hash': '0' × 64}))
-(saved, replayed) ← 调用 self.repository.archive_project(project=archived, expected_version=request.expected_version, expected_hash=request.expected_record_hash, operation_key=调用 _operation('archive_project', idempotency_key), request_hash=调用 _request_hash(request))
-返回 调用 ProjectMutationResponse(project=saved, replayed=replayed)
+调用 `get_project` 读取或查询当前阶段需要的数据，并把结果记为 当前值。
+如果当前状态不等于'active'，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+读取当前时间，作为状态变更的统一时间戳，并把结果记为 当前时间；调用 `_with_project_hash` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；调用 `archive_project` 完成该函数的一项辅助处理，并把结果记为 多个解包结果；构造并返回 `ProjectMutationResponse` 结构化领域对象。
 ```
 
 #### `ProjectMemoryService.bind_job`
 
 - **源码**：`app/project_memory/service.py:258`
 - **签名**：`def bind_job(self: 未显式标注, project_id: str, request: ProjectBindJobRequest, expected_project_version: int, expected_project_hash: str, idempotency_key: str, actor: str) -> ProjectJobBinding`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID、业务请求、期望项目版本、期望项目的 Hash等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ProjectJobBinding` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `request` | `ProjectBindJobRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `expected_project_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验。 |
-| `expected_project_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。 |
-| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应命中同一操作结果，而不是再次产生副作用。 |
-| `actor` | `str` | 执行该操作的审计主体标识，不是授权凭证本身。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `request` | `ProjectBindJobRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `expected_project_version` | `int` | 调用方观察到的旧身份，用于 stale/CAS 校验，防止覆盖并发更新。 |
+| `expected_project_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。 |
+| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应复用同一结果，而不是再次产生副作用。 |
+| `actor` | `str` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
 
 **输出**
 
@@ -7783,36 +7574,29 @@ archived ← 调用 _with_project_hash(调用 ProjectRecord.model_validate({**�
 **伪代码**
 
 ```text
-project ← 调用 self.repository.get_project(project_id)
-如果 project.status 不等于 'active'
-    抛出 ProjectMemoryConflictError：'不能向 archived project 绑定 Job'
-snapshot ← 调用 self.jobs.read(request.job_id)
-anchor ← snapshot.anchor
-如果 anchor.job_version 不等于 request.expected_job_version
-    抛出 ProjectMemoryConflictError：'待绑定 Job version 已变化'
-如果 anchor.workspace_manifest_hash 不等于 request.expected_workspace_manifest_hash
-    抛出 ProjectMemoryConflictError：'待绑定 Workspace Manifest hash 已变化'
-如果 anchor.paper_sha256 不等于 project.anchor.paper_sha256
-    抛出 ProjectMemoryConflictError：'待绑定 Job 使用了不同论文内容'
-binding ← 调用 ProjectJobBinding(project_id=project_id, job_id=anchor.job_id, job_version_at_binding=anchor.job_version, run_id=anchor.run_id, workspace_manifest_id=anchor.workspace_manifest_id, workspace_manifest_hash=anchor.workspace_manifest_hash, paper_sha256=anchor.paper_sha256, repository_commit=anchor.repository_commit, role='member', bound_by=actor, bound_at=调用 self.clock())
-(saved, _) ← 调用 self.repository.bind_job(binding=binding, expected_project_version=expected_project_version, expected_project_hash=expected_project_hash, operation_key=调用 _operation('bind_job', idempotency_key), request_hash=调用 _request_hash(request))
-返回 saved
+调用 `get_project` 读取或查询当前阶段需要的数据，并把结果记为 复现项目记录。
+如果当前状态不等于'active'，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+调用 `read` 完成该函数的一项辅助处理，并把结果记为 MCP 能力快照；读取源码或文档锚点，并保存为 源码或文档锚点。
+如果任务版本不等于期望任务版本，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+如果Manifest的 Hash不等于期望Manifest的 Hash，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+如果论文的 SHA-256不等于论文的 SHA-256，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+构造 `ProjectJobBinding` 结构化领域对象，并把结果记为 资源绑定记录；调用 `bind_job` 完成该函数的一项辅助处理，并把结果记为 多个解包结果；返回已保存结果的当前值。
 ```
 
 #### `ProjectMemoryService._proposal`
 
 - **源码**：`app/project_memory/service.py:302`
 - **签名**：`def _proposal(self: 未显式标注, project_id: str, content: ProjectFactContent, source: 未显式标注, expires_at: str | None) -> ProjectFactRecord`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID、业务内容、数据来源标记、过期时间，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `content` | `ProjectFactContent` | 待处理的业务内容或类型化值；是否为文本、记录或字节由类型标注与 Schema 决定。 |
-| `source` | `未显式标注` | 名为 `source` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `content` | `ProjectFactContent` | 待处理的业务内容或类型化值；具体是文本、记录还是字节由类型标注和调用位置确定。 |
+| `source` | `未显式标注` | 来源、类别、用途、后端、状态或操作原因等控制字段；通常对应有限的业务枚举或审计文本。 |
 | `expires_at` | `str | None` | 时间值或可注入时钟，用于排序、过期、租约或可重复测试。 |
 
 **输出**
@@ -7823,29 +7607,26 @@ binding ← 调用 ProjectJobBinding(project_id=project_id, job_id=anchor.job_id
 **伪代码**
 
 ```text
-project ← 调用 self.repository.get_project(project_id)
-如果 project.status 不等于 'active'
-    抛出 ProjectMemoryConflictError：'archived project 不能新增 fact'
-now ← 调用 self.clock()
-normalized_expiry ← 调用 _normalized_expiry(expires_at, now=now)
-返回 调用 _with_fact_hash(调用 ProjectFactRecord(fact_id=调用 new_fact_id(), project_id=project_id, version=0, status='proposed', authority='unconfirmed_proposal', content=content, content_hash=调用 compute_content_hash(content), source=source, expires_at=normalized_expiry, created_at=now, updated_at=now, record_hash='0' × 64))
+调用 `get_project` 读取或查询当前阶段需要的数据，并把结果记为 复现项目记录。
+如果当前状态不等于'active'，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+读取当前时间，作为状态变更的统一时间戳，并把结果记为 当前时间；调用 `_normalized_expiry` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；调用 `_with_fact_hash` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `ProjectMemoryService.propose_manual`
 
 - **源码**：`app/project_memory/service.py:332`
 - **签名**：`def propose_manual(self: 未显式标注, project_id: str, request: ManualFactProposalRequest, idempotency_key: str, actor: str) -> ProjectFactMutationResponse`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID、业务请求、请求幂等键、审计主体，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `request` | `ManualFactProposalRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应命中同一操作结果，而不是再次产生副作用。 |
-| `actor` | `str` | 执行该操作的审计主体标识，不是授权凭证本身。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `request` | `ManualFactProposalRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应复用同一结果，而不是再次产生副作用。 |
+| `actor` | `str` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
 
 **输出**
 
@@ -7855,28 +7636,25 @@ normalized_expiry ← 调用 _normalized_expiry(expires_at, now=now)
 **伪代码**
 
 ```text
-content ← 调用 self._normalize_content(request.content)
-source ← 调用 ManualUserFactSource(actor=actor, source_note=调用 self._clean(request.source_note, limit=1000), request_sha256=调用 _request_hash(request))
-fact ← 调用 self._proposal(project_id=project_id, content=content, source=source, expires_at=request.expires_at)
-(saved, replayed) ← 调用 self.repository.create_fact(fact=fact, operation_key=调用 _operation('propose_manual', idempotency_key), request_hash=调用 _request_hash(request))
-返回 调用 ProjectFactMutationResponse(fact=saved, replayed=replayed)
+调用 `_normalize_content` 解析、规范化或转换当前输入，并把结果记为 业务内容；构造 `ManualUserFactSource` 结构化领域对象，并把结果记为 数据来源标记；调用 `_proposal` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；调用 `create_fact` 组装当前阶段需要的领域对象，并把结果记为 多个解包结果。
+构造并返回 `ProjectFactMutationResponse` 结构化领域对象。
 ```
 
 #### `ProjectMemoryService.propose_from_chat`
 
 - **源码**：`app/project_memory/service.py:359`
 - **签名**：`def propose_from_chat(self: 未显式标注, project_id: str, request: ChatFactProposalRequest, idempotency_key: str, actor: str) -> ProjectFactMutationResponse`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收复现项目 ID、业务请求、请求幂等键、审计主体，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `request` | `ChatFactProposalRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应命中同一操作结果，而不是再次产生副作用。 |
-| `actor` | `str` | 执行该操作的审计主体标识，不是授权凭证本身。 |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `request` | `ChatFactProposalRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应复用同一结果，而不是再次产生副作用。 |
+| `actor` | `str` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
 
 **输出**
 
@@ -7886,39 +7664,32 @@ fact ← 调用 self._proposal(project_id=project_id, content=content, source=so
 **伪代码**
 
 ```text
-bound ← 调用 self.repository.project_for_job(request.source_job_id)
-如果 bound 为空 或 bound.project_id 不等于 project_id
-    抛出 ProjectMemoryConflictError：'Chat source Job 未绑定当前 Project'
-message ← 调用 self.chats.message_at(job_id=request.source_job_id, sequence=request.source_message_sequence)
-如果 message.role 不等于 'user'
-    抛出 ProjectMemoryConflictError：'只允许 role=user 消息作为事实来源'
-actual_hash ← 调用 chat_message_sha256(message)
-如果 message.message_id 不等于 request.expected_message_id
-    抛出 ProjectMemoryConflictError：'Chat message_id 已变化'
-如果 actual_hash 不等于 request.expected_message_sha256
-    抛出 ProjectMemoryConflictError：'Chat message hash 已变化'
-content ← 调用 self._normalize_content(request.content)
-source ← 调用 ChatUserMessageFactSource(actor=actor, job_id=message.job_id, message_id=message.message_id, message_sequence=message.sequence, message_sha256=actual_hash)
-fact ← 调用 self._proposal(project_id=project_id, content=content, source=source, expires_at=request.expires_at)
-(saved, replayed) ← 调用 self.repository.create_fact(fact=fact, operation_key=调用 _operation('propose_chat', idempotency_key), request_hash=调用 _request_hash(request))
-返回 调用 ProjectFactMutationResponse(fact=saved, replayed=replayed)
+调用 `project_for_job` 完成该函数的一项辅助处理，并把结果记为 边界值。
+如果边界值为空 或 复现项目 ID不等于复现项目 ID，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+调用 `message_at` 完成该函数的一项辅助处理，并把结果记为 面向用户或日志的提示信息。
+如果调用方职责角色不等于'user'，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+调用 `chat_message_sha256` 计算内容身份、分数或派生结果，并把结果记为 实际值的 Hash。
+如果面向用户或日志的提示信息的 ID不等于期望的 ID，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+如果实际值的 Hash不等于期望的 SHA-256，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+调用 `_normalize_content` 解析、规范化或转换当前输入，并把结果记为 业务内容；构造 `ChatUserMessageFactSource` 结构化领域对象，并把结果记为 数据来源标记；调用 `_proposal` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；调用 `create_fact` 组装当前阶段需要的领域对象，并把结果记为 多个解包结果。
+构造并返回 `ProjectFactMutationResponse` 结构化领域对象。
 ```
 
 #### `ProjectMemoryService.confirm`
 
 - **源码**：`app/project_memory/service.py:403`
 - **签名**：`def confirm(self: 未显式标注, fact_id: str, request: FactConfirmRequest, idempotency_key: str, actor: str) -> ProjectFactMutationResponse`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收项目事实记录的 ID、业务请求、请求幂等键、审计主体，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `request` | `FactConfirmRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应命中同一操作结果，而不是再次产生副作用。 |
-| `actor` | `str` | 执行该操作的审计主体标识，不是授权凭证本身。 |
+| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `request` | `FactConfirmRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应复用同一结果，而不是再次产生副作用。 |
+| `actor` | `str` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
 
 **输出**
 
@@ -7928,34 +7699,30 @@ fact ← 调用 self._proposal(project_id=project_id, content=content, source=so
 **伪代码**
 
 ```text
-current ← 调用 self.repository.get_fact(fact_id)
-如果 current.status 不等于 'proposed'
-    抛出 ProjectMemoryConflictError：'只有 proposed fact 可以 confirm'
-now ← 调用 self.clock()
-如果 current.expires_at 不为空 且 current.expires_at 小于等于 now
-    抛出 ProjectMemoryConflictError：'已到期 proposal 不能 confirm'
-updated ← 调用 _with_fact_hash(调用 ProjectFactRecord.model_validate({**调用 current.model_dump(mode='json'), 'version': current.version + 1, 'status': 'confirmed', 'authority': 'explicit_user', 'confirmation': {'actor': actor, 'reason': 调用 self._clean(request.reason, limit=1000), 'confirmed_at': now}, 'updated_at': now, 'record_hash': '0' × 64}))
-(saved, replayed) ← 调用 self.repository.replace_fact(fact=updated, expected_version=request.expected_version, expected_hash=request.expected_record_hash, operation_key=调用 _operation('confirm', idempotency_key), request_hash=调用 _request_hash(request))
-返回 调用 ProjectFactMutationResponse(fact=saved, replayed=replayed)
+调用 `get_fact` 读取或查询当前阶段需要的数据，并把结果记为 当前值。
+如果当前状态不等于'proposed'，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+读取当前时间，作为状态变更的统一时间戳，并把结果记为 当前时间。
+如果过期时间不为空 且 过期时间不大于当前时间，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+调用 `_with_fact_hash` 完成该函数的一项辅助处理，并把结果记为 更新后的记录；调用 `replace_fact` 完成该函数的一项辅助处理，并把结果记为 多个解包结果；构造并返回 `ProjectFactMutationResponse` 结构化领域对象。
 ```
 
 #### `ProjectMemoryService._terminal_transition`
 
 - **源码**：`app/project_memory/service.py:443`
 - **签名**：`def _terminal_transition(self: 未显式标注, fact_id: str, request: FactTerminalRequest, target_status: str, allowed_from: set[str], idempotency_key: str, actor: str) -> ProjectFactMutationResponse`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收项目事实记录的 ID、业务请求、状态、当前处理结果等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `request` | `FactTerminalRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `target_status` | `str` | 名为 `target_status` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `allowed_from` | `set[str]` | `set[str]` 元素集合；具体元素含义由参数名 `allowed_from` 和函数内校验决定。 |
-| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应命中同一操作结果，而不是再次产生副作用。 |
-| `actor` | `str` | 执行该操作的审计主体标识，不是授权凭证本身。 |
+| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `request` | `FactTerminalRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `target_status` | `str` | 名为 `target_status` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `allowed_from` | `set[str]` | `set[str]` 元素集合；元素代表的业务对象由参数名 `allowed_from` 和调用位置确定。 |
+| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应复用同一结果，而不是再次产生副作用。 |
+| `actor` | `str` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
 
 **输出**
 
@@ -7965,27 +7732,20 @@ updated ← 调用 _with_fact_hash(调用 ProjectFactRecord.model_validate({**�
 **伪代码**
 
 ```text
-current ← 调用 self.repository.get_fact(fact_id)
-如果 current.status 不属于 allowed_from
-    抛出 ProjectMemoryConflictError：格式化文本：f'{current.status} 不能转换为 {target_status}'
-now ← 调用 self.clock()
-raw ← 调用 current.model_dump(mode='json')
-prior_events ← 调用 list(从 raw 读取 'prior_terminal_events' 或 [])
-如果 从 raw 读取 'terminal_event' 不为空
-    调用 prior_events.append(raw['terminal_event'])
-调用 raw.update({'version': current.version + 1, 'status': target_status, 'terminal_event': {'status': target_status, 'actor': actor, 'reason': 调用 self._clean(request.reason, limit=1000), 'occurred_at': now}, 'prior_terminal_events': prior_events, 'updated_at': now, 'record_hash': '0' × 64})
-如果 target_status 等于 'deleted'
-    raw['content'] ← 空值
-updated ← 调用 _with_fact_hash(调用 ProjectFactRecord.model_validate(raw))
-(saved, replayed) ← 调用 self.repository.replace_fact(fact=updated, expected_version=request.expected_version, expected_hash=request.expected_record_hash, operation_key=调用 _operation(target_status, idempotency_key), request_hash=调用 _request_hash(request))
-返回 调用 ProjectFactMutationResponse(fact=saved, replayed=replayed)
+调用 `get_fact` 读取或查询当前阶段需要的数据，并把结果记为 当前值。
+如果当前状态不属于当前处理结果，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+读取当前时间，作为状态变更的统一时间戳，并把结果记为 当前时间；复制、序列化或校验结构化领域对象，并把结果记为 原始内容；构造临时集合、映射或轻量领域对象，并把结果记为 事件集合集合。
+如果辅助操作“从原始内容读取所需的状态或领域记录”的结果不为空，就把原始内容中的对应字段追加或合并到事件集合集合。
+把新的处理结果追加或合并到原始内容。
+如果状态等于'deleted'，就计算使用固定配置或常量值，并保存为 原始内容中的对应字段。
+调用 `_with_fact_hash` 完成该函数的一项辅助处理，并把结果记为 更新后的记录；调用 `replace_fact` 完成该函数的一项辅助处理，并把结果记为 多个解包结果；构造并返回 `ProjectFactMutationResponse` 结构化领域对象。
 ```
 
 #### `ProjectMemoryService.revoke`
 
 - **源码**：`app/project_memory/service.py:492`
 - **签名**：`def revoke(self, **kwargs) -> ProjectFactMutationResponse`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收函数关键字参数映射，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
@@ -8002,14 +7762,14 @@ updated ← 调用 _with_fact_hash(调用 ProjectFactRecord.model_validate(raw))
 **伪代码**
 
 ```text
-返回 调用 self._terminal_transition(target_status='revoked', allowed_from={'proposed', 'confirmed'}, **kwargs)
+调用 `_terminal_transition` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `ProjectMemoryService.delete`
 
 - **源码**：`app/project_memory/service.py:499`
 - **签名**：`def delete(self, **kwargs) -> ProjectFactMutationResponse`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收函数关键字参数映射，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
@@ -8026,24 +7786,24 @@ updated ← 调用 _with_fact_hash(调用 ProjectFactRecord.model_validate(raw))
 **伪代码**
 
 ```text
-返回 调用 self._terminal_transition(target_status='deleted', allowed_from={'proposed', 'superseded', 'revoked', 'expired'}, **kwargs)
+调用 `_terminal_transition` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `ProjectMemoryService.correct`
 
 - **源码**：`app/project_memory/service.py:506`
 - **签名**：`def correct(self: 未显式标注, fact_id: str, request: FactCorrectRequest, idempotency_key: str, actor: str) -> ProjectFactCorrectionResponse`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在沉淀复现失败诊断、项目事实并向用户反馈运行进展的阶段中，该函数接收项目事实记录的 ID、业务请求、请求幂等键、审计主体，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。 |
-| `request` | `FactCorrectRequest` | 调用请求或结构化业务载荷；通常需要 Schema、Hash 和权限校验。 |
-| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应命中同一操作结果，而不是再次产生副作用。 |
-| `actor` | `str` | 执行该操作的审计主体标识，不是授权凭证本身。 |
+| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+| `request` | `FactCorrectRequest` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `idempotency_key` | `str` | 调用方提供的幂等键；重复请求应复用同一结果，而不是再次产生副作用。 |
+| `actor` | `str` | 执行或决策操作的审计主体标识，不是授权凭证本身。 |
 
 **输出**
 
@@ -8053,36 +7813,28 @@ updated ← 调用 _with_fact_hash(调用 ProjectFactRecord.model_validate(raw))
 **伪代码**
 
 ```text
-current ← 调用 self.repository.get_fact(fact_id)
-如果 current.status 不等于 'confirmed' 或 current.content 为空
-    抛出 ProjectMemoryConflictError：'只有 confirmed fact 可以 correct'
-new_content ← 调用 self._normalize_content(request.content)
-如果 new_content.category 不等于 current.content.category 或 new_content.key 不等于 current.content.key
-    抛出 ProjectMemoryConflictError：'Correction 不能改变 category/key'
-now ← 调用 self.clock()
-normalized_expiry ← 调用 _normalized_expiry(request.expires_at, now=now)
-successor_id ← 调用 new_fact_id()
-reason ← 调用 self._clean(request.reason, limit=1000)
-old_raw ← 调用 current.model_dump(mode='json')
-调用 old_raw.update({'version': current.version + 1, 'status': 'superseded', 'superseded_by_fact_id': successor_id, 'terminal_event': {'status': 'superseded', 'actor': actor, 'reason': reason, 'occurred_at': now}, 'updated_at': now, 'record_hash': '0' × 64})
-previous ← 调用 _with_fact_hash(调用 ProjectFactRecord.model_validate(old_raw))
-successor ← 调用 _with_fact_hash(调用 ProjectFactRecord(fact_id=successor_id, project_id=current.project_id, version=0, status='confirmed', authority='explicit_user', content=new_content, content_hash=调用 compute_content_hash(new_content), source=调用 ManualUserFactSource(actor=actor, source_note=格式化文本：f'Correction of {current.fact_id}: {reason}', request_sha256=调用 _request_hash(request)), confirmation=调用 ProjectFactConfirmation(actor=actor, reason=reason, confirmed_at=now), supersedes_fact_id=current.fact_id, supersedes_record_hash=current.record_hash, expires_at=normalized_expiry, created_at=now, updated_at=now, record_hash='0' × 64))
-返回 调用 self.repository.replace_with_successor(previous=previous, successor=successor, expected_version=request.expected_version, expected_hash=request.expected_record_hash, operation_key=调用 _operation('correct', idempotency_key), request_hash=调用 _request_hash(request))
+调用 `get_fact` 读取或查询当前阶段需要的数据，并把结果记为 当前值。
+如果当前状态不等于'confirmed' 或 业务内容为空，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+调用 `_normalize_content` 解析、规范化或转换当前输入，并把结果记为 内容。
+如果评测类别不等于评测类别 或 映射键或对象字段名不等于映射键或对象字段名，就拒绝继续处理并抛出 `ProjectMemoryConflictError`，向调用方报告输入或运行失败。
+读取当前时间，作为状态变更的统一时间戳，并把结果记为 当前时间；调用 `_normalized_expiry` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；调用 `new_fact_id` 完成该函数的一项辅助处理，并把结果记为 当前处理结果的 ID；调用 `_clean` 完成该函数的一项辅助处理，并把结果记为 基线接受或运行操作原因。
+复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；把新的处理结果追加或合并到当前处理结果；调用 `_with_fact_hash` 完成该函数的一项辅助处理，并把结果记为 前一项；调用 `_with_fact_hash` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+调用 `replace_with_successor` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 ### `app/retention/factory.py`
 
 #### `build_inventory`
 
-- **源码**：`app/retention/factory.py:52`
+- **源码**：`app/retention/factory.py:69`
 - **签名**：`def build_inventory(*, destructive_supported: bool) -> StorageInventoryService`
-- **作用**：装配或构造领域对象及其依赖。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收当前处理结果，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `StorageInventoryService` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `destructive_supported` | `bool` | 布尔条件或能力开关。 |
+| `destructive_supported` | `bool` | 布尔条件或能力开关，用于控制流程分支。 |
 
 **输出**
 
@@ -8092,27 +7844,26 @@ successor ← 调用 _with_fact_hash(调用 ProjectFactRecord(fact_id=successor_
 **伪代码**
 
 ```text
-roots ← [('runs', 调用 settings.runs_dir.resolve()), ('worker_workspaces', 调用 settings.worker_workspace_root.resolve()), ('workspace_staging', 调用 settings.workspace_staging_root.resolve()), ('export_staging', 调用 settings.job_export_staging_root.resolve()), ('artifact_blobs', 调用 settings.artifact_local_store_dir.resolve()), ('comparisons', 调用 settings.comparison_root.resolve())]
-对于 (name, path) 属于 (('job_db', 调用 settings.job_db_path.resolve()), ('checkpoint_db', 调用 settings.checkpoint_db_path.resolve()), ('artifact_db', 调用 settings.artifact_catalog_db_path.resolve()), ('resource_db', 调用 settings.resource_db_path.resolve()), ('chat_db', 调用 settings.chat_db_path.resolve()), ('retention_db', 调用 settings.retention_db_path.resolve()), ('rerun_db', 调用 settings.rerun_db_path.resolve()), ('notification_db', 调用 settings.notification_db_path.resolve()), ('failure_memory_db', 调用 settings.failure_memory_db_path.resolve()))
-    调用 roots.extend(调用 _sqlite_roots(name, path))
-如果 settings.project_memory_enabled
-    调用 roots.extend(调用 _sqlite_roots('project_memory_db', 调用 settings.project_memory_db_path.resolve()))
-返回 调用 StorageInventoryService(调用 InventoryConfig(roots=调用 tuple(roots), filesystem_anchor=调用 settings.runs_dir.resolve(), soft_limit_bytes=settings.storage_soft_limit_bytes, hard_limit_bytes=settings.storage_hard_limit_bytes, min_free_bytes=settings.storage_min_free_bytes, max_warnings=settings.storage_inventory_max_warnings, destructive_gc_supported=destructive_supported))
+计算初始化顺序集合，并保存为 受控扫描根目录集合。
+遍历当前可迭代输入，每次把当前项记为多个解包结果，然后把新的处理结果追加或合并到受控扫描根目录集合。
+如果项目记忆有值或为真，就把新的处理结果追加或合并到受控扫描根目录集合。
+把新的处理结果追加或合并到受控扫描根目录集合；把新的处理结果追加或合并到受控扫描根目录集合；把新的处理结果追加或合并到受控扫描根目录集合；构造并返回 `StorageInventoryService` 结构化领域对象。
 ```
 
 #### `build_retention`
 
-- **源码**：`app/retention/factory.py:100`
-- **签名**：`def build_retention(job_store: 未显式标注, artifact_storage: ArtifactStorageBundle, project_memory_repository: 未显式标注) -> RetentionBundle`
-- **作用**：装配或构造领域对象及其依赖。
+- **源码**：`app/retention/factory.py:160`
+- **签名**：`def build_retention(job_store: 未显式标注, artifact_storage: ArtifactStorageBundle, project_memory_repository: 未显式标注, knowledge_repository: 未显式标注) -> RetentionBundle`
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收任务存储、Artifact、项目记忆代码仓库、代码仓库，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `RetentionBundle` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `job_store` | `未显式标注` | 名为 `job_store` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `artifact_storage` | `ArtifactStorageBundle` | 名为 `artifact_storage` 的 `ArtifactStorageBundle` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `project_memory_repository` | `未显式标注` | 持久化或目录访问端口；负责读取、CAS 更新或 Artifact 定位。；默认 `空值` |
+| `job_store` | `未显式标注` | 名为 `job_store` 的 `未显式标注` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `artifact_storage` | `ArtifactStorageBundle` | 名为 `artifact_storage` 的 `ArtifactStorageBundle` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `project_memory_repository` | `未显式标注` | 持久化或目录访问端口；负责读取、CAS 更新或 Artifact 定位。；默认 空值 |
+| `knowledge_repository` | `未显式标注` | 持久化或目录访问端口；负责读取、CAS 更新或 Artifact 定位。；默认 空值 |
 
 **输出**
 
@@ -8122,57 +7873,49 @@ roots ← [('runs', 调用 settings.runs_dir.resolve()), ('worker_workspaces', �
 **伪代码**
 
 ```text
-destructive_supported ← settings.retention_enabled 且 settings.job_store_backend 等于 'sqlite' 且 settings.checkpoint_backend 等于 'sqlite' 且 settings.artifact_blob_backend 等于 'local'
-inventory ← 调用 build_inventory(destructive_supported=destructive_supported)
-quota_guard ← 调用 StorageQuotaGuard(inventory)
-如果 destructive_supported 为空或为假
-    返回 调用 RetentionBundle(inventory=inventory, quota_guard=quota_guard, service=空值)
-如果 调用 isinstance(artifact_storage.selected_store, LocalBlobStore) 为空或为假
-    抛出 RuntimeError：'Local backend 与 concrete BlobStore 不一致'
-deletable ← artifact_storage.selected_store
-chat ← 如果 settings.chat_enabled 或 调用 settings.chat_db_path.exists() 则 调用 SqliteChatRepository(settings.chat_db_path)，否则 调用 NoOpChatRetentionPort()
-如果 调用 isinstance(chat, SqliteChatRepository)
-    调用 chat.initialize()
-resource_repository ← 调用 SqliteResourceRepository(settings.resource_db_path)
-调用 resource_repository.initialize()
-notification_repository ← 调用 SqliteNotificationRepository(settings.notification_db_path)
-调用 notification_repository.initialize()
-repository ← 调用 SqliteRetentionRepository(settings.retention_db_path)
-failure_memory_repository ← 调用 SqliteFailureCaseRepository(settings.failure_memory_db_path)
-调用 failure_memory_repository.initialize()
-service ← 调用 RetentionService(policy=调用 RetentionPolicy(job_retention_seconds=settings.retention_job_days × 86400, max_jobs_per_plan=settings.retention_plan_max_jobs, plan_ttl_seconds=settings.retention_plan_ttl_seconds, delete_local_blobs=settings.retention_local_blob_delete_enabled), repository=repository, jobs=job_store, artifacts=artifact_storage.repository, chats=chat, notifications=notification_repository, resources=resource_repository, checkpoints=调用 LangGraphCheckpointRetentionAdapter(调用 build_checkpointer()), blob_store=deletable, path_remover=调用 SafePathRemover(runs_root=settings.runs_dir, worker_root=settings.worker_workspace_root), inventory=inventory, selected_blob_backend=artifact_storage.selected_store.backend_name, destructive_supported=destructive_supported, sweep_lock=调用 SingleHostSweepLock(调用 settings.retention_db_path.with_suffix('.gc.lock')), failure_memory=failure_memory_repository, project_memory=如果 project_memory_repository 不为空 则 project_memory_repository，否则 调用 NoOpProjectMemoryRetentionPort())
-返回 调用 RetentionBundle(inventory=inventory, quota_guard=quota_guard, service=service)
+计算计算当前表达式的结果，并保存为 当前处理结果；调用 `build_inventory` 组装当前阶段需要的领域对象，并把结果记为 该调用返回的结果；构造 `StorageQuotaGuard` 结构化领域对象，并把结果记为 该调用返回的结果。
+如果当前处理结果为空或为假，就构造并返回 `RetentionBundle` 结构化领域对象。
+如果“计算数量、边界或类型判断结果”后未得到肯定结果，就拒绝继续处理并抛出 `RuntimeError`，向调用方报告输入或运行失败。
+读取存储，并保存为 后续步骤使用的结果；计算根据条件从两个候选结果中选择一个，并保存为 对话。
+如果“计算数量、边界或类型判断结果”后得到肯定结果，就调用 `initialize` 完成该函数的一项辅助处理。
+构造 `SqliteResourceRepository` 结构化领域对象，并把结果记为 资源代码仓库；调用 `initialize` 完成该函数的一项辅助处理；构造 `SqliteNotificationRepository` 结构化领域对象，并把结果记为 通知代码仓库；调用 `initialize` 完成该函数的一项辅助处理。
+构造 `SqliteRetentionRepository` 结构化领域对象，并把结果记为 持久化仓库；构造 `SqliteFailureCaseRepository` 结构化领域对象，并把结果记为 失败记忆代码仓库；调用 `initialize` 完成该函数的一项辅助处理；读取代码仓库，并保存为 代码仓库。
+如果代码仓库为空 且 “检查当前处理结果的路径的文件系统属性”后得到肯定结果，就加载这一步需要的外部依赖；构造 `SqliteKnowledgeRepository` 结构化领域对象，并把结果记为 代码仓库；调用 `initialize` 完成该函数的一项辅助处理。
+构造 `RetentionService` 结构化领域对象，并把结果记为 领域服务对象；构造并返回 `RetentionBundle` 结构化领域对象。
 ```
 
 ### `app/retention/service.py`
 
 #### `RetentionService.__init__`
 
-- **源码**：`app/retention/service.py:119`
-- **签名**：`def __init__(self: 未显式标注, policy: RetentionPolicy, repository: SqliteRetentionRepository, jobs: JobRetentionPort, artifacts: ArtifactRetentionPort, chats: ChatRetentionPort, notifications: NotificationRetentionPort, resources: ResourceReferencePort, checkpoints: CheckpointRetentionPort, blob_store: DeletableBlobStore | None, path_remover: PathRemover, inventory: StorageInventoryService, selected_blob_backend: str, destructive_supported: bool, sweep_lock: SweepLock, failure_memory: FailureMemoryRetentionPort, project_memory: ProjectMemoryRetentionPort | None) -> None（隐式）`
-- **作用**：Python 协议方法；初始化、进入/退出上下文或把实例作为函数调用。
+- **源码**：`app/retention/service.py:139`
+- **签名**：`def __init__(self: 未显式标注, policy: RetentionPolicy, repository: SqliteRetentionRepository, jobs: JobRetentionPort, artifacts: ArtifactRetentionPort, chats: ChatRetentionPort, notifications: NotificationRetentionPort, resources: ResourceReferencePort, checkpoints: CheckpointRetentionPort, blob_store: DeletableBlobStore | None, path_remover: PathRemover, inventory: StorageInventoryService, selected_blob_backend: str, destructive_supported: bool, sweep_lock: SweepLock, failure_memory: FailureMemoryRetentionPort, project_memory: ProjectMemoryRetentionPort | None, knowledge_memory: KnowledgeMemoryRetentionPort | None, mcp_evidence: McpEvidenceRetentionPort | None, mcp_export_audit: McpExportAuditRetentionPort | None) -> None（隐式）`
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收安全策略、持久化仓库、复现任务记录集合、当前处理结果等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `policy` | `RetentionPolicy` | 名为 `policy` 的 `RetentionPolicy` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `policy` | `RetentionPolicy` | 安全策略；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 | `repository` | `SqliteRetentionRepository` | 持久化或目录访问端口；负责读取、CAS 更新或 Artifact 定位。 |
-| `jobs` | `JobRetentionPort` | 名为 `jobs` 的 `JobRetentionPort` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `artifacts` | `ArtifactRetentionPort` | 名为 `artifacts` 的 `ArtifactRetentionPort` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `chats` | `ChatRetentionPort` | 名为 `chats` 的 `ChatRetentionPort` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `notifications` | `NotificationRetentionPort` | 名为 `notifications` 的 `NotificationRetentionPort` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `resources` | `ResourceReferencePort` | 名为 `resources` 的 `ResourceReferencePort` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `checkpoints` | `CheckpointRetentionPort` | 名为 `checkpoints` 的 `CheckpointRetentionPort` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `blob_store` | `DeletableBlobStore | None` | 名为 `blob_store` 的 `DeletableBlobStore | None` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `path_remover` | `PathRemover` | 文件或目录位置；可能是 `Path`，也可能是尚待受控解析的路径字符串。 |
-| `inventory` | `StorageInventoryService` | 名为 `inventory` 的 `StorageInventoryService` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `selected_blob_backend` | `str` | 名为 `selected_blob_backend` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `destructive_supported` | `bool` | 布尔条件或能力开关。 |
-| `sweep_lock` | `SweepLock` | 名为 `sweep_lock` 的 `SweepLock` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `failure_memory` | `FailureMemoryRetentionPort` | 名为 `failure_memory` 的 `FailureMemoryRetentionPort` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `project_memory` | `ProjectMemoryRetentionPort | None` | 名为 `project_memory` 的 `ProjectMemoryRetentionPort | None` 输入，具体约束由函数内分支和 Schema 决定。；默认 `空值` |
+| `jobs` | `JobRetentionPort` | 复现任务记录集合；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `artifacts` | `ArtifactRetentionPort` | 名为 `artifacts` 的 `ArtifactRetentionPort` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `chats` | `ChatRetentionPort` | 名为 `chats` 的 `ChatRetentionPort` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `notifications` | `NotificationRetentionPort` | 名为 `notifications` 的 `NotificationRetentionPort` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `resources` | `ResourceReferencePort` | 复现输入资源集合；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `checkpoints` | `CheckpointRetentionPort` | 名为 `checkpoints` 的 `CheckpointRetentionPort` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `blob_store` | `DeletableBlobStore | None` | 名为 `blob_store` 的 `DeletableBlobStore | None` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `path_remover` | `PathRemover` | 名为 `path_remover` 的 `PathRemover` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `inventory` | `StorageInventoryService` | 名为 `inventory` 的 `StorageInventoryService` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `selected_blob_backend` | `str` | 名为 `selected_blob_backend` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `destructive_supported` | `bool` | 布尔条件或能力开关，用于控制流程分支。 |
+| `sweep_lock` | `SweepLock` | 名为 `sweep_lock` 的 `SweepLock` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `failure_memory` | `FailureMemoryRetentionPort` | 名为 `failure_memory` 的 `FailureMemoryRetentionPort` 领域输入；用于当前函数的业务处理，具体约束见校验分支。 |
+| `project_memory` | `ProjectMemoryRetentionPort | None` | 名为 `project_memory` 的 `ProjectMemoryRetentionPort | None` 领域输入；用于当前函数的业务处理，具体约束见校验分支。；默认 空值 |
+| `knowledge_memory` | `KnowledgeMemoryRetentionPort | None` | 名为 `knowledge_memory` 的 `KnowledgeMemoryRetentionPort | None` 领域输入；用于当前函数的业务处理，具体约束见校验分支。；默认 空值 |
+| `mcp_evidence` | `McpEvidenceRetentionPort | None` | 持久化领域记录、Manifest 或证据对象，通常携带版本、关联 ID 和内容身份。；默认 空值 |
+| `mcp_export_audit` | `McpExportAuditRetentionPort | None` | 名为 `mcp_export_audit` 的 `McpExportAuditRetentionPort | None` 领域输入；用于当前函数的业务处理，具体约束见校验分支。；默认 空值 |
 
 **输出**
 
@@ -8182,30 +7925,15 @@ service ← 调用 RetentionService(policy=调用 RetentionPolicy(job_retention_
 **伪代码**
 
 ```text
-self.policy ← policy
-self.repository ← repository
-self.jobs ← jobs
-self.artifacts ← artifacts
-self.chats ← chats
-self.notifications ← notifications
-self.resources ← resources
-self.checkpoints ← checkpoints
-self.blob_store ← blob_store
-self.path_remover ← path_remover
-self.inventory ← inventory
-self.selected_blob_backend ← selected_blob_backend
-self.destructive_supported ← destructive_supported
-self.sweep_lock ← sweep_lock
-self.failure_memory ← failure_memory
-self.project_memory ← project_memory 或 调用 _NoOpProjectMemoryRetentionPort()
-调用 self.repository.initialize()
+把传入的 安全策略、持久化仓库、复现任务记录集合、当前处理结果、当前处理结果、当前处理结果、复现输入资源集合、当前处理结果、Blob 内容存储、路径、当前处理结果、Blob 内容、当前处理结果、当前处理结果、失败记忆 分别保存到同名实例字段；计算计算当前表达式的结果，并保存为 项目记忆；计算计算当前表达式的结果，并保存为 记忆；计算计算当前表达式的结果，并保存为 证据。
+计算计算当前表达式的结果，并保存为 当前处理结果；调用 `initialize` 完成该函数的一项辅助处理。
 ```
 
 #### `RetentionService._blocked_job_ids`
 
-- **源码**：`app/retention/service.py:160`
+- **源码**：`app/retention/service.py:193`
 - **签名**：`def _blocked_job_ids(self) -> set[str]`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的基础配置、数据转换或公共支撑阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
@@ -8221,7 +7949,7 @@ self.project_memory ← project_memory 或 调用 _NoOpProjectMemoryRetentionPor
 **伪代码**
 
 ```text
-返回 调用 self.repository.held_job_ids() 合并 调用 self.failure_memory.active_referenced_job_ids() 合并 调用 self.project_memory.active_referenced_job_ids()
+返回当前计算得到的结果。
 ```
 
 ### `tests/helpers/project_memory.py`
@@ -8230,7 +7958,7 @@ self.project_memory ← project_memory 或 调用 _NoOpProjectMemoryRetentionPor
 
 - **源码**：`tests/helpers/project_memory.py:21`
 - **签名**：`def fixed_clock() -> str`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
 **输入**
 
@@ -8239,29 +7967,29 @@ self.project_memory ← project_memory 或 调用 _NoOpProjectMemoryRetentionPor
 **输出**
 
 - **Python 类型**：`str`
-- **语义**：返回普通文本或领域字符串；结合函数名判断其是规范化文本、ID、状态还是序列化内容。
+- **语义**：返回文本或领域字符串；其具体用途由函数名和调用位置确定，例如路径、状态、报告或序列化内容。
 
 **伪代码**
 
 ```text
-返回 NOW
+返回当前时间的当前值。
 ```
 
 #### `make_anchor`
 
 - **源码**：`tests/helpers/project_memory.py:25`
 - **签名**：`def make_anchor(job_id: str, job_version: int, workspace_manifest_hash: str, paper_sha256: str, repository_commit: str) -> ProjectAnchor`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收复现任务 ID、任务版本、Manifest的 Hash、论文的 SHA-256等输入，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `ProjectAnchor` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。；默认 `'job-anchor-001'` |
-| `job_version` | `int` | 名为 `job_version` 的 `int` 输入，具体约束由函数内分支和 Schema 决定。；默认 `0` |
-| `workspace_manifest_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。；默认 `'a' × 64` |
-| `paper_sha256` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。；默认 `'b' × 64` |
-| `repository_commit` | `str` | 持久化或目录访问端口；负责读取、CAS 更新或 Artifact 定位。；默认 `'c' × 40` |
+| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。；默认 'job-anchor-001' |
+| `job_version` | `int` | 名为 `job_version` 的数量、序号、分数或时间参数；有效范围由函数用途和校验分支确定。；默认 0 |
+| `workspace_manifest_hash` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。；默认 'a' × 64 |
+| `paper_sha256` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。；默认 'b' × 64 |
+| `repository_commit` | `str` | 持久化或目录访问端口；负责读取、CAS 更新或 Artifact 定位。；默认 'c' × 40 |
 
 **输出**
 
@@ -8271,24 +7999,24 @@ self.project_memory ← project_memory 或 调用 _NoOpProjectMemoryRetentionPor
 **伪代码**
 
 ```text
-返回 调用 ProjectAnchor(job_id=job_id, job_version=job_version, run_id=格式化文本：f'run-{job_id}', workspace_manifest_id=格式化文本：f'manifest-{job_id}', workspace_manifest_hash=workspace_manifest_hash, paper_sha256=paper_sha256, repository_commit=repository_commit, repository_clean=真)
+构造并返回 `ProjectAnchor` 结构化领域对象。
 ```
 
 #### `make_project`
 
 - **源码**：`tests/helpers/project_memory.py:45`
 - **签名**：`def make_project(project_id: str, display_name: str, status: str, anchor: ProjectAnchor | None, version: int) -> ProjectRecord`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收复现项目 ID、当前处理结果的名称、当前状态、源码或文档锚点等输入，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。；默认 `'project_' + '1' × 24` |
-| `display_name` | `str` | 名为 `display_name` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。；默认 `'Test Project'` |
-| `status` | `str` | 名为 `status` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。；默认 `'active'` |
-| `anchor` | `ProjectAnchor | None` | 名为 `anchor` 的 `ProjectAnchor | None` 输入，具体约束由函数内分支和 Schema 决定。；默认 `空值` |
-| `version` | `int` | 名为 `version` 的 `int` 输入，具体约束由函数内分支和 Schema 决定。；默认 `0` |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。；默认 'project_' + '1' × 24 |
+| `display_name` | `str` | 名为 `display_name` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。；默认 'Test Project' |
+| `status` | `str` | 来源、类别、用途、后端、状态或操作原因等控制字段；通常对应有限的业务枚举或审计文本。；默认 'active' |
+| `anchor` | `ProjectAnchor | None` | 源码或文档锚点；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。；默认 空值 |
+| `version` | `int` | 记录版本号；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。；默认 0 |
 
 **输出**
 
@@ -8298,25 +8026,22 @@ self.project_memory ← project_memory 或 调用 _NoOpProjectMemoryRetentionPor
 **伪代码**
 
 ```text
-raw ← 调用 ProjectRecord(project_id=project_id, display_name=display_name, status=status, anchor=anchor 或 调用 make_anchor(), version=version, record_hash='0' × 64, created_by='local-user', created_at=NOW, updated_at=NOW)
-payload ← 调用 raw.model_dump(mode='json')
-payload['record_hash'] ← 调用 compute_project_hash(raw)
-返回 调用 ProjectRecord.model_validate(payload)
+构造 `ProjectRecord` 结构化领域对象，并把结果记为 原始内容；复制、序列化或校验结构化领域对象，并把结果记为 结构化请求载荷；调用 `compute_project_hash` 计算内容身份、分数或派生结果，并把结果记为 结构化请求载荷中的对应字段；复制、序列化或校验结构化领域对象，并返回处理结果。
 ```
 
 #### `make_text_content`
 
 - **源码**：`tests/helpers/project_memory.py:69`
 - **签名**：`def make_text_content(category: str, key: str, text: str) -> ProjectFactContent`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收评测类别、映射键或对象字段名、待处理文本，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `ProjectFactContent` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `category` | `str` | 名为 `category` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。；默认 `'user_constraint'` |
-| `key` | `str` | 名为 `key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。；默认 `'network_access'` |
-| `text` | `str` | 待解析、规范化或输出的文本；进入持久化或 Prompt 前可能需要限长与脱敏。；默认 `'default offline'` |
+| `category` | `str` | 评测类别；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。；默认 'user_constraint' |
+| `key` | `str` | 映射键或对象字段名；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。；默认 'network_access' |
+| `text` | `str` | 用户目标、检索问题、反馈或待处理文本；会作为当前阶段的业务语境输入，并可能受到长度/脱敏约束。；默认 'default offline' |
 
 **输出**
 
@@ -8326,24 +8051,24 @@ payload['record_hash'] ← 调用 compute_project_hash(raw)
 **伪代码**
 
 ```text
-返回 调用 ProjectFactContent(category=category, key=key, value=调用 TextFactValue(text=text))
+构造并返回 `ProjectFactContent` 结构化领域对象。
 ```
 
 #### `confirmed_fact`
 
 - **源码**：`tests/helpers/project_memory.py:82`
 - **签名**：`def confirmed_fact(project_id: str, fact_id: str, key: str, text: str, version: int) -> ProjectFactRecord`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收复现项目 ID、项目事实记录的 ID、映射键或对象字段名、待处理文本等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。；默认 `'project_' + '1' × 24` |
-| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。；默认 `'fact_' + '2' × 24` |
-| `key` | `str` | 名为 `key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。；默认 `'network_access'` |
-| `text` | `str` | 待解析、规范化或输出的文本；进入持久化或 Prompt 前可能需要限长与脱敏。；默认 `'default offline'` |
-| `version` | `int` | 名为 `version` 的 `int` 输入，具体约束由函数内分支和 Schema 决定。；默认 `1` |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。；默认 'project_' + '1' × 24 |
+| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。；默认 'fact_' + '2' × 24 |
+| `key` | `str` | 映射键或对象字段名；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。；默认 'network_access' |
+| `text` | `str` | 用户目标、检索问题、反馈或待处理文本；会作为当前阶段的业务语境输入，并可能受到长度/脱敏约束。；默认 'default offline' |
+| `version` | `int` | 记录版本号；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。；默认 1 |
 
 **输出**
 
@@ -8353,27 +8078,24 @@ payload['record_hash'] ← 调用 compute_project_hash(raw)
 **伪代码**
 
 ```text
-content ← 调用 make_text_content(key=key, text=text)
-raw ← 调用 ProjectFactRecord(fact_id=fact_id, project_id=project_id, version=version, status='confirmed', authority='explicit_user', content=content, content_hash=调用 compute_content_hash(content), source=调用 ManualUserFactSource(actor='local-user', source_note='manual acceptance fixture', request_sha256='3' × 64), confirmation={'actor': 'local-user', 'reason': 'fixture confirmation', 'confirmed_at': NOW}, created_at=NOW, updated_at=NOW, record_hash='0' × 64)
-payload ← 调用 raw.model_dump(mode='json')
-payload['record_hash'] ← 调用 compute_fact_hash(raw)
-返回 调用 ProjectFactRecord.model_validate(payload)
+调用 `make_text_content` 完成该函数的一项辅助处理，并把结果记为 业务内容；构造 `ProjectFactRecord` 结构化领域对象，并把结果记为 原始内容；复制、序列化或校验结构化领域对象，并把结果记为 结构化请求载荷；调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 结构化请求载荷中的对应字段。
+复制、序列化或校验结构化领域对象，并返回处理结果。
 ```
 
 #### `proposed_fact`
 
 - **源码**：`tests/helpers/project_memory.py:118`
 - **签名**：`def proposed_fact(project_id: str, fact_id: str, key: str, text: str) -> ProjectFactRecord`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收复现项目 ID、项目事实记录的 ID、映射键或对象字段名、待处理文本，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。；默认 `'project_' + '1' × 24` |
-| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。；默认 `'fact_' + '3' × 24` |
-| `key` | `str` | 名为 `key` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。；默认 `'build_prereq'` |
-| `text` | `str` | 待解析、规范化或输出的文本；进入持久化或 Prompt 前可能需要限长与脱敏。；默认 `'check gcc before build'` |
+| `project_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。；默认 'project_' + '1' × 24 |
+| `fact_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。；默认 'fact_' + '3' × 24 |
+| `key` | `str` | 映射键或对象字段名；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。；默认 'build_prereq' |
+| `text` | `str` | 用户目标、检索问题、反馈或待处理文本；会作为当前阶段的业务语境输入，并可能受到长度/脱敏约束。；默认 'check gcc before build' |
 
 **输出**
 
@@ -8383,11 +8105,8 @@ payload['record_hash'] ← 调用 compute_fact_hash(raw)
 **伪代码**
 
 ```text
-content ← 调用 make_text_content(category='build_prerequisite', key=key, text=text)
-raw ← 调用 ProjectFactRecord(fact_id=fact_id, project_id=project_id, version=0, status='proposed', authority='unconfirmed_proposal', content=content, content_hash=调用 compute_content_hash(content), source=调用 ManualUserFactSource(actor='local-user', source_note='manual proposal fixture', request_sha256='4' × 64), created_at=NOW, updated_at=NOW, record_hash='0' × 64)
-payload ← 调用 raw.model_dump(mode='json')
-payload['record_hash'] ← 调用 compute_fact_hash(raw)
-返回 调用 ProjectFactRecord.model_validate(payload)
+调用 `make_text_content` 完成该函数的一项辅助处理，并把结果记为 业务内容；构造 `ProjectFactRecord` 结构化领域对象，并把结果记为 原始内容；复制、序列化或校验结构化领域对象，并把结果记为 结构化请求载荷；调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 结构化请求载荷中的对应字段。
+复制、序列化或校验结构化领域对象，并返回处理结果。
 ```
 
 ### `tests/test_project_memory_api.py`
@@ -8396,47 +8115,34 @@ payload['record_hash'] ← 调用 compute_fact_hash(raw)
 
 - **源码**：`tests/test_project_memory_api.py:27`
 - **签名**：`def app_and_service(tmp_path)`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `tmp_path` | `未显式标注` | 文件或目录位置；可能是 `Path`，也可能是尚待受控解析的路径字符串。 |
+| `tmp_path` | `未显式标注` | 文件或目录路径；用于定位输入、输出或日志，访问范围由函数内的路径边界检查决定。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-repo ← 调用 SqliteProjectMemoryRepository(tmp_path ÷ 'pm.db')
-调用 repo.initialize()
-anchor ← 调用 make_anchor()
-jobs ← 调用 MagicMock()
-jobs.read.return_value ← 调用 ProjectJobSnapshot(anchor=anchor)
-chats ← 调用 MagicMock()
-retriever ← 调用 ProjectFactRetriever(repo, top_k=20, max_chars=20000, clock=fixed_clock)
-redactor ← 调用 SecretRedactor()
-svc ← 调用 ProjectMemoryService(repository=repo, jobs=jobs, chats=chats, retriever=retriever, redactor=redactor, clock=fixed_clock)
-app ← 调用 FastAPI()
-app.state.project_memory_service ← svc
-app.state.api_token_override ← 空值
-调用 app.include_router(project_memory_router)
-导入 from app.api.errors import install_error_handlers
-调用 install_error_handlers(app)
-导入 from app.api.auth import require_api_auth
-app.dependency_overrides[require_api_auth] ← 匿名函数：lambda : 'test-user'
-返回 (app, svc, anchor)
+构造 `SqliteProjectMemoryRepository` 结构化领域对象，并把结果记为 代码仓库；调用 `initialize` 完成该函数的一项辅助处理；调用 `make_anchor` 完成该函数的一项辅助处理，并把结果记为 源码或文档锚点；构造 `MagicMock` 结构化领域对象，并把结果记为 复现任务记录集合。
+构造 `ProjectJobSnapshot` 结构化领域对象，并把结果记为 值；构造 `MagicMock` 结构化领域对象，并把结果记为 该调用返回的结果；构造 `ProjectFactRetriever` 结构化领域对象，并把结果记为 证据检索器；构造 `SecretRedactor` 结构化领域对象，并把结果记为 敏感信息脱敏器。
+构造 `ProjectMemoryService` 结构化领域对象，并把结果记为 领域服务对象；构造 `FastAPI` 结构化领域对象，并把结果记为 该调用返回的结果；读取领域服务对象，并保存为 项目记忆；计算使用固定配置或常量值，并保存为 当前处理结果。
+调用 `include_router` 完成该函数的一项辅助处理；加载这一步需要的外部依赖；调用 `install_error_handlers` 完成该函数的一项辅助处理；加载这一步需要的外部依赖。
+计算计算当前表达式的结果，并保存为 当前处理结果中的对应字段；返回当前构造的顺序或去重集合。
 ```
 
 #### `client`
 
 - **源码**：`tests/test_project_memory_api.py:72`
 - **签名**：`def client(app_and_service)`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收应用与服务测试对象，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
@@ -8447,26 +8153,25 @@ app.dependency_overrides[require_api_auth] ← 匿名函数：lambda : 'test-use
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-(app, _, _) ← app_and_service
-返回 调用 TestClient(app)
+读取应用与服务测试对象，并保存为 多个解包结果；构造并返回 `TestClient` 结构化领域对象。
 ```
 
 #### `test_create_project_via_api`
 
 - **源码**：`tests/test_project_memory_api.py:77`
 - **签名**：`def test_create_project_via_api(client, app_and_service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收外部服务客户端、应用与服务测试对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `client` | `未显式标注` | 名为 `client` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `client` | `未显式标注` | 外部服务客户端；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 | `app_and_service` | `未显式标注` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。 |
 
 **输出**
@@ -8477,25 +8182,21 @@ app.dependency_overrides[require_api_auth] ← 匿名函数：lambda : 'test-use
 **伪代码**
 
 ```text
-(_, _, anchor) ← app_and_service
-response ← 调用 client.post('/v1/projects', json={'display_name': 'API Test Project', 'anchor_job_id': anchor.job_id, 'expected_anchor_job_version': anchor.job_version, 'expected_workspace_manifest_hash': anchor.workspace_manifest_hash}, headers={'Idempotency-Key': 'api-create-1'})
-断言 response.status_code 等于 200
-data ← 调用 response.json()
-断言 data['project']['status'] 等于 'active'
-断言 data['replayed'] 是 假
+读取应用与服务测试对象，并保存为 多个解包结果；调用 `post` 完成该函数的一项辅助处理，并把结果记为 结构化响应；断言状态等于200；不满足就终止当前测试或流程；调用 `json` 完成该函数的一项辅助处理，并把结果记为 待处理数据。
+断言待处理数据中的对应字段中的对应字段等于'active'；不满足就终止当前测试或流程；断言待处理数据中的对应字段是假；不满足就终止当前测试或流程。
 ```
 
 #### `test_missing_idempotency_key_returns_422`
 
 - **源码**：`tests/test_project_memory_api.py:95`
 - **签名**：`def test_missing_idempotency_key_returns_422(client, app_and_service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收外部服务客户端、应用与服务测试对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `client` | `未显式标注` | 名为 `client` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `client` | `未显式标注` | 外部服务客户端；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 | `app_and_service` | `未显式标注` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。 |
 
 **输出**
@@ -8506,22 +8207,20 @@ data ← 调用 response.json()
 **伪代码**
 
 ```text
-(_, _, anchor) ← app_and_service
-response ← 调用 client.post('/v1/projects', json={'display_name': 'API Test Project', 'anchor_job_id': anchor.job_id, 'expected_anchor_job_version': anchor.job_version, 'expected_workspace_manifest_hash': anchor.workspace_manifest_hash})
-断言 response.status_code 等于 422
+读取应用与服务测试对象，并保存为 多个解包结果；调用 `post` 完成该函数的一项辅助处理，并把结果记为 结构化响应；断言状态等于422；不满足就终止当前测试或流程。
 ```
 
 #### `test_list_projects`
 
 - **源码**：`tests/test_project_memory_api.py:109`
 - **签名**：`def test_list_projects(client, app_and_service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收外部服务客户端、应用与服务测试对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `client` | `未显式标注` | 名为 `client` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `client` | `未显式标注` | 外部服务客户端；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 | `app_and_service` | `未显式标注` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。 |
 
 **输出**
@@ -8532,25 +8231,21 @@ response ← 调用 client.post('/v1/projects', json={'display_name': 'API Test 
 **伪代码**
 
 ```text
-(_, _, anchor) ← app_and_service
-调用 client.post('/v1/projects', json={'display_name': 'API Test Project', 'anchor_job_id': anchor.job_id, 'expected_anchor_job_version': anchor.job_version, 'expected_workspace_manifest_hash': anchor.workspace_manifest_hash}, headers={'Idempotency-Key': 'api-create-2'})
-response ← 从 client 读取 '/v1/projects'
-断言 response.status_code 等于 200
-data ← 调用 response.json()
-断言 data 的长度 大于等于 1
+读取应用与服务测试对象，并保存为 多个解包结果；调用 `post` 完成该函数的一项辅助处理；从外部服务客户端读取所需的状态或领域记录，并把结果记为 结构化响应；断言状态等于200；不满足就终止当前测试或流程。
+调用 `json` 完成该函数的一项辅助处理，并把结果记为 待处理数据；断言待处理数据 的长度不小于1；不满足就终止当前测试或流程。
 ```
 
 #### `test_get_project`
 
 - **源码**：`tests/test_project_memory_api.py:128`
 - **签名**：`def test_get_project(client, app_and_service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收外部服务客户端、应用与服务测试对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `client` | `未显式标注` | 名为 `client` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `client` | `未显式标注` | 外部服务客户端；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 | `app_and_service` | `未显式标注` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。 |
 
 **输出**
@@ -8561,25 +8256,21 @@ data ← 调用 response.json()
 **伪代码**
 
 ```text
-(_, _, anchor) ← app_and_service
-create_resp ← 调用 client.post('/v1/projects', json={'display_name': 'API Test Project', 'anchor_job_id': anchor.job_id, 'expected_anchor_job_version': anchor.job_version, 'expected_workspace_manifest_hash': anchor.workspace_manifest_hash}, headers={'Idempotency-Key': 'api-create-3'})
-project_id ← 调用 create_resp.json()['project']['project_id']
-response ← 从 client 读取 格式化文本：f'/v1/projects/{project_id}'
-断言 response.status_code 等于 200
-断言 调用 response.json()['project_id'] 等于 project_id
+读取应用与服务测试对象，并保存为 多个解包结果；调用 `post` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；读取前一步操作返回对象中的对应字段中的对应字段，并保存为 复现项目 ID；从外部服务客户端读取所需的状态或领域记录，并把结果记为 结构化响应。
+断言状态等于200；不满足就终止当前测试或流程；断言前一步操作返回对象中的对应字段等于复现项目 ID；不满足就终止当前测试或流程。
 ```
 
 #### `test_get_nonexistent_project_returns_404`
 
 - **源码**：`tests/test_project_memory_api.py:146`
 - **签名**：`def test_get_nonexistent_project_returns_404(client)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收外部服务客户端，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `client` | `未显式标注` | 名为 `client` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `client` | `未显式标注` | 外部服务客户端；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -8589,21 +8280,20 @@ response ← 从 client 读取 格式化文本：f'/v1/projects/{project_id}'
 **伪代码**
 
 ```text
-response ← 从 client 读取 格式化文本：f"/v1/projects/project_{'0' * 24}"
-断言 response.status_code 等于 404
+从外部服务客户端读取所需的状态或领域记录，并把结果记为 结构化响应；断言状态等于404；不满足就终止当前测试或流程。
 ```
 
 #### `test_full_fact_lifecycle_via_api`
 
 - **源码**：`tests/test_project_memory_api.py:151`
 - **签名**：`def test_full_fact_lifecycle_via_api(client, app_and_service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收外部服务客户端、应用与服务测试对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `client` | `未显式标注` | 名为 `client` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `client` | `未显式标注` | 外部服务客户端；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 | `app_and_service` | `未显式标注` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。 |
 
 **输出**
@@ -8614,52 +8304,28 @@ response ← 从 client 读取 格式化文本：f"/v1/projects/project_{'0' * 2
 **伪代码**
 
 ```text
-(_, _, anchor) ← app_and_service
-create_resp ← 调用 client.post('/v1/projects', json={'display_name': 'API Test Project', 'anchor_job_id': anchor.job_id, 'expected_anchor_job_version': anchor.job_version, 'expected_workspace_manifest_hash': anchor.workspace_manifest_hash}, headers={'Idempotency-Key': 'api-create-4'})
-project_id ← 调用 create_resp.json()['project']['project_id']
-propose_resp ← 调用 client.post(格式化文本：f'/v1/projects/{project_id}/facts/proposals', json={'content': {'category': 'user_constraint', 'key': 'network_access', 'value': {'kind': 'text', 'text': 'default offline'}}, 'source_note': 'API test proposal'}, headers={'Idempotency-Key': 'api-propose-1'})
-断言 propose_resp.status_code 等于 200
-fact_id ← 调用 propose_resp.json()['fact']['fact_id']
-fact_version ← 调用 propose_resp.json()['fact']['version']
-fact_hash ← 调用 propose_resp.json()['fact']['record_hash']
-confirm_resp ← 调用 client.post(格式化文本：f'/v1/projects/{project_id}/facts/{fact_id}/confirm', json={'expected_version': fact_version, 'expected_record_hash': fact_hash, 'reason': 'API test confirm'}, headers={'Idempotency-Key': 'api-confirm-1'})
-断言 confirm_resp.status_code 等于 200
-断言 调用 confirm_resp.json()['fact']['status'] 等于 'confirmed'
-context_resp ← 从 client 读取 格式化文本：f'/v1/projects/{project_id}/facts/context'
-断言 context_resp.status_code 等于 200
-pack ← 调用 context_resp.json()
-断言 pack['items'] 的长度 等于 1
-断言 pack['items'][0]['fact_id'] 等于 fact_id
-list_resp ← 从 client 读取 格式化文本：f'/v1/projects/{project_id}/facts'
-断言 list_resp.status_code 等于 200
-断言 调用 list_resp.json() 的长度 大于等于 1
-revoked_version ← 调用 confirm_resp.json()['fact']['version']
-revoked_hash ← 调用 confirm_resp.json()['fact']['record_hash']
-revoke_resp ← 调用 client.post(格式化文本：f'/v1/projects/{project_id}/facts/{fact_id}/revoke', json={'expected_version': revoked_version, 'expected_record_hash': revoked_hash, 'reason': 'API test revoke'}, headers={'Idempotency-Key': 'api-revoke-1'})
-断言 revoke_resp.status_code 等于 200
-断言 调用 revoke_resp.json()['fact']['status'] 等于 'revoked'
-deleted_version ← 调用 revoke_resp.json()['fact']['version']
-deleted_hash ← 调用 revoke_resp.json()['fact']['record_hash']
-delete_resp ← 调用 client.post(格式化文本：f'/v1/projects/{project_id}/facts/{fact_id}/delete', json={'expected_version': deleted_version, 'expected_record_hash': deleted_hash, 'reason': 'API test delete'}, headers={'Idempotency-Key': 'api-delete-1'})
-断言 delete_resp.status_code 等于 200
-断言 调用 delete_resp.json()['fact']['status'] 等于 'deleted'
-断言 调用 delete_resp.json()['fact']['content'] 为空
-list_terminal_resp ← 从 client 读取 格式化文本：f'/v1/projects/{project_id}/facts'
-断言 list_terminal_resp.status_code 等于 200
-断言 调用 any(按推导式生成结果：(f['status'] == 'deleted' for f in list_terminal_resp.json()))
+读取应用与服务测试对象，并保存为 多个解包结果；调用 `post` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；读取前一步操作返回对象中的对应字段中的对应字段，并保存为 复现项目 ID；调用 `post` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+断言状态等于200；不满足就终止当前测试或流程；读取前一步操作返回对象中的对应字段中的对应字段，并保存为 项目事实记录的 ID；读取前一步操作返回对象中的对应字段中的对应字段，并保存为 事实版本；读取前一步操作返回对象中的对应字段中的对应字段，并保存为 项目事实记录的 Hash。
+调用 `post` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；断言状态等于200；不满足就终止当前测试或流程；断言前一步操作返回对象中的对应字段中的对应字段等于'confirmed'；不满足就终止当前测试或流程；从外部服务客户端读取所需的状态或领域记录，并把结果记为 上下文。
+断言状态等于200；不满足就终止当前测试或流程；调用 `json` 完成该函数的一项辅助处理，并把结果记为 检索或映射证据包；断言检索或映射证据包中的对应字段 的长度等于1；不满足就终止当前测试或流程；断言检索或映射证据包中的对应字段中的对应字段中的对应字段等于项目事实记录的 ID；不满足就终止当前测试或流程。
+从外部服务客户端读取所需的状态或领域记录，并把结果记为 该调用返回的结果；断言状态等于200；不满足就终止当前测试或流程；断言辅助操作“调用 `json` 完成该函数的一项辅助处理”的结果 的长度不小于1；不满足就终止当前测试或流程；读取前一步操作返回对象中的对应字段中的对应字段，并保存为 版本。
+读取前一步操作返回对象中的对应字段中的对应字段，并保存为 当前处理结果的 Hash；调用 `post` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；断言状态等于200；不满足就终止当前测试或流程；断言前一步操作返回对象中的对应字段中的对应字段等于'revoked'；不满足就终止当前测试或流程。
+读取前一步操作返回对象中的对应字段中的对应字段，并保存为 版本；读取前一步操作返回对象中的对应字段中的对应字段，并保存为 当前处理结果的 Hash；调用 `post` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；断言状态等于200；不满足就终止当前测试或流程。
+断言前一步操作返回对象中的对应字段中的对应字段等于'deleted'；不满足就终止当前测试或流程；断言前一步操作返回对象中的对应字段中的对应字段为空；不满足就终止当前测试或流程；从外部服务客户端读取所需的状态或领域记录，并把结果记为 该调用返回的结果；断言状态等于200；不满足就终止当前测试或流程。
+断言辅助操作产生的可迭代结果（调用 `json` 完成该函数的一项辅助处理）中存在满足“当前处理结果中的对应字段等于'deleted'”的项；不满足就终止当前测试或流程。
 ```
 
 #### `test_stale_version_returns_409`
 
 - **源码**：`tests/test_project_memory_api.py:249`
 - **签名**：`def test_stale_version_returns_409(client, app_and_service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收外部服务客户端、应用与服务测试对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `client` | `未显式标注` | 名为 `client` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `client` | `未显式标注` | 外部服务客户端；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 | `app_and_service` | `未显式标注` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。 |
 
 **输出**
@@ -8670,26 +8336,21 @@ list_terminal_resp ← 从 client 读取 格式化文本：f'/v1/projects/{proje
 **伪代码**
 
 ```text
-(_, _, anchor) ← app_and_service
-create_resp ← 调用 client.post('/v1/projects', json={'display_name': 'API Test Project', 'anchor_job_id': anchor.job_id, 'expected_anchor_job_version': anchor.job_version, 'expected_workspace_manifest_hash': anchor.workspace_manifest_hash}, headers={'Idempotency-Key': 'api-create-5'})
-project_id ← 调用 create_resp.json()['project']['project_id']
-propose_resp ← 调用 client.post(格式化文本：f'/v1/projects/{project_id}/facts/proposals', json={'content': {'category': 'user_constraint', 'key': 'network_access', 'value': {'kind': 'text', 'text': 'default offline'}}, 'source_note': 'API test proposal'}, headers={'Idempotency-Key': 'api-propose-2'})
-fact_id ← 调用 propose_resp.json()['fact']['fact_id']
-confirm_resp ← 调用 client.post(格式化文本：f'/v1/projects/{project_id}/facts/{fact_id}/confirm', json={'expected_version': 99, 'expected_record_hash': '0' × 64, 'reason': 'stale'}, headers={'Idempotency-Key': 'api-confirm-stale'})
-断言 confirm_resp.status_code 等于 409
+读取应用与服务测试对象，并保存为 多个解包结果；调用 `post` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；读取前一步操作返回对象中的对应字段中的对应字段，并保存为 复现项目 ID；调用 `post` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+读取前一步操作返回对象中的对应字段中的对应字段，并保存为 项目事实记录的 ID；调用 `post` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；断言状态等于409；不满足就终止当前测试或流程。
 ```
 
 #### `test_same_key_different_body_returns_409`
 
 - **源码**：`tests/test_project_memory_api.py:287`
 - **签名**：`def test_same_key_different_body_returns_409(client, app_and_service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收外部服务客户端、应用与服务测试对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `client` | `未显式标注` | 名为 `client` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `client` | `未显式标注` | 外部服务客户端；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 | `app_and_service` | `未显式标注` | 已注入的领域服务；封装业务规则并协调 Repository、Evidence Reader 或其他端口。 |
 
 **输出**
@@ -8700,10 +8361,7 @@ confirm_resp ← 调用 client.post(格式化文本：f'/v1/projects/{project_id
 **伪代码**
 
 ```text
-(_, _, anchor) ← app_and_service
-调用 client.post('/v1/projects', json={'display_name': 'API Test Project', 'anchor_job_id': anchor.job_id, 'expected_anchor_job_version': anchor.job_version, 'expected_workspace_manifest_hash': anchor.workspace_manifest_hash}, headers={'Idempotency-Key': 'api-create-6'})
-response ← 调用 client.post('/v1/projects', json={'display_name': 'Different Name', 'anchor_job_id': anchor.job_id, 'expected_anchor_job_version': anchor.job_version, 'expected_workspace_manifest_hash': anchor.workspace_manifest_hash}, headers={'Idempotency-Key': 'api-create-6'})
-断言 response.status_code 等于 409
+读取应用与服务测试对象，并保存为 多个解包结果；调用 `post` 完成该函数的一项辅助处理；调用 `post` 完成该函数的一项辅助处理，并把结果记为 结构化响应；断言状态等于409；不满足就终止当前测试或流程。
 ```
 
 ### `tests/test_project_memory_authority_boundary.py`
@@ -8712,13 +8370,13 @@ response ← 调用 client.post('/v1/projects', json={'display_name': 'Different
 
 - **源码**：`tests/test_project_memory_authority_boundary.py:18`
 - **签名**：`def _module_imports(module_path: Path) -> set[str]`
-- **作用**：Parse a Python file and return top-level module names.
+- **作用**：在论文复现系统的安全、权限和敏感信息隔离阶段中，Parse a Python file and return top-level module names。该函数接收Python 模块的路径，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `module_path` | `Path` | 文件或目录位置；可能是 `Path`，也可能是尚待受控解析的路径字符串。 |
+| `module_path` | `Path` | 文件或目录路径；用于定位输入、输出或日志，访问范围由函数内的路径边界检查决定。 |
 
 **输出**
 
@@ -8728,24 +8386,21 @@ response ← 调用 client.post('/v1/projects', json={'display_name': 'Different
 **伪代码**
 
 ```text
-tree ← 调用 ast.parse(调用 module_path.read_text())
-modules ← 调用 set()
-对于 node 属于 调用 ast.walk(tree)
-    如果 调用 isinstance(node, ast.ImportFrom)
-        如果 node.module
-            调用 modules.add(node.module)
-    否则
-        如果 调用 isinstance(node, ast.Import)
-            对于 alias 属于 node.names
-                调用 modules.add(alias.name)
-返回 modules
+将 Python 源码解析为抽象语法树，并把结果记为 该调用返回的结果；将 Python 模块集合 初始化为空去重集合，用来收集后续结果。
+遍历语法树节点集合，每次把当前项记为当前流程节点：
+    如果“计算数量、边界或类型判断结果”后得到肯定结果：
+        如果Python 模块有值或为真，就把Python 模块追加或合并到Python 模块集合。
+    否则：
+        如果“计算数量、边界或类型判断结果”后得到肯定结果：
+            遍历当前可迭代输入，每次把当前项记为对象别名，然后把对象名称追加或合并到Python 模块集合。
+返回Python 模块集合的当前值。
 ```
 
 #### `test_project_memory_does_not_import_executor_or_shell`
 
 - **源码**：`tests/test_project_memory_authority_boundary.py:32`
 - **签名**：`def test_project_memory_does_not_import_executor_or_shell()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的安全、权限和敏感信息隔离阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -8759,20 +8414,17 @@ modules ← 调用 set()
 **伪代码**
 
 ```text
-forbidden ← {'app.nodes.executor_node', 'app.tools.safe_shell_tools', 'app.execution.process_supervisor', 'app.authority.guard', 'app.tools.exec_tools', 'app.tools.action_tools'}
-对于 py_file 属于 调用 PROJECT_MEMORY_DIR.glob('*.py')
-    如果 py_file.name 等于 '__init__.py'
-        继续下一轮循环
-    imports ← 调用 _module_imports(py_file)
-    leaking ← imports BitAnd forbidden
-    断言 leaking 为空或为假，否则说明 格式化文本：f'{py_file.name} imports forbidden modules: {leaking}'
+计算初始化去重集合，并保存为 被策略禁止的内容或操作。
+遍历辅助操作产生的可迭代结果（枚举项目记忆的目录下符合范围的文件系统项），每次把当前项记为文件：
+    如果对象名称等于'__init__.py'，就跳过本轮剩余处理，直接进入下一轮。
+    调用 `_module_imports` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；计算组合或计算已有值，并保存为 当前处理结果；断言当前处理结果为空或为假，失败时附带断言说明；不满足就终止当前测试或流程。
 ```
 
 #### `test_fact_pack_cannot_construct_action_fields`
 
 - **源码**：`tests/test_project_memory_authority_boundary.py:51`
 - **签名**：`def test_fact_pack_cannot_construct_action_fields()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的安全、权限和敏感信息隔离阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -8786,19 +8438,15 @@ forbidden ← {'app.nodes.executor_node', 'app.tools.safe_shell_tools', 'app.exe
 **伪代码**
 
 ```text
-fact ← 调用 confirmed_fact()
-item ← 调用 ProjectFactPackItem(fact_id=fact.fact_id, fact_hash=fact.record_hash, category=fact.content.category, key=fact.content.key, value=fact.content.value, source_kind='manual_user')
-pack ← 调用 ProjectFactPack(project_id=fact.project_id, project_hash='a' × 64, items=[item], pack_hash='b' × 64, generated_at='2026-08-11T10:00:00+00:00')
-payload ← 调用 pack.model_dump(mode='json')
-forbidden_keys ← {'pending_action', 'approval_record', 'execution_result', 'patch_plan', 'decision_envelope'}
-断言 调用 forbidden_keys.isdisjoint(payload)
+调用 `confirmed_fact` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；构造 `ProjectFactPackItem` 结构化领域对象，并把结果记为 当前处理项；构造 `ProjectFactPack` 结构化领域对象，并把结果记为 检索或映射证据包；复制、序列化或校验结构化领域对象，并把结果记为 结构化请求载荷。
+计算初始化去重集合，并保存为 键集合集合；断言“调用 `isdisjoint` 完成该函数的一项辅助处理”后得到肯定结果；不满足就终止当前测试或流程。
 ```
 
 #### `test_fact_pack_only_contains_explicit_user_authority`
 
 - **源码**：`tests/test_project_memory_authority_boundary.py:79`
 - **签名**：`def test_fact_pack_only_contains_explicit_user_authority()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的安全、权限和敏感信息隔离阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -8812,16 +8460,14 @@ forbidden_keys ← {'pending_action', 'approval_record', 'execution_result', 'pa
 **伪代码**
 
 ```text
-fact ← 调用 confirmed_fact()
-item ← 调用 ProjectFactPackItem(fact_id=fact.fact_id, fact_hash=fact.record_hash, category=fact.content.category, key=fact.content.key, value=fact.content.value, source_kind='manual_user')
-断言 item.authority 等于 'explicit_user'
+调用 `confirmed_fact` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；构造 `ProjectFactPackItem` 结构化领域对象，并把结果记为 当前处理项；断言职责权限等于'explicit_user'；不满足就终止当前测试或流程。
 ```
 
 #### `test_fact_pack_value_is_read_only_data`
 
 - **源码**：`tests/test_project_memory_authority_boundary.py:92`
 - **签名**：`def test_fact_pack_value_is_read_only_data()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的安全、权限和敏感信息隔离阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -8835,11 +8481,8 @@ item ← 调用 ProjectFactPackItem(fact_id=fact.fact_id, fact_hash=fact.record_
 **伪代码**
 
 ```text
-fact ← 调用 confirmed_fact()
-item ← 调用 ProjectFactPackItem(fact_id=fact.fact_id, fact_hash=fact.record_hash, category=fact.content.category, key=fact.content.key, value=fact.content.value, source_kind='manual_user')
-payload ← 调用 item.model_dump(mode='json')
-forbidden_action_keys ← {'command', 'operation_id', 'endpoint', 'token', 'claim_token'}
-断言 调用 forbidden_action_keys.isdisjoint(payload)
+调用 `confirmed_fact` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；构造 `ProjectFactPackItem` 结构化领域对象，并把结果记为 当前处理项；复制、序列化或校验结构化领域对象，并把结果记为 结构化请求载荷；计算初始化去重集合，并保存为 键集合集合。
+断言“调用 `isdisjoint` 完成该函数的一项辅助处理”后得到肯定结果；不满足就终止当前测试或流程。
 ```
 
 ### `tests/test_project_memory_chat_integration.py`
@@ -8848,38 +8491,36 @@ forbidden_action_keys ← {'command', 'operation_id', 'endpoint', 'token', 'clai
 
 - **源码**：`tests/test_project_memory_chat_integration.py:26`
 - **签名**：`def _make_retriever(pack: ProjectFactPack | None)`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收检索或映射证据包，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `pack` | `ProjectFactPack | None` | 名为 `pack` 的 `ProjectFactPack | None` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `pack` | `ProjectFactPack | None` | 检索或映射证据包；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-retriever ← 调用 MagicMock()
-retriever.for_job.return_value ← pack
-返回 retriever
+构造 `MagicMock` 结构化领域对象，并把结果记为 证据检索器；读取检索或映射证据包，并保存为 值；返回证据检索器的当前值。
 ```
 
 #### `_make_pack`
 
 - **源码**：`tests/test_project_memory_chat_integration.py:32`
 - **签名**：`def _make_pack(fact=None) -> ProjectFactPack`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收项目事实记录，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `ProjectFactPack` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `fact` | `未显式标注` | 项目事实记录或类型化事实值；包含来源、状态、版本与内容身份。；默认 `空值` |
+| `fact` | `未显式标注` | 项目事实记录或类型化事实值；包含来源、状态、版本与内容身份。；默认 空值 |
 
 **输出**
 
@@ -8889,19 +8530,15 @@ retriever.for_job.return_value ← pack
 **伪代码**
 
 ```text
-fact ← fact 或 调用 confirmed_fact()
-item ← 调用 ProjectFactPackItem(fact_id=fact.fact_id, fact_hash=fact.record_hash, category=fact.content.category, key=fact.content.key, value=fact.content.value, source_kind='manual_user')
-draft ← 调用 ProjectFactPack(project_id=fact.project_id, project_hash='a' × 64, items=[item], pack_hash='0' × 64, generated_at=NOW)
-payload ← 调用 draft.model_dump(mode='json')
-payload['pack_hash'] ← 调用 compute_pack_hash(draft)
-返回 调用 ProjectFactPack.model_validate(payload)
+计算计算当前表达式的结果，并保存为 项目事实记录；构造 `ProjectFactPackItem` 结构化领域对象，并把结果记为 当前处理项；构造 `ProjectFactPack` 结构化领域对象，并把结果记为 草稿对象；复制、序列化或校验结构化领域对象，并把结果记为 结构化请求载荷。
+调用 `compute_pack_hash` 计算内容身份、分数或派生结果，并把结果记为 结构化请求载荷中的对应字段；复制、序列化或校验结构化领域对象，并返回处理结果。
 ```
 
 #### `test_unbound_job_gets_no_project_fact_sources`
 
 - **源码**：`tests/test_project_memory_chat_integration.py:54`
 - **签名**：`def test_unbound_job_gets_no_project_fact_sources()`
-- **作用**：未绑定 Job 不会得到 Project Fact source。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，未绑定 Job 不会得到 Project Fact source。该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -8915,18 +8552,15 @@ payload['pack_hash'] ← 调用 compute_pack_hash(draft)
 **伪代码**
 
 ```text
-retriever ← 调用 MagicMock()
-retriever.for_job.return_value ← 空值
-builder ← 调用 ChatContextBuilder(interaction=调用 MagicMock(), artifact_catalog=调用 MagicMock(), artifacts_to_open=3, source_limit=10, artifact_max_bytes=5000, total_context_chars=50000, log_max_bytes=5000, project_fact_retriever=retriever)
-sources ← 调用 builder._project_fact_sources(job_id='unbound-job', keywords=调用 set())
-断言 sources 的长度 等于 0
+构造 `MagicMock` 结构化领域对象，并把结果记为 证据检索器；计算使用固定配置或常量值，并保存为 值；构造 `ChatContextBuilder` 结构化领域对象，并把结果记为 领域对象构造器；调用 `_project_fact_sources` 完成该函数的一项辅助处理，并把结果记为 证据来源集合。
+断言证据来源集合 的长度等于0；不满足就终止当前测试或流程。
 ```
 
 #### `test_confirmed_fact_enters_sources`
 
 - **源码**：`tests/test_project_memory_chat_integration.py:77`
 - **签名**：`def test_confirmed_fact_enters_sources()`
-- **作用**：confirmed fact 进入 GroundingSource，citation 包含 project/fact/hash。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，confirmed fact 进入 GroundingSource，citation 包含 project/fact/hash。该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -8940,23 +8574,16 @@ sources ← 调用 builder._project_fact_sources(job_id='unbound-job', keywords=
 **伪代码**
 
 ```text
-pack ← 调用 _make_pack()
-retriever ← 调用 _make_retriever(pack)
-builder ← 调用 ChatContextBuilder(interaction=调用 MagicMock(), artifact_catalog=调用 MagicMock(), artifacts_to_open=3, source_limit=10, artifact_max_bytes=5000, total_context_chars=50000, log_max_bytes=5000, project_fact_retriever=retriever)
-sources ← 调用 builder._project_fact_sources(job_id='bound-job', keywords=调用 set())
-断言 sources 的长度 等于 1
-citation ← sources[0].citation
-断言 citation.source_type 等于 'project_fact'
-断言 citation.project_id 等于 pack.project_id
-断言 citation.project_fact_id 等于 pack.items[0].fact_id
-断言 citation.project_fact_hash 等于 pack.items[0].fact_hash
+调用 `_make_pack` 完成该函数的一项辅助处理，并把结果记为 检索或映射证据包；调用 `_make_retriever` 完成该函数的一项辅助处理，并把结果记为 证据检索器；构造 `ChatContextBuilder` 结构化领域对象，并把结果记为 领域对象构造器；调用 `_project_fact_sources` 完成该函数的一项辅助处理，并把结果记为 证据来源集合。
+断言证据来源集合 的长度等于1；不满足就终止当前测试或流程；读取论文引用证据，并保存为 论文引用证据；断言来源类型等于'project_fact'；不满足就终止当前测试或流程；断言复现项目 ID等于复现项目 ID；不满足就终止当前测试或流程。
+断言项目事实的 ID等于项目事实记录的 ID；不满足就终止当前测试或流程；断言项目事实的 Hash等于项目事实记录的 Hash；不满足就终止当前测试或流程。
 ```
 
 #### `test_project_fact_citation_validates_identity`
 
 - **源码**：`tests/test_project_memory_chat_integration.py:105`
 - **签名**：`def test_project_fact_citation_validates_identity()`
-- **作用**：project_fact citation 必须包含完整身份。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，project_fact citation 必须包含完整身份。该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -8970,15 +8597,14 @@ citation ← sources[0].citation
 **伪代码**
 
 ```text
-在上下文 调用 pytest.raises(ValueError) 中
-    调用 ChatCitation(citation_id='project_fact:test', source_type='project_fact', label='test', project_id='project_' + '1' × 24, project_fact_id=空值, project_fact_hash=空值)
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中构造 `ChatCitation` 结构化领域对象，退出时自动清理资源。
 ```
 
 #### `test_non_project_fact_citation_rejects_project_fields`
 
 - **源码**：`tests/test_project_memory_chat_integration.py:118`
 - **签名**：`def test_non_project_fact_citation_rejects_project_fields()`
-- **作用**：非 project_fact citation 不能携带项目事实身份。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，非 project_fact citation 不能携带项目事实身份。该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -8992,15 +8618,14 @@ citation ← sources[0].citation
 **伪代码**
 
 ```text
-在上下文 调用 pytest.raises(ValueError) 中
-    调用 ChatCitation(citation_id='job:current', source_type='job', label='test', project_id='project_' + '1' × 24)
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中构造 `ChatCitation` 结构化领域对象，退出时自动清理资源。
 ```
 
 #### `test_phase36_memory_hash_still_passes`
 
 - **源码**：`tests/test_project_memory_chat_integration.py:129`
 - **签名**：`def test_phase36_memory_hash_still_passes()`
-- **作用**：旧 Phase 36 Memory Hash 仍通过。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，旧 Phase 36 Memory Hash 仍通过。该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9014,16 +8639,14 @@ citation ← sources[0].citation
 **伪代码**
 
 ```text
-body ← 调用 ConversationMemoryBody(summary='test summary', citation_schema_version='phase36-v1')
-payload ← 调用 _memory_body_hash_payload(body)
-断言 'citation_schema_version' 不属于 payload
+构造 `ConversationMemoryBody` 结构化领域对象，并把结果记为 请求正文；调用 `_memory_body_hash_payload` 完成该函数的一项辅助处理，并把结果记为 结构化请求载荷；断言当前输入内容不属于结构化请求载荷；不满足就终止当前测试或流程。
 ```
 
 #### `test_phase38_memory_hash_excludes_phase46_fields`
 
 - **源码**：`tests/test_project_memory_chat_integration.py:140`
 - **签名**：`def test_phase38_memory_hash_excludes_phase46_fields()`
-- **作用**：Phase 38 Memory Hash 排除 Phase 46 字段。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，Phase 38 Memory Hash 排除 Phase 46 字段。该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9037,18 +8660,16 @@ payload ← 调用 _memory_body_hash_payload(body)
 **伪代码**
 
 ```text
-body ← 调用 ConversationMemoryBody(summary='test summary', citation_schema_version='phase38-v2')
-payload ← 调用 _memory_body_hash_payload(body)
-对于 citation 属于 从 payload 读取 'citation_anchors', []
-    对于 field 属于 PHASE46_CITATION_FIELDS
-        断言 field 不属于 citation
+构造 `ConversationMemoryBody` 结构化领域对象，并把结果记为 请求正文；调用 `_memory_body_hash_payload` 完成该函数的一项辅助处理，并把结果记为 结构化请求载荷。
+遍历辅助操作产生的可迭代结果（从结构化请求载荷读取所需的状态或领域记录），每次把当前项记为论文引用证据：
+    遍历由当前处理结果组成的集合或迭代器，每次把当前项记为结构化对象字段，然后断言结构化对象字段不属于论文引用证据；不满足就终止当前测试或流程。
 ```
 
 #### `test_phase46_v3_schema_accepts_project_fact_citation`
 
 - **源码**：`tests/test_project_memory_chat_integration.py:153`
 - **签名**：`def test_phase46_v3_schema_accepts_project_fact_citation()`
-- **作用**：Phase 46 v3 schema 接受 project_fact citation。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，Phase 46 v3 schema 接受 project_fact citation。该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9062,17 +8683,14 @@ payload ← 调用 _memory_body_hash_payload(body)
 **伪代码**
 
 ```text
-fact ← 调用 confirmed_fact()
-citation ← 调用 ChatCitation(citation_id=格式化文本：f'project_fact:{fact.fact_id}', source_type='project_fact', label='Project fact: test', project_id=fact.project_id, project_fact_id=fact.fact_id, project_fact_hash=fact.record_hash)
-body ← 调用 ConversationMemoryBody(summary='test summary', citation_anchors=[citation], citation_schema_version='phase46-v3')
-断言 body.citation_schema_version 等于 'phase46-v3'
+调用 `confirmed_fact` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；构造 `ChatCitation` 结构化领域对象，并把结果记为 论文引用证据；构造 `ConversationMemoryBody` 结构化领域对象，并把结果记为 请求正文；断言版本等于'phase46-v3'；不满足就终止当前测试或流程。
 ```
 
 #### `test_phase38_rejects_project_fact_citation`
 
 - **源码**：`tests/test_project_memory_chat_integration.py:172`
 - **签名**：`def test_phase38_rejects_project_fact_citation()`
-- **作用**：Phase 38 v2 不接受 project_fact citation。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，Phase 38 v2 不接受 project_fact citation。该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9086,17 +8704,15 @@ body ← 调用 ConversationMemoryBody(summary='test summary', citation_anchors=
 **伪代码**
 
 ```text
-fact ← 调用 confirmed_fact()
-citation ← 调用 ChatCitation(citation_id=格式化文本：f'project_fact:{fact.fact_id}', source_type='project_fact', label='Project fact: test', project_id=fact.project_id, project_fact_id=fact.fact_id, project_fact_hash=fact.record_hash)
-在上下文 调用 pytest.raises(ValueError) 中
-    调用 ConversationMemoryBody(summary='test summary', citation_anchors=[citation], citation_schema_version='phase38-v2')
+调用 `confirmed_fact` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；构造 `ChatCitation` 结构化领域对象，并把结果记为 论文引用证据。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中构造 `ConversationMemoryBody` 结构化领域对象，退出时自动清理资源。
 ```
 
 #### `test_empty_pack_produces_no_sources`
 
 - **源码**：`tests/test_project_memory_chat_integration.py:191`
 - **签名**：`def test_empty_pack_produces_no_sources()`
-- **作用**：空 Pack 不产生 sources。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，空 Pack 不产生 sources。该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9110,14 +8726,8 @@ citation ← 调用 ChatCitation(citation_id=格式化文本：f'project_fact:{f
 **伪代码**
 
 ```text
-draft ← 调用 ProjectFactPack(project_id='project_' + '1' × 24, project_hash='a' × 64, items=[], pack_hash='0' × 64, generated_at=NOW)
-payload ← 调用 draft.model_dump(mode='json')
-payload['pack_hash'] ← 调用 compute_pack_hash(draft)
-pack ← 调用 ProjectFactPack.model_validate(payload)
-retriever ← 调用 _make_retriever(pack)
-builder ← 调用 ChatContextBuilder(interaction=调用 MagicMock(), artifact_catalog=调用 MagicMock(), artifacts_to_open=3, source_limit=10, artifact_max_bytes=5000, total_context_chars=50000, log_max_bytes=5000, project_fact_retriever=retriever)
-sources ← 调用 builder._project_fact_sources(job_id='bound-job', keywords=调用 set())
-断言 sources 的长度 等于 0
+构造 `ProjectFactPack` 结构化领域对象，并把结果记为 草稿对象；复制、序列化或校验结构化领域对象，并把结果记为 结构化请求载荷；调用 `compute_pack_hash` 计算内容身份、分数或派生结果，并把结果记为 结构化请求载荷中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 检索或映射证据包。
+调用 `_make_retriever` 完成该函数的一项辅助处理，并把结果记为 证据检索器；构造 `ChatContextBuilder` 结构化领域对象，并把结果记为 领域对象构造器；调用 `_project_fact_sources` 完成该函数的一项辅助处理，并把结果记为 证据来源集合；断言证据来源集合 的长度等于0；不满足就终止当前测试或流程。
 ```
 
 ### `tests/test_project_memory_evidence.py`
@@ -9126,18 +8736,18 @@ sources ← 调用 builder._project_fact_sources(job_id='bound-job', keywords=�
 
 - **源码**：`tests/test_project_memory_evidence.py:25`
 - **签名**：`def _make_manifest(job_id: str, run_id: str, manifest_id: str, paper_sha256: str, commit: str, generation: int) -> WorkspaceManifest`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收复现任务 ID、本次复现运行 ID、运行或工作区 Manifest的 ID、论文的 SHA-256等输入，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。；默认 `'job-001'` |
-| `run_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。；默认 `'run-001'` |
-| `manifest_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定，不是文件路径。；默认 `'manifest-001'` |
-| `paper_sha256` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256，不是可执行内容。；默认 `'b' × 64` |
-| `commit` | `str` | 名为 `commit` 的 `str` 输入，具体约束由函数内分支和 Schema 决定。；默认 `'c' × 40` |
-| `generation` | `int` | 名为 `generation` 的 `int` 输入，具体约束由函数内分支和 Schema 决定。；默认 `0` |
+| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。；默认 'job-001' |
+| `run_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。；默认 'run-001' |
+| `manifest_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。；默认 'manifest-001' |
+| `paper_sha256` | `str` | 内容身份摘要，通常是 64 位小写十六进制 SHA-256；它不是可执行内容或授权凭证。；默认 'b' × 64 |
+| `commit` | `str` | 名为 `commit` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。；默认 'c' × 40 |
+| `generation` | `int` | 工作区生成代次；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。；默认 0 |
 
 **输出**
 
@@ -9147,17 +8757,14 @@ sources ← 调用 builder._project_fact_sources(job_id='bound-job', keywords=�
 **伪代码**
 
 ```text
-draft ← 调用 WorkspaceManifest(manifest_id=manifest_id, manifest_hash='0' × 64, job_id=job_id, run_id=run_id, generation=generation, source_host_id='host-001', entries=[调用 WorkspaceBlobEntry(role='paper', logical_path='paper.pdf', object_key='blob-paper', sha256=paper_sha256, size_bytes=1024), 调用 WorkspaceBlobEntry(role='repository_bundle', logical_path='repo.zip', object_key='blob-repo', sha256='d' × 64, size_bytes=2048)], repository=调用 RepositoryIdentity(commit_sha=commit, branch='main', clean=真), portable=真, created_at=NOW)
-payload ← 调用 draft.model_dump(mode='json')
-payload['manifest_hash'] ← 调用 workspace_manifest_hash(draft)
-返回 调用 WorkspaceManifest.model_validate(payload)
+构造 `WorkspaceManifest` 结构化领域对象，并把结果记为 草稿对象；复制、序列化或校验结构化领域对象，并把结果记为 结构化请求载荷；调用 `workspace_manifest_hash` 完成该函数的一项辅助处理，并把结果记为 结构化请求载荷中的对应字段；复制、序列化或校验结构化领域对象，并返回处理结果。
 ```
 
 #### `test_job_evidence_reader_returns_anchor`
 
 - **源码**：`tests/test_project_memory_evidence.py:69`
 - **签名**：`def test_job_evidence_reader_returns_anchor()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9171,29 +8778,17 @@ payload['manifest_hash'] ← 调用 workspace_manifest_hash(draft)
 **伪代码**
 
 ```text
-manifest ← 调用 _make_manifest()
-job ← 调用 MagicMock()
-job.job_id ← 'job-001'
-job.version ← 0
-job.run_id ← 'run-001'
-job.workspace_manifest_id ← 'manifest-001'
-job.workspace_manifest_generation ← 0
-jobs ← 调用 MagicMock()
-jobs.get.return_value ← job
-jobs.store.get_workspace_manifest.return_value ← manifest
-reader ← 调用 ProjectJobEvidenceReader(jobs)
-snapshot ← 调用 reader.read('job-001')
-断言 调用 isinstance(snapshot.anchor, ProjectAnchor)
-断言 snapshot.anchor.job_id 等于 'job-001'
-断言 snapshot.anchor.paper_sha256 等于 'b' × 64
-断言 snapshot.anchor.repository_commit 等于 'c' × 40
+调用 `_make_manifest` 完成该函数的一项辅助处理，并把结果记为 运行或工作区 Manifest；构造 `MagicMock` 结构化领域对象，并把结果记为 复现任务记录；计算使用固定配置或常量值，并保存为 复现任务 ID；计算使用固定配置或常量值，并保存为 记录版本号。
+计算使用固定配置或常量值，并保存为 本次复现运行 ID；计算使用固定配置或常量值，并保存为 Manifest的 ID；计算使用固定配置或常量值，并保存为 Manifest；构造 `MagicMock` 结构化领域对象，并把结果记为 复现任务记录集合。
+读取复现任务记录，并保存为 值；读取运行或工作区 Manifest，并保存为 值；构造 `ProjectJobEvidenceReader` 结构化领域对象，并把结果记为 证据读取器；调用 `read` 完成该函数的一项辅助处理，并把结果记为 MCP 能力快照。
+断言“计算数量、边界或类型判断结果”后得到肯定结果；不满足就终止当前测试或流程；断言复现任务 ID等于'job-001'；不满足就终止当前测试或流程；断言论文的 SHA-256等于'b' × 64；不满足就终止当前测试或流程；断言代码仓库等于'c' × 40；不满足就终止当前测试或流程。
 ```
 
 #### `test_job_evidence_reader_fails_on_manifest_job_mismatch`
 
 - **源码**：`tests/test_project_memory_evidence.py:90`
 - **签名**：`def test_job_evidence_reader_fails_on_manifest_job_mismatch()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9207,26 +8802,17 @@ snapshot ← 调用 reader.read('job-001')
 **伪代码**
 
 ```text
-manifest ← 调用 _make_manifest(job_id='other-job')
-job ← 调用 MagicMock()
-job.job_id ← 'job-001'
-job.version ← 0
-job.run_id ← 'run-001'
-job.workspace_manifest_id ← 'manifest-001'
-job.workspace_manifest_generation ← 0
-jobs ← 调用 MagicMock()
-jobs.get.return_value ← job
-jobs.store.get_workspace_manifest.return_value ← manifest
-reader ← 调用 ProjectJobEvidenceReader(jobs)
-在上下文 调用 pytest.raises(ProjectMemoryIntegrityError) 中
-    调用 reader.read('job-001')
+调用 `_make_manifest` 完成该函数的一项辅助处理，并把结果记为 运行或工作区 Manifest；构造 `MagicMock` 结构化领域对象，并把结果记为 复现任务记录；计算使用固定配置或常量值，并保存为 复现任务 ID；计算使用固定配置或常量值，并保存为 记录版本号。
+计算使用固定配置或常量值，并保存为 本次复现运行 ID；计算使用固定配置或常量值，并保存为 Manifest的 ID；计算使用固定配置或常量值，并保存为 Manifest；构造 `MagicMock` 结构化领域对象，并把结果记为 复现任务记录集合。
+读取复现任务记录，并保存为 值；读取运行或工作区 Manifest，并保存为 值；构造 `ProjectJobEvidenceReader` 结构化领域对象，并把结果记为 证据读取器。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `read` 完成该函数的一项辅助处理，退出时自动清理资源。
 ```
 
 #### `test_job_evidence_reader_fails_on_generation_mismatch`
 
 - **源码**：`tests/test_project_memory_evidence.py:108`
 - **签名**：`def test_job_evidence_reader_fails_on_generation_mismatch()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9240,26 +8826,17 @@ reader ← 调用 ProjectJobEvidenceReader(jobs)
 **伪代码**
 
 ```text
-manifest ← 调用 _make_manifest(generation=1)
-job ← 调用 MagicMock()
-job.job_id ← 'job-001'
-job.version ← 0
-job.run_id ← 'run-001'
-job.workspace_manifest_id ← 'manifest-001'
-job.workspace_manifest_generation ← 0
-jobs ← 调用 MagicMock()
-jobs.get.return_value ← job
-jobs.store.get_workspace_manifest.return_value ← manifest
-reader ← 调用 ProjectJobEvidenceReader(jobs)
-在上下文 调用 pytest.raises(ProjectMemoryConflictError) 中
-    调用 reader.read('job-001')
+调用 `_make_manifest` 完成该函数的一项辅助处理，并把结果记为 运行或工作区 Manifest；构造 `MagicMock` 结构化领域对象，并把结果记为 复现任务记录；计算使用固定配置或常量值，并保存为 复现任务 ID；计算使用固定配置或常量值，并保存为 记录版本号。
+计算使用固定配置或常量值，并保存为 本次复现运行 ID；计算使用固定配置或常量值，并保存为 Manifest的 ID；计算使用固定配置或常量值，并保存为 Manifest；构造 `MagicMock` 结构化领域对象，并把结果记为 复现任务记录集合。
+读取复现任务记录，并保存为 值；读取运行或工作区 Manifest，并保存为 值；构造 `ProjectJobEvidenceReader` 结构化领域对象，并把结果记为 证据读取器。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `read` 完成该函数的一项辅助处理，退出时自动清理资源。
 ```
 
 #### `test_chat_evidence_reader_returns_message`
 
 - **源码**：`tests/test_project_memory_evidence.py:126`
 - **签名**：`def test_chat_evidence_reader_returns_message()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9273,26 +8850,17 @@ reader ← 调用 ProjectJobEvidenceReader(jobs)
 **伪代码**
 
 ```text
-message ← 调用 MagicMock()
-message.message_id ← 'msg-001'
-message.job_id ← 'job-001'
-message.sequence ← 3
-message.role ← 'user'
-message.content ← 'some user text'
-message.created_at ← NOW
-repo ← 调用 MagicMock()
-repo.list_messages_range.return_value ← [message]
-reader ← 调用 ProjectChatEvidenceReader(repo)
-result ← 调用 reader.message_at(job_id='job-001', sequence=3)
-断言 result.sequence 等于 3
-断言 result.role 等于 'user'
+构造 `MagicMock` 结构化领域对象，并把结果记为 面向用户或日志的提示信息；计算使用固定配置或常量值，并保存为 面向用户或日志的提示信息的 ID；计算使用固定配置或常量值，并保存为 复现任务 ID；计算使用固定配置或常量值，并保存为 当前处理结果。
+计算使用固定配置或常量值，并保存为 调用方职责角色；计算使用固定配置或常量值，并保存为 业务内容；读取当前时间，并保存为 创建时间；构造 `MagicMock` 结构化领域对象，并把结果记为 代码仓库。
+计算初始化顺序集合，并保存为 值；构造 `ProjectChatEvidenceReader` 结构化领域对象，并把结果记为 证据读取器；调用 `message_at` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果；断言当前处理结果等于3；不满足就终止当前测试或流程。
+断言调用方职责角色等于'user'；不满足就终止当前测试或流程。
 ```
 
 #### `test_chat_evidence_reader_rejects_missing_sequence`
 
 - **源码**：`tests/test_project_memory_evidence.py:144`
 - **签名**：`def test_chat_evidence_reader_rejects_missing_sequence()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9306,18 +8874,15 @@ result ← 调用 reader.message_at(job_id='job-001', sequence=3)
 **伪代码**
 
 ```text
-repo ← 调用 MagicMock()
-repo.list_messages_range.return_value ← []
-reader ← 调用 ProjectChatEvidenceReader(repo)
-在上下文 调用 pytest.raises(ProjectMemoryConflictError) 中
-    调用 reader.message_at(job_id='job-001', sequence=99)
+构造 `MagicMock` 结构化领域对象，并把结果记为 代码仓库；将 值 初始化为空列表，用来收集后续结果；构造 `ProjectChatEvidenceReader` 结构化领域对象，并把结果记为 证据读取器。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `message_at` 完成该函数的一项辅助处理，退出时自动清理资源。
 ```
 
 #### `test_chat_message_sha256_includes_role_and_identity`
 
 - **源码**：`tests/test_project_memory_evidence.py:153`
 - **签名**：`def test_chat_message_sha256_includes_role_and_identity()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9331,24 +8896,16 @@ reader ← 调用 ProjectChatEvidenceReader(repo)
 **伪代码**
 
 ```text
-message ← 调用 MagicMock()
-message.message_id ← 'msg-001'
-message.job_id ← 'job-001'
-message.sequence ← 1
-message.role ← 'user'
-message.content ← 'hello'
-message.created_at ← NOW
-hash_user ← 调用 chat_message_sha256(message)
-message.role ← 'assistant'
-hash_assistant ← 调用 chat_message_sha256(message)
-断言 hash_user 不等于 hash_assistant
+构造 `MagicMock` 结构化领域对象，并把结果记为 面向用户或日志的提示信息；计算使用固定配置或常量值，并保存为 面向用户或日志的提示信息的 ID；计算使用固定配置或常量值，并保存为 复现任务 ID；计算使用固定配置或常量值，并保存为 当前处理结果。
+计算使用固定配置或常量值，并保存为 调用方职责角色；计算使用固定配置或常量值，并保存为 业务内容；读取当前时间，并保存为 创建时间；调用 `chat_message_sha256` 计算内容身份、分数或派生结果，并把结果记为 Hash。
+计算使用固定配置或常量值，并保存为 调用方职责角色；调用 `chat_message_sha256` 计算内容身份、分数或派生结果，并把结果记为 Hash；断言Hash不等于Hash；不满足就终止当前测试或流程。
 ```
 
 #### `test_chat_message_sha256_changes_with_content`
 
 - **源码**：`tests/test_project_memory_evidence.py:170`
 - **签名**：`def test_chat_message_sha256_changes_with_content()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9362,17 +8919,9 @@ hash_assistant ← 调用 chat_message_sha256(message)
 **伪代码**
 
 ```text
-message ← 调用 MagicMock()
-message.message_id ← 'msg-001'
-message.job_id ← 'job-001'
-message.sequence ← 1
-message.role ← 'user'
-message.content ← 'hello'
-message.created_at ← NOW
-hash1 ← 调用 chat_message_sha256(message)
-message.content ← 'goodbye'
-hash2 ← 调用 chat_message_sha256(message)
-断言 hash1 不等于 hash2
+构造 `MagicMock` 结构化领域对象，并把结果记为 面向用户或日志的提示信息；计算使用固定配置或常量值，并保存为 面向用户或日志的提示信息的 ID；计算使用固定配置或常量值，并保存为 复现任务 ID；计算使用固定配置或常量值，并保存为 当前处理结果。
+计算使用固定配置或常量值，并保存为 调用方职责角色；计算使用固定配置或常量值，并保存为 业务内容；读取当前时间，并保存为 创建时间；调用 `chat_message_sha256` 计算内容身份、分数或派生结果，并把结果记为 该调用返回的结果。
+计算使用固定配置或常量值，并保存为 业务内容；调用 `chat_message_sha256` 计算内容身份、分数或派生结果，并把结果记为 该调用返回的结果；断言当前处理结果不等于当前处理结果；不满足就终止当前测试或流程。
 ```
 
 ### `tests/test_project_memory_identity.py`
@@ -9381,7 +8930,7 @@ hash2 ← 调用 chat_message_sha256(message)
 
 - **源码**：`tests/test_project_memory_identity.py:34`
 - **签名**：`def test_fact_hash_changes_when_content_changes()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9395,16 +8944,14 @@ hash2 ← 调用 chat_message_sha256(message)
 **伪代码**
 
 ```text
-fact_a ← 调用 confirmed_fact(text='default offline')
-fact_b ← 调用 confirmed_fact(text='default online')
-断言 fact_a.record_hash 不等于 fact_b.record_hash
+调用 `confirmed_fact` 完成该函数的一项辅助处理，并把结果记为 事实；调用 `confirmed_fact` 完成该函数的一项辅助处理，并把结果记为 事实；断言领域记录的 Hash不等于领域记录的 Hash；不满足就终止当前测试或流程。
 ```
 
 #### `test_fact_hash_changes_when_status_changes`
 
 - **源码**：`tests/test_project_memory_identity.py:40`
 - **签名**：`def test_fact_hash_changes_when_status_changes()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9418,23 +8965,16 @@ fact_b ← 调用 confirmed_fact(text='default online')
 **伪代码**
 
 ```text
-fact ← 调用 confirmed_fact()
-raw ← 调用 fact.model_dump(mode='json')
-raw['status'] ← 'revoked'
-raw['terminal_event'] ← {'status': 'revoked', 'actor': 'local-user', 'reason': 'test revoke', 'occurred_at': NOW}
-raw['record_hash'] ← '0' × 64
-导入 from app.project_memory.schemas import ProjectFactRecord as PFR
-draft ← 调用 PFR.model_validate(raw)
-raw['record_hash'] ← 调用 compute_fact_hash(draft)
-revoked ← 调用 PFR.model_validate(raw)
-断言 fact.record_hash 不等于 revoked.record_hash
+调用 `confirmed_fact` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；复制、序列化或校验结构化领域对象，并把结果记为 原始内容；计算使用固定配置或常量值，并保存为 原始内容中的对应字段；计算按字段初始化键值映射，并保存为 原始内容中的对应字段。
+计算组合或计算已有值，并保存为 原始内容中的对应字段；加载这一步需要的外部依赖；复制、序列化或校验结构化领域对象，并把结果记为 草稿对象；调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 原始内容中的对应字段。
+复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；断言领域记录的 Hash不等于领域记录的 Hash；不满足就终止当前测试或流程。
 ```
 
 #### `test_content_hash_survives_deleted_tombstone`
 
 - **源码**：`tests/test_project_memory_identity.py:59`
 - **签名**：`def test_content_hash_survives_deleted_tombstone()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9448,26 +8988,17 @@ revoked ← 调用 PFR.model_validate(raw)
 **伪代码**
 
 ```text
-fact ← 调用 confirmed_fact()
-content_hash ← fact.content_hash
-raw ← 调用 fact.model_dump(mode='json')
-raw['status'] ← 'deleted'
-raw['content'] ← 空值
-raw['terminal_event'] ← {'status': 'deleted', 'actor': 'local-user', 'reason': 'test delete', 'occurred_at': NOW}
-raw['record_hash'] ← '0' × 64
-导入 from app.project_memory.schemas import ProjectFactRecord as PFR
-draft ← 调用 PFR.model_validate(raw)
-raw['record_hash'] ← 调用 compute_fact_hash(draft)
-deleted ← 调用 PFR.model_validate(raw)
-断言 deleted.content 为空
-断言 deleted.content_hash 等于 content_hash
+调用 `confirmed_fact` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；读取业务内容的 Hash，并保存为 业务内容的 Hash；复制、序列化或校验结构化领域对象，并把结果记为 原始内容；计算使用固定配置或常量值，并保存为 原始内容中的对应字段。
+计算使用固定配置或常量值，并保存为 原始内容中的对应字段；计算按字段初始化键值映射，并保存为 原始内容中的对应字段；计算组合或计算已有值，并保存为 原始内容中的对应字段；加载这一步需要的外部依赖。
+复制、序列化或校验结构化领域对象，并把结果记为 草稿对象；调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 原始内容中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；断言业务内容为空；不满足就终止当前测试或流程。
+断言业务内容的 Hash等于业务内容的 Hash；不满足就终止当前测试或流程。
 ```
 
 #### `test_project_hash_detects_anchor_tampering`
 
 - **源码**：`tests/test_project_memory_identity.py:81`
 - **签名**：`def test_project_hash_detects_anchor_tampering()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9481,21 +9012,15 @@ deleted ← 调用 PFR.model_validate(raw)
 **伪代码**
 
 ```text
-project ← 调用 make_project()
-raw ← 调用 project.model_dump(mode='json')
-raw['anchor']['job_id'] ← 'tampered-job-id'
-raw['record_hash'] ← '0' × 64
-tampered ← 调用 ProjectRecord.model_validate(raw)
-raw['record_hash'] ← 调用 compute_project_hash(tampered)
-tampered_with_hash ← 调用 ProjectRecord.model_validate(raw)
-断言 tampered_with_hash.record_hash 不等于 project.record_hash
+调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 复现项目记录；复制、序列化或校验结构化领域对象，并把结果记为 原始内容；计算使用固定配置或常量值，并保存为 原始内容中的对应字段中的对应字段；计算组合或计算已有值，并保存为 原始内容中的对应字段。
+复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；调用 `compute_project_hash` 计算内容身份、分数或派生结果，并把结果记为 原始内容中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 当前处理结果的 Hash；断言领域记录的 Hash不等于领域记录的 Hash；不满足就终止当前测试或流程。
 ```
 
 #### `test_normalized_key_rejects_path_and_whitespace_only`
 
 - **源码**：`tests/test_project_memory_identity.py:92`
 - **签名**：`def test_normalized_key_rejects_path_and_whitespace_only()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9509,17 +9034,15 @@ tampered_with_hash ← 调用 ProjectRecord.model_validate(raw)
 **伪代码**
 
 ```text
-在上下文 调用 pytest.raises(ValueError) 中
-    调用 ProjectFactContent(category='user_constraint', key=' ', value=调用 TextFactValue(text='test'))
-在上下文 调用 pytest.raises(ValueError) 中
-    调用 ProjectFactContent(category='user_constraint', key='/etc/passwd', value=调用 TextFactValue(text='test'))
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中构造 `ProjectFactContent` 结构化领域对象，退出时自动清理资源。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中构造 `ProjectFactContent` 结构化领域对象，退出时自动清理资源。
 ```
 
 #### `test_dataset_binding_rejects_text_value`
 
 - **源码**：`tests/test_project_memory_identity.py:107`
 - **签名**：`def test_dataset_binding_rejects_text_value()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9533,15 +9056,14 @@ tampered_with_hash ← 调用 ProjectRecord.model_validate(raw)
 **伪代码**
 
 ```text
-在上下文 调用 pytest.raises(ValueError) 中
-    调用 ProjectFactContent(category='dataset_binding', key='ntu60', value=调用 TextFactValue(text='ntu60 dataset'))
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中构造 `ProjectFactContent` 结构化领域对象，退出时自动清理资源。
 ```
 
 #### `test_dataset_binding_accepts_correct_value`
 
 - **源码**：`tests/test_project_memory_identity.py:116`
 - **签名**：`def test_dataset_binding_accepts_correct_value()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9555,15 +9077,14 @@ tampered_with_hash ← 调用 ProjectRecord.model_validate(raw)
 **伪代码**
 
 ```text
-content ← 调用 ProjectFactContent(category='dataset_binding', key='ntu60', value=调用 DatasetBindingFactValue(dataset_name='NTU60', required_worker_label='dataset:ntu60'))
-断言 content.value.kind 等于 'dataset_binding'
+构造 `ProjectFactContent` 结构化领域对象，并把结果记为 业务内容；断言业务类别等于'dataset_binding'；不满足就终止当前测试或流程。
 ```
 
 #### `test_execution_default_rejects_client_persistent_hash_shape`
 
 - **源码**：`tests/test_project_memory_identity.py:128`
 - **签名**：`def test_execution_default_rejects_client_persistent_hash_shape()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9577,15 +9098,14 @@ content ← 调用 ProjectFactContent(category='dataset_binding', key='ntu60', v
 **伪代码**
 
 ```text
-在上下文 调用 pytest.raises(ValueError) 中
-    调用 ProjectFactContent(category='execution_default', key='default', value=调用 ExecutionProfileDraftValue(profile_id='local'))
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中构造 `ProjectFactContent` 结构化领域对象，退出时自动清理资源。
 ```
 
 #### `test_execution_default_accepts_server_computed_value`
 
 - **源码**：`tests/test_project_memory_identity.py:137`
 - **签名**：`def test_execution_default_accepts_server_computed_value()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9599,15 +9119,14 @@ content ← 调用 ProjectFactContent(category='dataset_binding', key='ntu60', v
 **伪代码**
 
 ```text
-content ← 调用 ProjectFactContent(category='execution_default', key='default', value=调用 ExecutionProfileFactValue(profile_id='local', profile_fingerprint='a' × 64, execution_policy_hash='b' × 64))
-断言 content.value.kind 等于 'execution_profile'
+构造 `ProjectFactContent` 结构化领域对象，并把结果记为 业务内容；断言业务类别等于'execution_profile'；不满足就终止当前测试或流程。
 ```
 
 #### `test_validate_project_hash_passes`
 
 - **源码**：`tests/test_project_memory_identity.py:150`
 - **签名**：`def test_validate_project_hash_passes()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9621,15 +9140,14 @@ content ← 调用 ProjectFactContent(category='execution_default', key='default
 **伪代码**
 
 ```text
-project ← 调用 make_project()
-调用 validate_project_hash(project)
+调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 复现项目记录；调用 `validate_project_hash` 校验当前输入或状态。
 ```
 
 #### `test_validate_project_hash_fails_on_tamper`
 
 - **源码**：`tests/test_project_memory_identity.py:155`
 - **签名**：`def test_validate_project_hash_fails_on_tamper()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9643,19 +9161,15 @@ project ← 调用 make_project()
 **伪代码**
 
 ```text
-project ← 调用 make_project()
-raw ← 调用 project.model_dump(mode='json')
-raw['display_name'] ← 'Tampered'
-tampered ← 调用 ProjectRecord.model_validate(raw)
-在上下文 调用 pytest.raises(ProjectMemoryIntegrityError) 中
-    调用 validate_project_hash(tampered)
+调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 复现项目记录；复制、序列化或校验结构化领域对象，并把结果记为 原始内容；计算使用固定配置或常量值，并保存为 原始内容中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `validate_project_hash` 校验当前输入或状态，退出时自动清理资源。
 ```
 
 #### `test_validate_fact_hash_passes`
 
 - **源码**：`tests/test_project_memory_identity.py:164`
 - **签名**：`def test_validate_fact_hash_passes()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9669,15 +9183,14 @@ tampered ← 调用 ProjectRecord.model_validate(raw)
 **伪代码**
 
 ```text
-fact ← 调用 confirmed_fact()
-调用 validate_fact_hash(fact)
+调用 `confirmed_fact` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；调用 `validate_fact_hash` 校验当前输入或状态。
 ```
 
 #### `test_validate_fact_hash_fails_on_tamper`
 
 - **源码**：`tests/test_project_memory_identity.py:169`
 - **签名**：`def test_validate_fact_hash_fails_on_tamper()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -9691,12 +9204,8 @@ fact ← 调用 confirmed_fact()
 **伪代码**
 
 ```text
-fact ← 调用 confirmed_fact()
-raw ← 调用 fact.model_dump(mode='json')
-raw['content']['value']['text'] ← 'tampered text'
-tampered ← 调用 ProjectFactRecord.model_validate(raw)
-在上下文 调用 pytest.raises(ProjectMemoryIntegrityError) 中
-    调用 validate_fact_hash(tampered)
+调用 `confirmed_fact` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；复制、序列化或校验结构化领域对象，并把结果记为 原始内容；计算使用固定配置或常量值，并保存为 原始内容中的对应字段中的对应字段中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `validate_fact_hash` 校验当前输入或状态，退出时自动清理资源。
 ```
 
 ### `tests/test_project_memory_repository.py`
@@ -9705,32 +9214,30 @@ tampered ← 调用 ProjectFactRecord.model_validate(raw)
 
 - **源码**：`tests/test_project_memory_repository.py:40`
 - **签名**：`def repo(tmp_path)`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `tmp_path` | `未显式标注` | 文件或目录位置；可能是 `Path`，也可能是尚待受控解析的路径字符串。 |
+| `tmp_path` | `未显式标注` | 文件或目录路径；用于定位输入、输出或日志，访问范围由函数内的路径边界检查决定。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-r ← 调用 SqliteProjectMemoryRepository(tmp_path ÷ 'pm.db')
-调用 r.initialize()
-返回 r
+构造 `SqliteProjectMemoryRepository` 结构化领域对象，并把结果记为 该调用返回的结果；调用 `initialize` 完成该函数的一项辅助处理；返回前一步处理得到的结果。
 ```
 
 #### `_binding_for`
 
 - **源码**：`tests/test_project_memory_repository.py:46`
 - **签名**：`def _binding_for(project: ProjectRecord) -> ProjectJobBinding`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收复现项目记录，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ProjectJobBinding` 的领域结果。
 
 **输入**
 
@@ -9746,21 +9253,21 @@ r ← 调用 SqliteProjectMemoryRepository(tmp_path ÷ 'pm.db')
 **伪代码**
 
 ```text
-返回 调用 ProjectJobBinding(project_id=project.project_id, job_id=project.anchor.job_id, job_version_at_binding=project.anchor.job_version, run_id=project.anchor.run_id, workspace_manifest_id=project.anchor.workspace_manifest_id, workspace_manifest_hash=project.anchor.workspace_manifest_hash, paper_sha256=project.anchor.paper_sha256, repository_commit=project.anchor.repository_commit, role='anchor', bound_by='local-user', bound_at=NOW)
+构造并返回 `ProjectJobBinding` 结构化领域对象。
 ```
 
 #### `test_create_project_and_anchor_binding_are_atomic`
 
 - **源码**：`tests/test_project_memory_repository.py:62`
 - **签名**：`def test_create_project_and_anchor_binding_are_atomic(repo, tmp_path)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收代码仓库、临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `repo` | `未显式标注` | 名为 `repo` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
-| `tmp_path` | `未显式标注` | 文件或目录位置；可能是 `Path`，也可能是尚待受控解析的路径字符串。 |
+| `repo` | `未显式标注` | 代码仓库；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `tmp_path` | `未显式标注` | 文件或目录路径；用于定位输入、输出或日志，访问范围由函数内的路径边界检查决定。 |
 
 **输出**
 
@@ -9770,29 +9277,22 @@ r ← 调用 SqliteProjectMemoryRepository(tmp_path ÷ 'pm.db')
 **伪代码**
 
 ```text
-project ← 调用 make_project()
-binding ← 调用 _binding_for(project)
-(saved, replayed) ← 调用 repo.create_project(project=project, anchor_binding=binding, operation_key='op:create:1', request_hash='h1')
-断言 replayed 是 假
-断言 saved.project_id 等于 project.project_id
-fetched ← 调用 repo.get_project(project.project_id)
-断言 fetched.record_hash 等于 project.record_hash
-bindings ← 调用 repo.list_bindings(project.project_id)
-断言 bindings 的长度 等于 1
-断言 bindings[0].job_id 等于 project.anchor.job_id
+调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 复现项目记录；调用 `_binding_for` 完成该函数的一项辅助处理，并把结果记为 资源绑定记录；调用 `create_project` 组装当前阶段需要的领域对象，并把结果记为 多个解包结果；断言重放的是假；不满足就终止当前测试或流程。
+断言复现项目 ID等于复现项目 ID；不满足就终止当前测试或流程；调用 `get_project` 读取或查询当前阶段需要的数据，并把结果记为 该调用返回的结果；断言领域记录的 Hash等于领域记录的 Hash；不满足就终止当前测试或流程；调用 `list_bindings` 读取或查询当前阶段需要的数据，并把结果记为 该调用返回的结果。
+断言当前处理结果 的长度等于1；不满足就终止当前测试或流程；断言复现任务 ID等于复现任务 ID；不满足就终止当前测试或流程。
 ```
 
 #### `test_one_job_cannot_bind_two_projects`
 
 - **源码**：`tests/test_project_memory_repository.py:80`
 - **签名**：`def test_one_job_cannot_bind_two_projects(repo)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收代码仓库，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `repo` | `未显式标注` | 名为 `repo` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `repo` | `未显式标注` | 代码仓库；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -9802,24 +9302,21 @@ bindings ← 调用 repo.list_bindings(project.project_id)
 **伪代码**
 
 ```text
-project ← 调用 make_project()
-调用 repo.create_project(project=project, anchor_binding=调用 _binding_for(project), operation_key='op:create:1', request_hash='h1')
-project2 ← 调用 make_project(project_id='project_' + '9' × 24, anchor=调用 make_anchor())
-在上下文 调用 pytest.raises(ProjectMemoryConflictError) 中
-    调用 repo.create_project(project=project2, anchor_binding=调用 _binding_for(project2), operation_key='op:create:2', request_hash='h2')
+调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 复现项目记录；调用 `create_project` 组装当前阶段需要的领域对象；调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `create_project` 组装当前阶段需要的领域对象，退出时自动清理资源。
 ```
 
 #### `test_idempotent_create_returns_original_project`
 
 - **源码**：`tests/test_project_memory_repository.py:101`
 - **签名**：`def test_idempotent_create_returns_original_project(repo)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收代码仓库，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `repo` | `未显式标注` | 名为 `repo` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `repo` | `未显式标注` | 代码仓库；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -9829,27 +9326,21 @@ project2 ← 调用 make_project(project_id='project_' + '9' × 24, anchor=调�
 **伪代码**
 
 ```text
-project ← 调用 make_project()
-binding ← 调用 _binding_for(project)
-(saved1, replayed1) ← 调用 repo.create_project(project=project, anchor_binding=binding, operation_key='op:create:1', request_hash='h1')
-(saved2, replayed2) ← 调用 repo.create_project(project=project, anchor_binding=binding, operation_key='op:create:1', request_hash='h1')
-断言 replayed1 是 假
-断言 replayed2 是 真
-断言 saved1.project_id 等于 saved2.project_id
-断言 saved1.record_hash 等于 saved2.record_hash
+调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 复现项目记录；调用 `_binding_for` 完成该函数的一项辅助处理，并把结果记为 资源绑定记录；调用 `create_project` 组装当前阶段需要的领域对象，并把结果记为 多个解包结果；调用 `create_project` 组装当前阶段需要的领域对象，并把结果记为 多个解包结果。
+断言当前处理结果是假；不满足就终止当前测试或流程；断言当前处理结果是真；不满足就终止当前测试或流程；断言复现项目 ID等于复现项目 ID；不满足就终止当前测试或流程；断言领域记录的 Hash等于领域记录的 Hash；不满足就终止当前测试或流程。
 ```
 
 #### `test_same_idempotency_key_different_payload_conflicts`
 
 - **源码**：`tests/test_project_memory_repository.py:122`
 - **签名**：`def test_same_idempotency_key_different_payload_conflicts(repo)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收代码仓库，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `repo` | `未显式标注` | 名为 `repo` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `repo` | `未显式标注` | 代码仓库；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -9859,24 +9350,21 @@ binding ← 调用 _binding_for(project)
 **伪代码**
 
 ```text
-project ← 调用 make_project()
-调用 repo.create_project(project=project, anchor_binding=调用 _binding_for(project), operation_key='op:create:1', request_hash='h1')
-project2 ← 调用 make_project(project_id='project_' + '8' × 24)
-在上下文 调用 pytest.raises(ProjectMemoryConflictError) 中
-    调用 repo.create_project(project=project2, anchor_binding=调用 _binding_for(project2), operation_key='op:create:1', request_hash='h2')
+调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 复现项目记录；调用 `create_project` 组装当前阶段需要的领域对象；调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `create_project` 组装当前阶段需要的领域对象，退出时自动清理资源。
 ```
 
 #### `test_stale_project_hash_rejects_job_binding`
 
 - **源码**：`tests/test_project_memory_repository.py:142`
 - **签名**：`def test_stale_project_hash_rejects_job_binding(repo)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收代码仓库，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `repo` | `未显式标注` | 名为 `repo` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `repo` | `未显式标注` | 代码仓库；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -9886,24 +9374,21 @@ project2 ← 调用 make_project(project_id='project_' + '8' × 24)
 **伪代码**
 
 ```text
-project ← 调用 make_project()
-调用 repo.create_project(project=project, anchor_binding=调用 _binding_for(project), operation_key='op:create:1', request_hash='h1')
-member_binding ← 调用 ProjectJobBinding(project_id=project.project_id, job_id='job-member-001', job_version_at_binding=0, run_id='run-job-member-001', workspace_manifest_id='manifest-member-001', workspace_manifest_hash='d' × 64, paper_sha256=project.anchor.paper_sha256, repository_commit=project.anchor.repository_commit, role='member', bound_by='local-user', bound_at=NOW)
-在上下文 调用 pytest.raises(ProjectMemoryConflictError) 中
-    调用 repo.bind_job(binding=member_binding, expected_project_version=99, expected_project_hash='0' × 64, operation_key='op:bind:1', request_hash='h3')
+调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 复现项目记录；调用 `create_project` 组装当前阶段需要的领域对象；构造 `ProjectJobBinding` 结构化领域对象，并把结果记为 绑定。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `bind_job` 完成该函数的一项辅助处理，退出时自动清理资源。
 ```
 
 #### `test_create_proposed_and_confirm_fact`
 
 - **源码**：`tests/test_project_memory_repository.py:173`
 - **签名**：`def test_create_proposed_and_confirm_fact(repo)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收代码仓库，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `repo` | `未显式标注` | 名为 `repo` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `repo` | `未显式标注` | 代码仓库；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -9913,33 +9398,23 @@ member_binding ← 调用 ProjectJobBinding(project_id=project.project_id, job_i
 **伪代码**
 
 ```text
-project ← 调用 make_project()
-调用 repo.create_project(project=project, anchor_binding=调用 _binding_for(project), operation_key='op:create:1', request_hash='h1')
-fact ← 调用 proposed_fact(project_id=project.project_id)
-(saved, replayed) ← 调用 repo.create_fact(fact=fact, operation_key='op:propose:1', request_hash='h4')
-断言 replayed 是 假
-断言 saved.status 等于 'proposed'
-confirmed_raw ← 调用 saved.model_dump(mode='json')
-调用 confirmed_raw.update({'version': saved.version + 1, 'status': 'confirmed', 'authority': 'explicit_user', 'confirmation': {'actor': 'local-user', 'reason': 'test confirm', 'confirmed_at': NOW}, 'updated_at': NOW, 'record_hash': '0' × 64})
-draft ← 调用 ProjectFactRecord.model_validate(confirmed_raw)
-confirmed_raw['record_hash'] ← 调用 compute_fact_hash(draft)
-confirmed ← 调用 ProjectFactRecord.model_validate(confirmed_raw)
-(result, replayed2) ← 调用 repo.replace_fact(fact=confirmed, expected_version=saved.version, expected_hash=saved.record_hash, operation_key='op:confirm:1', request_hash='h5')
-断言 replayed2 是 假
-断言 result.status 等于 'confirmed'
+调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 复现项目记录；调用 `create_project` 组装当前阶段需要的领域对象；调用 `proposed_fact` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；调用 `create_fact` 组装当前阶段需要的领域对象，并把结果记为 多个解包结果。
+断言重放的是假；不满足就终止当前测试或流程；断言当前状态等于'proposed'；不满足就终止当前测试或流程；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；把新的处理结果追加或合并到当前处理结果。
+复制、序列化或校验结构化领域对象，并把结果记为 草稿对象；调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 当前处理结果中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；调用 `replace_fact` 完成该函数的一项辅助处理，并把结果记为 多个解包结果。
+断言当前处理结果是假；不满足就终止当前测试或流程；断言当前状态等于'confirmed'；不满足就终止当前测试或流程。
 ```
 
 #### `test_stale_fact_version_rejects_mutation`
 
 - **源码**：`tests/test_project_memory_repository.py:219`
 - **签名**：`def test_stale_fact_version_rejects_mutation(repo)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收代码仓库，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `repo` | `未显式标注` | 名为 `repo` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `repo` | `未显式标注` | 代码仓库；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -9949,30 +9424,23 @@ confirmed ← 调用 ProjectFactRecord.model_validate(confirmed_raw)
 **伪代码**
 
 ```text
-project ← 调用 make_project()
-调用 repo.create_project(project=project, anchor_binding=调用 _binding_for(project), operation_key='op:create:1', request_hash='h1')
-fact ← 调用 proposed_fact(project_id=project.project_id)
-(saved, _) ← 调用 repo.create_fact(fact=fact, operation_key='op:propose:1', request_hash='h4')
-confirmed_raw ← 调用 saved.model_dump(mode='json')
-调用 confirmed_raw.update({'version': 99, 'status': 'confirmed', 'authority': 'explicit_user', 'confirmation': {'actor': 'local-user', 'reason': 'stale', 'confirmed_at': NOW}, 'updated_at': NOW, 'record_hash': '0' × 64})
-draft ← 调用 ProjectFactRecord.model_validate(confirmed_raw)
-confirmed_raw['record_hash'] ← 调用 compute_fact_hash(draft)
-confirmed ← 调用 ProjectFactRecord.model_validate(confirmed_raw)
-在上下文 调用 pytest.raises(ProjectMemoryConflictError) 中
-    调用 repo.replace_fact(fact=confirmed, expected_version=88, expected_hash='0' × 64, operation_key='op:confirm:1', request_hash='h5')
+调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 复现项目记录；调用 `create_project` 组装当前阶段需要的领域对象；调用 `proposed_fact` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；调用 `create_fact` 组装当前阶段需要的领域对象，并把结果记为 多个解包结果。
+复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；把新的处理结果追加或合并到当前处理结果；复制、序列化或校验结构化领域对象，并把结果记为 草稿对象；调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 当前处理结果中的对应字段。
+复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `replace_fact` 完成该函数的一项辅助处理，退出时自动清理资源。
 ```
 
 #### `test_active_query_excludes_expired_even_before_sweep`
 
 - **源码**：`tests/test_project_memory_repository.py:261`
 - **签名**：`def test_active_query_excludes_expired_even_before_sweep(repo)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收代码仓库，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `repo` | `未显式标注` | 名为 `repo` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `repo` | `未显式标注` | 代码仓库；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -9982,42 +9450,25 @@ confirmed ← 调用 ProjectFactRecord.model_validate(confirmed_raw)
 **伪代码**
 
 ```text
-project ← 调用 make_project()
-调用 repo.create_project(project=project, anchor_binding=调用 _binding_for(project), operation_key='op:create:1', request_hash='h1')
-fact ← 调用 confirmed_fact(project_id=project.project_id)
-raw ← 调用 fact.model_dump(mode='json')
-raw['expires_at'] ← '2026-01-01T00:00:00+00:00'
-raw['record_hash'] ← '0' × 64
-draft ← 调用 ProjectFactRecord.model_validate(raw)
-raw['record_hash'] ← 调用 compute_fact_hash(draft)
-expired_fact ← 调用 ProjectFactRecord.model_validate(raw)
-proposed_raw ← 调用 expired_fact.model_dump(mode='json')
-调用 proposed_raw.update({'version': 0, 'status': 'proposed', 'authority': 'unconfirmed_proposal', 'confirmation': 空值, 'record_hash': '0' × 64})
-draft_p ← 调用 ProjectFactRecord.model_validate(proposed_raw)
-proposed_raw['record_hash'] ← 调用 compute_fact_hash(draft_p)
-proposed ← 调用 ProjectFactRecord.model_validate(proposed_raw)
-(saved, _) ← 调用 repo.create_fact(fact=proposed, operation_key='op:propose:2', request_hash='h6')
-confirm_raw ← 调用 saved.model_dump(mode='json')
-调用 confirm_raw.update({'version': saved.version + 1, 'status': 'confirmed', 'authority': 'explicit_user', 'confirmation': {'actor': 'local-user', 'reason': 'test', 'confirmed_at': NOW}, 'expires_at': '2026-01-01T00:00:00+00:00', 'updated_at': NOW, 'record_hash': '0' × 64})
-draft_c ← 调用 ProjectFactRecord.model_validate(confirm_raw)
-confirm_raw['record_hash'] ← 调用 compute_fact_hash(draft_c)
-confirmed ← 调用 ProjectFactRecord.model_validate(confirm_raw)
-调用 repo.replace_fact(fact=confirmed, expected_version=saved.version, expected_hash=saved.record_hash, operation_key='op:confirm:2', request_hash='h7')
-active ← 调用 repo.active_facts(project_id=project.project_id, now='2026-08-11T10:00:00+00:00', limit=100)
-断言 active 的长度 等于 0
+调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 复现项目记录；调用 `create_project` 组装当前阶段需要的领域对象；调用 `confirmed_fact` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；复制、序列化或校验结构化领域对象，并把结果记为 原始内容。
+计算使用固定配置或常量值，并保存为 原始内容中的对应字段；计算组合或计算已有值，并保存为 原始内容中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 草稿对象；调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 原始内容中的对应字段。
+复制、序列化或校验结构化领域对象，并把结果记为 事实；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；把新的处理结果追加或合并到当前处理结果；复制、序列化或校验结构化领域对象，并把结果记为 草稿。
+调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 当前处理结果中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；调用 `create_fact` 组装当前阶段需要的领域对象，并把结果记为 多个解包结果；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果。
+把新的处理结果追加或合并到当前处理结果；复制、序列化或校验结构化领域对象，并把结果记为 草稿；调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 当前处理结果中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果。
+调用 `replace_fact` 完成该函数的一项辅助处理；调用 `active_facts` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；断言当前处理结果 的长度等于0；不满足就终止当前测试或流程。
 ```
 
 #### `test_deleted_tombstone_has_no_content`
 
 - **源码**：`tests/test_project_memory_repository.py:334`
 - **签名**：`def test_deleted_tombstone_has_no_content(repo)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收代码仓库，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `repo` | `未显式标注` | 名为 `repo` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `repo` | `未显式标注` | 代码仓库；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -10027,32 +9478,23 @@ active ← 调用 repo.active_facts(project_id=project.project_id, now='2026-08-
 **伪代码**
 
 ```text
-project ← 调用 make_project()
-调用 repo.create_project(project=project, anchor_binding=调用 _binding_for(project), operation_key='op:create:1', request_hash='h1')
-fact ← 调用 proposed_fact(project_id=project.project_id)
-(saved, _) ← 调用 repo.create_fact(fact=fact, operation_key='op:propose:1', request_hash='h4')
-del_raw ← 调用 saved.model_dump(mode='json')
-调用 del_raw.update({'version': saved.version + 1, 'status': 'deleted', 'content': 空值, 'terminal_event': {'status': 'deleted', 'actor': 'local-user', 'reason': 'test delete', 'occurred_at': NOW}, 'updated_at': NOW, 'record_hash': '0' × 64})
-draft ← 调用 ProjectFactRecord.model_validate(del_raw)
-del_raw['record_hash'] ← 调用 compute_fact_hash(draft)
-deleted ← 调用 ProjectFactRecord.model_validate(del_raw)
-(result, _) ← 调用 repo.replace_fact(fact=deleted, expected_version=saved.version, expected_hash=saved.record_hash, operation_key='op:delete:1', request_hash='h8')
-断言 result.status 等于 'deleted'
-断言 result.content 为空
-断言 result.content_hash 等于 saved.content_hash
+调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 复现项目记录；调用 `create_project` 组装当前阶段需要的领域对象；调用 `proposed_fact` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；调用 `create_fact` 组装当前阶段需要的领域对象，并把结果记为 多个解包结果。
+复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；把新的处理结果追加或合并到当前处理结果；复制、序列化或校验结构化领域对象，并把结果记为 草稿对象；调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 当前处理结果中的对应字段。
+复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；调用 `replace_fact` 完成该函数的一项辅助处理，并把结果记为 多个解包结果；断言当前状态等于'deleted'；不满足就终止当前测试或流程；断言业务内容为空；不满足就终止当前测试或流程。
+断言业务内容的 Hash等于业务内容的 Hash；不满足就终止当前测试或流程。
 ```
 
 #### `test_project_not_found_raises`
 
 - **源码**：`tests/test_project_memory_repository.py:379`
 - **签名**：`def test_project_not_found_raises(repo)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收代码仓库，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `repo` | `未显式标注` | 名为 `repo` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `repo` | `未显式标注` | 代码仓库；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -10062,21 +9504,20 @@ deleted ← 调用 ProjectFactRecord.model_validate(del_raw)
 **伪代码**
 
 ```text
-在上下文 调用 pytest.raises(ProjectNotFoundError) 中
-    调用 repo.get_project('project_' + '0' × 24)
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `get_project` 读取或查询当前阶段需要的数据，退出时自动清理资源。
 ```
 
 #### `test_fact_not_found_raises`
 
 - **源码**：`tests/test_project_memory_repository.py:384`
 - **签名**：`def test_fact_not_found_raises(repo)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收代码仓库，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `repo` | `未显式标注` | 名为 `repo` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `repo` | `未显式标注` | 代码仓库；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -10086,21 +9527,20 @@ deleted ← 调用 ProjectFactRecord.model_validate(del_raw)
 **伪代码**
 
 ```text
-在上下文 调用 pytest.raises(ProjectFactNotFoundError) 中
-    调用 repo.get_fact('fact_' + '0' × 24)
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `get_fact` 读取或查询当前阶段需要的数据，退出时自动清理资源。
 ```
 
 #### `test_active_referenced_job_ids_excludes_non_chat_source`
 
 - **源码**：`tests/test_project_memory_repository.py:389`
 - **签名**：`def test_active_referenced_job_ids_excludes_non_chat_source(repo)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收代码仓库，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `repo` | `未显式标注` | 名为 `repo` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `repo` | `未显式标注` | 代码仓库；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -10110,36 +9550,24 @@ deleted ← 调用 ProjectFactRecord.model_validate(del_raw)
 **伪代码**
 
 ```text
-project ← 调用 make_project()
-调用 repo.create_project(project=project, anchor_binding=调用 _binding_for(project), operation_key='op:create:1', request_hash='h1')
-fact ← 调用 confirmed_fact(project_id=project.project_id)
-proposed_raw ← 调用 fact.model_dump(mode='json')
-调用 proposed_raw.update({'version': 0, 'status': 'proposed', 'authority': 'unconfirmed_proposal', 'confirmation': 空值, 'record_hash': '0' × 64})
-draft ← 调用 ProjectFactRecord.model_validate(proposed_raw)
-proposed_raw['record_hash'] ← 调用 compute_fact_hash(draft)
-proposed ← 调用 ProjectFactRecord.model_validate(proposed_raw)
-(saved, _) ← 调用 repo.create_fact(fact=proposed, operation_key='op:propose:3', request_hash='h9')
-confirm_raw ← 调用 saved.model_dump(mode='json')
-调用 confirm_raw.update({'version': saved.version + 1, 'status': 'confirmed', 'authority': 'explicit_user', 'confirmation': {'actor': 'local-user', 'reason': 'test', 'confirmed_at': NOW}, 'updated_at': NOW, 'record_hash': '0' × 64})
-draft_c ← 调用 ProjectFactRecord.model_validate(confirm_raw)
-confirm_raw['record_hash'] ← 调用 compute_fact_hash(draft_c)
-confirmed ← 调用 ProjectFactRecord.model_validate(confirm_raw)
-调用 repo.replace_fact(fact=confirmed, expected_version=saved.version, expected_hash=saved.record_hash, operation_key='op:confirm:3', request_hash='h10')
-ids ← 调用 repo.active_referenced_job_ids()
-断言 ids 的长度 等于 0
+调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 复现项目记录；调用 `create_project` 组装当前阶段需要的领域对象；调用 `confirmed_fact` 完成该函数的一项辅助处理，并把结果记为 项目事实记录；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果。
+把新的处理结果追加或合并到当前处理结果；复制、序列化或校验结构化领域对象，并把结果记为 草稿对象；调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 当前处理结果中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果。
+调用 `create_fact` 组装当前阶段需要的领域对象，并把结果记为 多个解包结果；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；把新的处理结果追加或合并到当前处理结果；复制、序列化或校验结构化领域对象，并把结果记为 草稿。
+调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 当前处理结果中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；调用 `replace_fact` 完成该函数的一项辅助处理；调用 `active_referenced_job_ids` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+断言当前处理结果 的长度等于0；不满足就终止当前测试或流程。
 ```
 
 #### `test_active_referenced_job_ids_includes_chat_source`
 
 - **源码**：`tests/test_project_memory_repository.py:449`
 - **签名**：`def test_active_referenced_job_ids_includes_chat_source(repo)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收代码仓库，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `repo` | `未显式标注` | 名为 `repo` 的 `未显式标注` 输入，具体约束由函数内分支和 Schema 决定。 |
+| `repo` | `未显式标注` | 代码仓库；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
 
 **输出**
 
@@ -10149,23 +9577,11 @@ ids ← 调用 repo.active_referenced_job_ids()
 **伪代码**
 
 ```text
-project ← 调用 make_project()
-调用 repo.create_project(project=project, anchor_binding=调用 _binding_for(project), operation_key='op:create:1', request_hash='h1')
-content ← 调用 make_text_content()
-导入 from app.project_memory.identity import compute_content_hash
-raw ← 调用 ProjectFactRecord(fact_id='fact_' + '5' × 24, project_id=project.project_id, version=0, status='proposed', authority='unconfirmed_proposal', content=content, content_hash=调用 compute_content_hash(content), source=调用 ChatUserMessageFactSource(actor='local-user', job_id='job-chat-source-001', message_id='msg-001', message_sequence=1, message_sha256='e' × 64), created_at=NOW, updated_at=NOW, record_hash='0' × 64)
-payload ← 调用 raw.model_dump(mode='json')
-payload['record_hash'] ← 调用 compute_fact_hash(raw)
-proposed ← 调用 ProjectFactRecord.model_validate(payload)
-(saved, _) ← 调用 repo.create_fact(fact=proposed, operation_key='op:propose:4', request_hash='h11')
-confirm_raw ← 调用 saved.model_dump(mode='json')
-调用 confirm_raw.update({'version': saved.version + 1, 'status': 'confirmed', 'authority': 'explicit_user', 'confirmation': {'actor': 'local-user', 'reason': 'test', 'confirmed_at': NOW}, 'updated_at': NOW, 'record_hash': '0' × 64})
-draft_c ← 调用 ProjectFactRecord.model_validate(confirm_raw)
-confirm_raw['record_hash'] ← 调用 compute_fact_hash(draft_c)
-confirmed ← 调用 ProjectFactRecord.model_validate(confirm_raw)
-调用 repo.replace_fact(fact=confirmed, expected_version=saved.version, expected_hash=saved.record_hash, operation_key='op:confirm:4', request_hash='h12')
-ids ← 调用 repo.active_referenced_job_ids()
-断言 'job-chat-source-001' 属于 ids
+调用 `make_project` 完成该函数的一项辅助处理，并把结果记为 复现项目记录；调用 `create_project` 组装当前阶段需要的领域对象；调用 `make_text_content` 完成该函数的一项辅助处理，并把结果记为 业务内容；加载这一步需要的外部依赖。
+构造 `ProjectFactRecord` 结构化领域对象，并把结果记为 原始内容；复制、序列化或校验结构化领域对象，并把结果记为 结构化请求载荷；调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 结构化请求载荷中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果。
+调用 `create_fact` 组装当前阶段需要的领域对象，并把结果记为 多个解包结果；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；把新的处理结果追加或合并到当前处理结果；复制、序列化或校验结构化领域对象，并把结果记为 草稿。
+调用 `compute_fact_hash` 计算内容身份、分数或派生结果，并把结果记为 当前处理结果中的对应字段；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果；调用 `replace_fact` 完成该函数的一项辅助处理；调用 `active_referenced_job_ids` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程。
 ```
 
 ### `tests/test_project_memory_retention.py`
@@ -10174,14 +9590,14 @@ ids ← 调用 repo.active_referenced_job_ids()
 
 - **源码**：`tests/test_project_memory_retention.py:13`
 - **签名**：`def __init__(self, job_ids: set[str] | None = None)`
-- **作用**：Python 协议方法；初始化、进入/退出上下文或把实例作为函数调用。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收任务集合，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `job_ids` | `set[str] | None` | `set[str] | None` 元素集合；具体元素含义由参数名 `job_ids` 和函数内校验决定。；默认 `空值` |
+| `job_ids` | `set[str] | None` | `set[str] | None` 元素集合；元素代表的业务对象由参数名 `job_ids` 和调用位置确定。；默认 空值 |
 
 **输出**
 
@@ -10191,14 +9607,14 @@ ids ← 调用 repo.active_referenced_job_ids()
 **伪代码**
 
 ```text
-self._ids ← job_ids 或 调用 set()
+计算计算当前表达式的结果，并保存为 当前处理结果。
 ```
 
 #### `FakeProjectMemoryRetentionPort.active_referenced_job_ids`
 
 - **源码**：`tests/test_project_memory_retention.py:16`
 - **签名**：`def active_referenced_job_ids(self) -> set[str]`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
@@ -10214,14 +9630,14 @@ self._ids ← job_ids 或 调用 set()
 **伪代码**
 
 ```text
-返回 调用 set(self._ids)
+构造临时集合、映射或轻量领域对象，并返回处理结果。
 ```
 
 #### `test_noop_project_memory_returns_empty_set`
 
 - **源码**：`tests/test_project_memory_retention.py:20`
 - **签名**：`def test_noop_project_memory_returns_empty_set()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10235,15 +9651,14 @@ self._ids ← job_ids 或 调用 set()
 **伪代码**
 
 ```text
-port ← 调用 _NoOpProjectMemoryRetentionPort()
-断言 调用 port.active_referenced_job_ids() 等于 调用 set()
+调用 `_NoOpProjectMemoryRetentionPort` 完成该函数的一项辅助处理，并把结果记为 服务监听端口；断言辅助操作“调用 `active_referenced_job_ids` 完成该函数的一项辅助处理”的结果等于辅助操作“构造临时集合、映射或轻量领域对象”的结果；不满足就终止当前测试或流程。
 ```
 
 #### `test_fake_project_memory_returns_job_ids`
 
 - **源码**：`tests/test_project_memory_retention.py:25`
 - **签名**：`def test_fake_project_memory_returns_job_ids()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10257,15 +9672,14 @@ port ← 调用 _NoOpProjectMemoryRetentionPort()
 **伪代码**
 
 ```text
-port ← 调用 FakeProjectMemoryRetentionPort({'job-1', 'job-2'})
-断言 调用 port.active_referenced_job_ids() 等于 {'job-1', 'job-2'}
+构造 `FakeProjectMemoryRetentionPort` 结构化领域对象，并把结果记为 服务监听端口；断言辅助操作“调用 `active_referenced_job_ids` 完成该函数的一项辅助处理”的结果等于{'job-1', 'job-2'}；不满足就终止当前测试或流程。
 ```
 
 #### `test_empty_fake_project_memory_returns_empty`
 
 - **源码**：`tests/test_project_memory_retention.py:30`
 - **签名**：`def test_empty_fake_project_memory_returns_empty()`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10279,15 +9693,14 @@ port ← 调用 FakeProjectMemoryRetentionPort({'job-1', 'job-2'})
 **伪代码**
 
 ```text
-port ← 调用 FakeProjectMemoryRetentionPort()
-断言 调用 port.active_referenced_job_ids() 等于 调用 set()
+构造 `FakeProjectMemoryRetentionPort` 结构化领域对象，并把结果记为 服务监听端口；断言辅助操作“调用 `active_referenced_job_ids` 完成该函数的一项辅助处理”的结果等于辅助操作“构造临时集合、映射或轻量领域对象”的结果；不满足就终止当前测试或流程。
 ```
 
 #### `test_project_memory_port_protocol_is_compatible`
 
 - **源码**：`tests/test_project_memory_retention.py:35`
 - **签名**：`def test_project_memory_port_protocol_is_compatible()`
-- **作用**：ProjectMemoryRetentionPort 可以替代 FailureMemoryRetentionPort 接口。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，ProjectMemoryRetentionPort 可以替代 FailureMemoryRetentionPort 接口。该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10301,17 +9714,14 @@ port ← 调用 FakeProjectMemoryRetentionPort()
 **伪代码**
 
 ```text
-port ← 调用 FakeProjectMemoryRetentionPort({'job-held-by-pm'})
-result ← 调用 port.active_referenced_job_ids()
-断言 调用 isinstance(result, set)
-断言 调用 all(按推导式生成结果：(isinstance(item, str) for item in result))
+构造 `FakeProjectMemoryRetentionPort` 结构化领域对象，并把结果记为 服务监听端口；调用 `active_referenced_job_ids` 完成该函数的一项辅助处理，并把结果记为 阶段处理结果；断言“计算数量、边界或类型判断结果”后得到肯定结果；不满足就终止当前测试或流程；断言由阶段处理结果组成的集合或迭代器中每一项都满足““计算数量、边界或类型判断结果”后得到肯定结果”的项；不满足就终止当前测试或流程。
 ```
 
 #### `test_project_memory_retention_does_not_hold_manual_source_jobs`
 
 - **源码**：`tests/test_project_memory_retention.py:44`
 - **签名**：`def test_project_memory_retention_does_not_hold_manual_source_jobs()`
-- **作用**：manual confirmed fact 不增加 Job hold。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，manual confirmed fact 不增加 Job hold。该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10325,15 +9735,14 @@ result ← 调用 port.active_referenced_job_ids()
 **伪代码**
 
 ```text
-port ← 调用 FakeProjectMemoryRetentionPort(调用 set())
-断言 调用 port.active_referenced_job_ids() 等于 调用 set()
+构造 `FakeProjectMemoryRetentionPort` 结构化领域对象，并把结果记为 服务监听端口；断言辅助操作“调用 `active_referenced_job_ids` 完成该函数的一项辅助处理”的结果等于辅助操作“构造临时集合、映射或轻量领域对象”的结果；不满足就终止当前测试或流程。
 ```
 
 #### `test_project_memory_retention_releases_on_empty`
 
 - **源码**：`tests/test_project_memory_retention.py:57`
 - **签名**：`def test_project_memory_retention_releases_on_empty()`
-- **作用**：没有活跃 Chat-backed fact 时，hold 集合为空。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，没有活跃 Chat-backed fact 时，hold 集合为空。该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10347,15 +9756,14 @@ port ← 调用 FakeProjectMemoryRetentionPort(调用 set())
 **伪代码**
 
 ```text
-port ← 调用 FakeProjectMemoryRetentionPort(调用 set())
-断言 调用 port.active_referenced_job_ids() 等于 调用 set()
+构造 `FakeProjectMemoryRetentionPort` 结构化领域对象，并把结果记为 服务监听端口；断言辅助操作“调用 `active_referenced_job_ids` 完成该函数的一项辅助处理”的结果等于辅助操作“构造临时集合、映射或轻量领域对象”的结果；不满足就终止当前测试或流程。
 ```
 
 #### `test_project_memory_retention_holds_chat_source_jobs`
 
 - **源码**：`tests/test_project_memory_retention.py:63`
 - **签名**：`def test_project_memory_retention_holds_chat_source_jobs()`
-- **作用**：Chat-backed confirmed fact hold source Job。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，Chat-backed confirmed fact hold source Job。该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10369,15 +9777,14 @@ port ← 调用 FakeProjectMemoryRetentionPort(调用 set())
 **伪代码**
 
 ```text
-port ← 调用 FakeProjectMemoryRetentionPort({'job-chat-source-001'})
-断言 'job-chat-source-001' 属于 调用 port.active_referenced_job_ids()
+构造 `FakeProjectMemoryRetentionPort` 结构化领域对象，并把结果记为 服务监听端口；断言当前输入内容属于辅助操作“调用 `active_referenced_job_ids` 完成该函数的一项辅助处理”的结果；不满足就终止当前测试或流程。
 ```
 
 #### `test_project_memory_retention_releases_revoked_jobs`
 
 - **源码**：`tests/test_project_memory_retention.py:69`
 - **签名**：`def test_project_memory_retention_releases_revoked_jobs()`
-- **作用**：Chat confirmed fact revoked 后释放 hold。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，Chat confirmed fact revoked 后释放 hold。该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10391,8 +9798,7 @@ port ← 调用 FakeProjectMemoryRetentionPort({'job-chat-source-001'})
 **伪代码**
 
 ```text
-port ← 调用 FakeProjectMemoryRetentionPort(调用 set())
-断言 调用 port.active_referenced_job_ids() 等于 调用 set()
+构造 `FakeProjectMemoryRetentionPort` 结构化领域对象，并把结果记为 服务监听端口；断言辅助操作“调用 `active_referenced_job_ids` 完成该函数的一项辅助处理”的结果等于辅助操作“构造临时集合、映射或轻量领域对象”的结果；不满足就终止当前测试或流程。
 ```
 
 ### `tests/test_project_memory_service.py`
@@ -10401,40 +9807,32 @@ port ← 调用 FakeProjectMemoryRetentionPort(调用 set())
 
 - **源码**：`tests/test_project_memory_service.py:34`
 - **签名**：`def service(tmp_path)`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
-| `tmp_path` | `未显式标注` | 文件或目录位置；可能是 `Path`，也可能是尚待受控解析的路径字符串。 |
+| `tmp_path` | `未显式标注` | 文件或目录路径；用于定位输入、输出或日志，访问范围由函数内的路径边界检查决定。 |
 
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-repo ← 调用 SqliteProjectMemoryRepository(tmp_path ÷ 'pm.db')
-调用 repo.initialize()
-jobs ← 调用 MagicMock()
-anchor ← 调用 make_anchor()
-jobs.read.return_value ← 调用 ProjectJobSnapshot(anchor=anchor)
-chats ← 调用 MagicMock()
-retriever ← 调用 ProjectFactRetriever(repo, top_k=20, max_chars=20000, clock=fixed_clock)
-redactor ← 调用 SecretRedactor()
-svc ← 调用 ProjectMemoryService(repository=repo, jobs=jobs, chats=chats, retriever=retriever, redactor=redactor, clock=fixed_clock)
-svc._test_anchor ← anchor
-返回 svc
+构造 `SqliteProjectMemoryRepository` 结构化领域对象，并把结果记为 代码仓库；调用 `initialize` 完成该函数的一项辅助处理；构造 `MagicMock` 结构化领域对象，并把结果记为 复现任务记录集合；调用 `make_anchor` 完成该函数的一项辅助处理，并把结果记为 源码或文档锚点。
+构造 `ProjectJobSnapshot` 结构化领域对象，并把结果记为 值；构造 `MagicMock` 结构化领域对象，并把结果记为 该调用返回的结果；构造 `ProjectFactRetriever` 结构化领域对象，并把结果记为 证据检索器；构造 `SecretRedactor` 结构化领域对象，并把结果记为 敏感信息脱敏器。
+构造 `ProjectMemoryService` 结构化领域对象，并把结果记为 领域服务对象；读取源码或文档锚点，并保存为 测试；返回领域服务对象的当前值。
 ```
 
 #### `_create_project`
 
 - **源码**：`tests/test_project_memory_service.py:65`
 - **签名**：`def _create_project(service)`
-- **作用**：执行该函数在当前模块中的领域职责；分支和副作用按下方伪代码展开。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收领域服务对象，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
 **输入**
 
@@ -10445,20 +9843,19 @@ svc._test_anchor ← anchor
 **输出**
 
 - **Python 类型**：`未显式标注（存在 return）`
-- **语义**：返回 `未显式标注（存在 return）` 类型的领域结果；必要时可能通过异常表示失败。
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
 
 **伪代码**
 
 ```text
-request ← 调用 ProjectCreateRequest(display_name='Test Project', anchor_job_id=service._test_anchor.job_id, expected_anchor_job_version=service._test_anchor.job_version, expected_workspace_manifest_hash=service._test_anchor.workspace_manifest_hash)
-返回 调用 service.create_project(request=request, idempotency_key='key-create-1', actor='local-user')
+构造 `ProjectCreateRequest` 结构化领域对象，并把结果记为 业务请求；调用 `create_project` 组装当前阶段需要的领域对象，并返回处理结果。
 ```
 
 #### `test_create_project_and_auto_bind_anchor`
 
 - **源码**：`tests/test_project_memory_service.py:79`
 - **签名**：`def test_create_project_and_auto_bind_anchor(service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收领域服务对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10474,20 +9871,15 @@ request ← 调用 ProjectCreateRequest(display_name='Test Project', anchor_job_
 **伪代码**
 
 ```text
-result ← 调用 _create_project(service)
-断言 result.replayed 是 假
-project ← result.project
-断言 project.status 等于 'active'
-bindings ← 调用 service.repository.list_bindings(project.project_id)
-断言 bindings 的长度 等于 1
-断言 bindings[0].role 等于 'anchor'
+调用 `_create_project` 组装当前阶段需要的领域对象，并把结果记为 阶段处理结果；断言重放的是假；不满足就终止当前测试或流程；读取复现项目记录，并保存为 复现项目记录；断言当前状态等于'active'；不满足就终止当前测试或流程。
+调用 `list_bindings` 读取或查询当前阶段需要的数据，并把结果记为 该调用返回的结果；断言当前处理结果 的长度等于1；不满足就终止当前测试或流程；断言调用方职责角色等于'anchor'；不满足就终止当前测试或流程。
 ```
 
 #### `test_idempotent_create_returns_same_project`
 
 - **源码**：`tests/test_project_memory_service.py:89`
 - **签名**：`def test_idempotent_create_returns_same_project(service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收领域服务对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10503,18 +9895,15 @@ bindings ← 调用 service.repository.list_bindings(project.project_id)
 **伪代码**
 
 ```text
-result1 ← 调用 _create_project(service)
-result2 ← 调用 _create_project(service)
-断言 result1.replayed 是 假
-断言 result2.replayed 是 真
-断言 result1.project.project_id 等于 result2.project.project_id
+调用 `_create_project` 组装当前阶段需要的领域对象，并把结果记为 该调用返回的结果；调用 `_create_project` 组装当前阶段需要的领域对象，并把结果记为 该调用返回的结果；断言重放的是假；不满足就终止当前测试或流程；断言重放的是真；不满足就终止当前测试或流程。
+断言复现项目 ID等于复现项目 ID；不满足就终止当前测试或流程。
 ```
 
 #### `test_archived_project_cannot_bind_job`
 
 - **源码**：`tests/test_project_memory_service.py:97`
 - **签名**：`def test_archived_project_cannot_bind_job(service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收领域服务对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10530,20 +9919,16 @@ result2 ← 调用 _create_project(service)
 **伪代码**
 
 ```text
-result ← 调用 _create_project(service)
-project ← result.project
-导入 from app.project_memory.schemas import ProjectArchiveRequest
-调用 service.archive_project(project_id=project.project_id, request=调用 ProjectArchiveRequest(expected_version=project.version, expected_record_hash=project.record_hash, reason='test archive'), idempotency_key='key-archive-1', actor='local-user')
-导入 from app.project_memory.schemas import ProjectBindJobRequest
-在上下文 调用 pytest.raises(ProjectMemoryConflictError) 中
-    调用 service.bind_job(project_id=project.project_id, request=调用 ProjectBindJobRequest(job_id='job-new-001', expected_job_version=0, expected_workspace_manifest_hash='d' × 64), expected_project_version=1, expected_project_hash=调用 service.repository.get_project(project.project_id).record_hash, idempotency_key='key-bind-1', actor='local-user')
+调用 `_create_project` 组装当前阶段需要的领域对象，并把结果记为 阶段处理结果；读取复现项目记录，并保存为 复现项目记录；加载这一步需要的外部依赖；调用 `archive_project` 完成该函数的一项辅助处理。
+加载这一步需要的外部依赖。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `bind_job` 完成该函数的一项辅助处理，退出时自动清理资源。
 ```
 
 #### `test_manual_proposal_stays_proposed`
 
 - **源码**：`tests/test_project_memory_service.py:133`
 - **签名**：`def test_manual_proposal_stays_proposed(service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收领域服务对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10559,22 +9944,16 @@ project ← result.project
 **伪代码**
 
 ```text
-result ← 调用 _create_project(service)
-project_id ← result.project.project_id
-content ← 调用 ProjectFactDraftContent(category='user_constraint', key='network_access', value=调用 TextFactValue(text='default offline'))
-request ← 调用 ManualFactProposalRequest(content=content, source_note='manual proposal')
-fact_result ← 调用 service.propose_manual(project_id=project_id, request=request, idempotency_key='key-propose-1', actor='local-user')
-断言 fact_result.fact.status 等于 'proposed'
-断言 fact_result.fact.authority 等于 'unconfirmed_proposal'
-pack ← 调用 service.retriever.for_project(project_id)
-断言 pack.items 的长度 等于 0
+调用 `_create_project` 组装当前阶段需要的领域对象，并把结果记为 阶段处理结果；读取复现项目 ID，并保存为 复现项目 ID；构造 `ProjectFactDraftContent` 结构化领域对象，并把结果记为 业务内容；构造 `ManualFactProposalRequest` 结构化领域对象，并把结果记为 业务请求。
+调用 `propose_manual` 完成该函数的一项辅助处理，并把结果记为 事实结果；断言当前状态等于'proposed'；不满足就终止当前测试或流程；断言职责权限等于'unconfirmed_proposal'；不满足就终止当前测试或流程；调用 `for_project` 完成该函数的一项辅助处理，并把结果记为 检索或映射证据包。
+断言待处理项集合 的长度等于0；不满足就终止当前测试或流程。
 ```
 
 #### `test_confirm_makes_fact_active`
 
 - **源码**：`tests/test_project_memory_service.py:160`
 - **签名**：`def test_confirm_makes_fact_active(service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收领域服务对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10590,23 +9969,16 @@ pack ← 调用 service.retriever.for_project(project_id)
 **伪代码**
 
 ```text
-result ← 调用 _create_project(service)
-project_id ← result.project.project_id
-content ← 调用 ProjectFactDraftContent(category='user_constraint', key='network_access', value=调用 TextFactValue(text='default offline'))
-propose_result ← 调用 service.propose_manual(project_id=project_id, request=调用 ManualFactProposalRequest(content=content, source_note='manual proposal'), idempotency_key='key-propose-2', actor='local-user')
-导入 from app.project_memory.schemas import FactConfirmRequest
-confirm_result ← 调用 service.confirm(fact_id=propose_result.fact.fact_id, request=调用 FactConfirmRequest(expected_version=propose_result.fact.version, expected_record_hash=propose_result.fact.record_hash, reason='test confirm'), idempotency_key='key-confirm-1', actor='local-user')
-断言 confirm_result.fact.status 等于 'confirmed'
-pack ← 调用 service.retriever.for_project(project_id)
-断言 pack.items 的长度 等于 1
-断言 pack.items[0].fact_id 等于 propose_result.fact.fact_id
+调用 `_create_project` 组装当前阶段需要的领域对象，并把结果记为 阶段处理结果；读取复现项目 ID，并保存为 复现项目 ID；构造 `ProjectFactDraftContent` 结构化领域对象，并把结果记为 业务内容；调用 `propose_manual` 完成该函数的一项辅助处理，并把结果记为 结果。
+加载这一步需要的外部依赖；调用 `confirm` 完成该函数的一项辅助处理，并把结果记为 结果；断言当前状态等于'confirmed'；不满足就终止当前测试或流程；调用 `for_project` 完成该函数的一项辅助处理，并把结果记为 检索或映射证据包。
+断言待处理项集合 的长度等于1；不满足就终止当前测试或流程；断言项目事实记录的 ID等于项目事实记录的 ID；不满足就终止当前测试或流程。
 ```
 
 #### `test_revoke_removes_from_active`
 
 - **源码**：`tests/test_project_memory_service.py:199`
 - **签名**：`def test_revoke_removes_from_active(service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收领域服务对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10622,22 +9994,16 @@ pack ← 调用 service.retriever.for_project(project_id)
 **伪代码**
 
 ```text
-result ← 调用 _create_project(service)
-project_id ← result.project.project_id
-content ← 调用 ProjectFactDraftContent(category='user_constraint', key='network_access', value=调用 TextFactValue(text='default offline'))
-propose_result ← 调用 service.propose_manual(project_id=project_id, request=调用 ManualFactProposalRequest(content=content, source_note='manual proposal'), idempotency_key='key-propose-3', actor='local-user')
-导入 from app.project_memory.schemas import FactConfirmRequest, FactTerminalRequest
-confirm_result ← 调用 service.confirm(fact_id=propose_result.fact.fact_id, request=调用 FactConfirmRequest(expected_version=propose_result.fact.version, expected_record_hash=propose_result.fact.record_hash, reason='test confirm'), idempotency_key='key-confirm-2', actor='local-user')
-调用 service.revoke(fact_id=propose_result.fact.fact_id, request=调用 FactTerminalRequest(expected_version=confirm_result.fact.version, expected_record_hash=confirm_result.fact.record_hash, reason='test revoke'), idempotency_key='key-revoke-1', actor='local-user')
-pack ← 调用 service.retriever.for_project(project_id)
-断言 pack.items 的长度 等于 0
+调用 `_create_project` 组装当前阶段需要的领域对象，并把结果记为 阶段处理结果；读取复现项目 ID，并保存为 复现项目 ID；构造 `ProjectFactDraftContent` 结构化领域对象，并把结果记为 业务内容；调用 `propose_manual` 完成该函数的一项辅助处理，并把结果记为 结果。
+加载这一步需要的外部依赖；调用 `confirm` 完成该函数的一项辅助处理，并把结果记为 结果；调用 `revoke` 完成该函数的一项辅助处理；调用 `for_project` 完成该函数的一项辅助处理，并把结果记为 检索或映射证据包。
+断言待处理项集合 的长度等于0；不满足就终止当前测试或流程。
 ```
 
 #### `test_confirmed_cannot_directly_delete`
 
 - **源码**：`tests/test_project_memory_service.py:246`
 - **签名**：`def test_confirmed_cannot_directly_delete(service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收领域服务对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10653,21 +10019,16 @@ pack ← 调用 service.retriever.for_project(project_id)
 **伪代码**
 
 ```text
-result ← 调用 _create_project(service)
-project_id ← result.project.project_id
-content ← 调用 ProjectFactDraftContent(category='user_constraint', key='network_access', value=调用 TextFactValue(text='default offline'))
-propose_result ← 调用 service.propose_manual(project_id=project_id, request=调用 ManualFactProposalRequest(content=content, source_note='manual proposal'), idempotency_key='key-propose-4', actor='local-user')
-导入 from app.project_memory.schemas import FactConfirmRequest, FactTerminalRequest
-confirm_result ← 调用 service.confirm(fact_id=propose_result.fact.fact_id, request=调用 FactConfirmRequest(expected_version=propose_result.fact.version, expected_record_hash=propose_result.fact.record_hash, reason='test confirm'), idempotency_key='key-confirm-3', actor='local-user')
-在上下文 调用 pytest.raises(ProjectMemoryConflictError) 中
-    调用 service.delete(fact_id=propose_result.fact.fact_id, request=调用 FactTerminalRequest(expected_version=confirm_result.fact.version, expected_record_hash=confirm_result.fact.record_hash, reason='test delete'), idempotency_key='key-delete-1', actor='local-user')
+调用 `_create_project` 组装当前阶段需要的领域对象，并把结果记为 阶段处理结果；读取复现项目 ID，并保存为 复现项目 ID；构造 `ProjectFactDraftContent` 结构化领域对象，并把结果记为 业务内容；调用 `propose_manual` 完成该函数的一项辅助处理，并把结果记为 结果。
+加载这一步需要的外部依赖；调用 `confirm` 完成该函数的一项辅助处理，并把结果记为 结果。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `delete` 完成该函数的一项辅助处理，退出时自动清理资源。
 ```
 
 #### `test_terminal_fact_can_be_deleted`
 
 - **源码**：`tests/test_project_memory_service.py:291`
 - **签名**：`def test_terminal_fact_can_be_deleted(service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收领域服务对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10683,23 +10044,16 @@ confirm_result ← 调用 service.confirm(fact_id=propose_result.fact.fact_id, r
 **伪代码**
 
 ```text
-result ← 调用 _create_project(service)
-project_id ← result.project.project_id
-content ← 调用 ProjectFactDraftContent(category='user_constraint', key='network_access', value=调用 TextFactValue(text='default offline'))
-propose_result ← 调用 service.propose_manual(project_id=project_id, request=调用 ManualFactProposalRequest(content=content, source_note='manual proposal'), idempotency_key='key-propose-5', actor='local-user')
-导入 from app.project_memory.schemas import FactTerminalRequest
-调用 service.revoke(fact_id=propose_result.fact.fact_id, request=调用 FactTerminalRequest(expected_version=propose_result.fact.version, expected_record_hash=propose_result.fact.record_hash, reason='test revoke'), idempotency_key='key-revoke-2', actor='local-user')
-revoked ← 调用 service.repository.get_fact(propose_result.fact.fact_id)
-delete_result ← 调用 service.delete(fact_id=propose_result.fact.fact_id, request=调用 FactTerminalRequest(expected_version=revoked.version, expected_record_hash=revoked.record_hash, reason='test delete'), idempotency_key='key-delete-2', actor='local-user')
-断言 delete_result.fact.status 等于 'deleted'
-断言 delete_result.fact.content 为空
+调用 `_create_project` 组装当前阶段需要的领域对象，并把结果记为 阶段处理结果；读取复现项目 ID，并保存为 复现项目 ID；构造 `ProjectFactDraftContent` 结构化领域对象，并把结果记为 业务内容；调用 `propose_manual` 完成该函数的一项辅助处理，并把结果记为 结果。
+加载这一步需要的外部依赖；调用 `revoke` 完成该函数的一项辅助处理；调用 `get_fact` 读取或查询当前阶段需要的数据，并把结果记为 该调用返回的结果；调用 `delete` 完成该函数的一项辅助处理，并把结果记为 结果。
+断言当前状态等于'deleted'；不满足就终止当前测试或流程；断言业务内容为空；不满足就终止当前测试或流程。
 ```
 
 #### `test_correction_creates_successor`
 
 - **源码**：`tests/test_project_memory_service.py:339`
 - **签名**：`def test_correction_creates_successor(service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收领域服务对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10715,27 +10069,17 @@ delete_result ← 调用 service.delete(fact_id=propose_result.fact.fact_id, req
 **伪代码**
 
 ```text
-result ← 调用 _create_project(service)
-project_id ← result.project.project_id
-content ← 调用 ProjectFactDraftContent(category='user_constraint', key='network_access', value=调用 TextFactValue(text='default offline'))
-propose_result ← 调用 service.propose_manual(project_id=project_id, request=调用 ManualFactProposalRequest(content=content, source_note='manual proposal'), idempotency_key='key-propose-6', actor='local-user')
-导入 from app.project_memory.schemas import FactConfirmRequest, FactCorrectRequest
-confirm_result ← 调用 service.confirm(fact_id=propose_result.fact.fact_id, request=调用 FactConfirmRequest(expected_version=propose_result.fact.version, expected_record_hash=propose_result.fact.record_hash, reason='test confirm'), idempotency_key='key-confirm-4', actor='local-user')
-new_content ← 调用 ProjectFactDraftContent(category='user_constraint', key='network_access', value=调用 TextFactValue(text='allow internet'))
-correct_result ← 调用 service.correct(fact_id=propose_result.fact.fact_id, request=调用 FactCorrectRequest(expected_version=confirm_result.fact.version, expected_record_hash=confirm_result.fact.record_hash, content=new_content, reason='corrected to allow internet'), idempotency_key='key-correct-1', actor='local-user')
-断言 correct_result.previous.status 等于 'superseded'
-断言 correct_result.successor.status 等于 'confirmed'
-断言 correct_result.successor.supersedes_fact_id 等于 propose_result.fact.fact_id
-pack ← 调用 service.retriever.for_project(project_id)
-断言 pack.items 的长度 等于 1
-断言 pack.items[0].fact_id 等于 correct_result.successor.fact_id
+调用 `_create_project` 组装当前阶段需要的领域对象，并把结果记为 阶段处理结果；读取复现项目 ID，并保存为 复现项目 ID；构造 `ProjectFactDraftContent` 结构化领域对象，并把结果记为 业务内容；调用 `propose_manual` 完成该函数的一项辅助处理，并把结果记为 结果。
+加载这一步需要的外部依赖；调用 `confirm` 完成该函数的一项辅助处理，并把结果记为 结果；构造 `ProjectFactDraftContent` 结构化领域对象，并把结果记为 内容；调用 `correct` 完成该函数的一项辅助处理，并把结果记为 结果。
+断言当前状态等于'superseded'；不满足就终止当前测试或流程；断言当前状态等于'confirmed'；不满足就终止当前测试或流程；断言事实的 ID等于项目事实记录的 ID；不满足就终止当前测试或流程；调用 `for_project` 完成该函数的一项辅助处理，并把结果记为 检索或映射证据包。
+断言待处理项集合 的长度等于1；不满足就终止当前测试或流程；断言项目事实记录的 ID等于项目事实记录的 ID；不满足就终止当前测试或流程。
 ```
 
 #### `test_correction_cannot_change_category_key`
 
 - **源码**：`tests/test_project_memory_service.py:397`
 - **签名**：`def test_correction_cannot_change_category_key(service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收领域服务对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10751,22 +10095,16 @@ pack ← 调用 service.retriever.for_project(project_id)
 **伪代码**
 
 ```text
-result ← 调用 _create_project(service)
-project_id ← result.project.project_id
-content ← 调用 ProjectFactDraftContent(category='user_constraint', key='network_access', value=调用 TextFactValue(text='default offline'))
-propose_result ← 调用 service.propose_manual(project_id=project_id, request=调用 ManualFactProposalRequest(content=content, source_note='manual proposal'), idempotency_key='key-propose-7', actor='local-user')
-导入 from app.project_memory.schemas import FactConfirmRequest, FactCorrectRequest
-confirm_result ← 调用 service.confirm(fact_id=propose_result.fact.fact_id, request=调用 FactConfirmRequest(expected_version=propose_result.fact.version, expected_record_hash=propose_result.fact.record_hash, reason='test confirm'), idempotency_key='key-confirm-5', actor='local-user')
-new_content ← 调用 ProjectFactDraftContent(category='user_constraint', key='different_key', value=调用 TextFactValue(text='allow internet'))
-在上下文 调用 pytest.raises(ProjectMemoryConflictError) 中
-    调用 service.correct(fact_id=propose_result.fact.fact_id, request=调用 FactCorrectRequest(expected_version=confirm_result.fact.version, expected_record_hash=confirm_result.fact.record_hash, content=new_content, reason='changed key'), idempotency_key='key-correct-2', actor='local-user')
+调用 `_create_project` 组装当前阶段需要的领域对象，并把结果记为 阶段处理结果；读取复现项目 ID，并保存为 复现项目 ID；构造 `ProjectFactDraftContent` 结构化领域对象，并把结果记为 业务内容；调用 `propose_manual` 完成该函数的一项辅助处理，并把结果记为 结果。
+加载这一步需要的外部依赖；调用 `confirm` 完成该函数的一项辅助处理，并把结果记为 结果；构造 `ProjectFactDraftContent` 结构化领域对象，并把结果记为 内容。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `correct` 完成该函数的一项辅助处理，退出时自动清理资源。
 ```
 
 #### `test_dataset_binding_rejects_absolute_path`
 
 - **源码**：`tests/test_project_memory_service.py:448`
 - **签名**：`def test_dataset_binding_rejects_absolute_path(service)`
-- **作用**：自动化测试：构造场景并断言目标行为、异常或安全边界。
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收领域服务对象，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
 
@@ -10782,11 +10120,8 @@ new_content ← 调用 ProjectFactDraftContent(category='user_constraint', key='
 **伪代码**
 
 ```text
-result ← 调用 _create_project(service)
-project_id ← result.project.project_id
-content ← 调用 ProjectFactDraftContent(category='dataset_binding', key='ntu60', value=调用 DatasetBindingFactValue(dataset_name='NTU60', required_worker_label='/data/datasets/ntu60'))
-在上下文 调用 pytest.raises(ValueError) 中
-    调用 service.propose_manual(project_id=project_id, request=调用 ManualFactProposalRequest(content=content, source_note='manual proposal'), idempotency_key='key-propose-8', actor='local-user')
+调用 `_create_project` 组装当前阶段需要的领域对象，并把结果记为 阶段处理结果；读取复现项目 ID，并保存为 复现项目 ID；构造 `ProjectFactDraftContent` 结构化领域对象，并把结果记为 业务内容。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `propose_manual` 完成该函数的一项辅助处理，退出时自动清理资源。
 ```
 
 <!-- END GENERATED PHASE46 FUNCTION REFERENCE -->

@@ -51,6 +51,29 @@ def _identifier_key(value: str) -> str:
     )
 
 
+def _shares_family_prefix(
+    left: str,
+    right: str,
+    *,
+    minimum_prefix: int = 3,
+) -> bool:
+    """识别 PSTNet/PSTConv 这类同一方法族的代码标识符。
+
+    只允许两个至少六字符的标识符参与，并要求共享至少三个起始字符，
+    避免把普通短词或单字符变量扩展成宽泛的 symbol 命中。该信号弱于
+    exact/contains，只用于把高层论文名连接到同族实现类。
+    """
+
+    if len(left) < 6 or len(right) < 6:
+        return False
+    prefix_length = 0
+    for left_char, right_char in zip(left, right):
+        if left_char != right_char:
+            break
+        prefix_length += 1
+    return prefix_length >= minimum_prefix
+
+
 def _query_values(
     query: str,
     keywords: list[str],
@@ -170,14 +193,26 @@ def rank_symbol(
             or symbol_key in key
             for key in value_keys
         )
+        family_prefix = any(
+            _shares_family_prefix(
+                key,
+                symbol_key,
+            )
+            for key in value_keys
+        )
         overlap = len(query_tokens & symbol_tokens)
 
         if exact:
             score = 4.0
         elif contains and symbol_key:
             score = 2.5
-        elif overlap:
+        # 单个普通子词（例如 for、point 或 4D 拆出的 d）不足以证明
+        # 论文目标与代码符号相同。精确、包含和方法族前缀仍可单独命中；
+        # 只有纯 token overlap 路径要求至少两个子词共同支持。
+        elif overlap >= 2:
             score = 1.0 + overlap
+        elif family_prefix:
+            score = 1.25
         else:
             continue
 

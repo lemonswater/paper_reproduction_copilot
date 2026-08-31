@@ -203,6 +203,14 @@ class ChatService:
                 else 0
             ),
             degraded=(outcome.degraded if outcome is not None else False),
+            degraded_reason=(
+                outcome.reason if outcome is not None else None
+            ),
+            provider_attempt_count=(
+                outcome.provider_attempt_count
+                if outcome is not None
+                else 0
+            ),
         )
 
     def _current_memory_outcome(

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "case_id": "chat_provider_memory_constraint_retention",
-  "description": "真实模型在压缩后应保留 CPU 约束且不把建议写成决定",
+  "description": "用户以日常表达说明机器条件和试跑想法时，真实模型压缩后仍应保留 CPU 限制且不把试跑想法写成决定",
   "suite": "chat_provider",
   "runner": "chat_provider",
   "categories": ["evidence", "quality", "recovery", "efficiency"],

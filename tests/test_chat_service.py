@@ -213,6 +213,7 @@ def test_memory_degradation_does_not_fail_grounded_answer(tmp_path):
             created=False,
             degraded=True,
             reason="ChatMemoryUnavailable",
+            provider_attempt_count=2,
         )
     )
     service = _service(
@@ -233,6 +234,8 @@ def test_memory_degradation_does_not_fail_grounded_answer(tmp_path):
     assert response.assistant_message.citations[0].artifact_id == "report"
     assert response.memory.enabled is True
     assert response.memory.degraded is True
+    assert response.memory.degraded_reason == "ChatMemoryUnavailable"
+    assert response.memory.provider_attempt_count == 2
 
 
 def test_service_uses_true_newest_history_after_200_messages(tmp_path):

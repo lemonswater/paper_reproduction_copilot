@@ -41,6 +41,7 @@ ModelInvocationStatus = Literal[
 # 每个真实模型调用点都必须选择一个稳定 task_kind。
 ModelTaskKind = Literal[
     "paper_section_extraction",
+    "mapping_alias_resolution",
     "paper_code_mapping",
     "experiment_plan",
     "failure_debug",

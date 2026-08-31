@@ -1,7 +1,7 @@
 # Python 源码函数参考：Phase 17-29
 
-> 自动同步日期：2026-08-17
-> 覆盖文件：180；函数/方法：1502。
+> 自动同步日期：2026-08-19
+> 覆盖文件：180；函数/方法：1520。
 > 本文由当前 Python AST 生成；伪代码保留控制流和失败边界，但会把相邻语句合并为通俗的逻辑步骤。
 > 阶段归类按文件的主要职责完成；跨阶段持续修改的文件只进入一个主分册，源码行号是最终依据。
 
@@ -23,7 +23,7 @@
 - [`alembic/versions/20260731_0002_worker_workspace_control.py`](#alembic-versions-20260731-0002-worker-workspace-control-py)：2 个函数/方法
 - [`alembic/versions/20260803_0003_resource_acquisition.py`](#alembic-versions-20260803-0003-resource-acquisition-py)：2 个函数/方法
 - [`app/evaluation/baseline.py`](#app-evaluation-baseline-py)：5 个函数/方法
-- [`app/evaluation/case_loader.py`](#app-evaluation-case-loader-py)：4 个函数/方法
+- [`app/evaluation/case_loader.py`](#app-evaluation-case-loader-py)：6 个函数/方法
 - [`app/evaluation/chat_runner.py`](#app-evaluation-chat-runner-py)：28 个函数/方法
 - [`app/evaluation/chat_schemas.py`](#app-evaluation-chat-schemas-py)：5 个函数/方法
 - [`app/evaluation/chat_scorers.py`](#app-evaluation-chat-scorers-py)：12 个函数/方法
@@ -37,8 +37,8 @@
 - [`app/evaluation/reporting.py`](#app-evaluation-reporting-py)：2 个函数/方法
 - [`app/evaluation/run_eval.py`](#app-evaluation-run-eval-py)：5 个函数/方法
 - [`app/evaluation/runners.py`](#app-evaluation-runners-py)：10 个函数/方法
-- [`app/evaluation/schemas.py`](#app-evaluation-schemas-py)：3 个函数/方法
-- [`app/evaluation/scorers.py`](#app-evaluation-scorers-py)：17 个函数/方法
+- [`app/evaluation/schemas.py`](#app-evaluation-schemas-py)：5 个函数/方法
+- [`app/evaluation/scorers.py`](#app-evaluation-scorers-py)：19 个函数/方法
 - [`app/interaction/artifacts.py`](#app-interaction-artifacts-py)：10 个函数/方法
 - [`app/interaction/policy.py`](#app-interaction-policy-py)：4 个函数/方法
 - [`app/interaction/schemas.py`](#app-interaction-schemas-py)：2 个函数/方法
@@ -66,13 +66,13 @@
 - [`app/observability/runtime.py`](#app-observability-runtime-py)：2 个函数/方法
 - [`app/observability/schemas.py`](#app-observability-schemas-py)：1 个函数/方法
 - [`app/paper/chunking.py`](#app-paper-chunking-py)：5 个函数/方法
-- [`app/paper/evidence.py`](#app-paper-evidence-py)：7 个函数/方法
+- [`app/paper/evidence.py`](#app-paper-evidence-py)：9 个函数/方法
 - [`app/paper/extraction_cache.py`](#app-paper-extraction-cache-py)：5 个函数/方法
 - [`app/paper/indexer.py`](#app-paper-indexer-py)：7 个函数/方法
 - [`app/paper/normalization.py`](#app-paper-normalization-py)：4 个函数/方法
 - [`app/paper/pdf_parser.py`](#app-paper-pdf-parser-py)：11 个函数/方法
 - [`app/paper/reducer.py`](#app-paper-reducer-py)：11 个函数/方法
-- [`app/paper/sectioning.py`](#app-paper-sectioning-py)：27 个函数/方法
+- [`app/paper/sectioning.py`](#app-paper-sectioning-py)：32 个函数/方法
 - [`app/persistence/database.py`](#app-persistence-database-py)：6 个函数/方法
 - [`app/resources/errors.py`](#app-resources-errors-py)：1 个函数/方法
 - [`app/resources/git_fetcher.py`](#app-resources-git-fetcher-py)：7 个函数/方法
@@ -95,7 +95,7 @@
 - [`app/retrieval/embedding_cache.py`](#app-retrieval-embedding-cache-py)：7 个函数/方法
 - [`app/retrieval/indexer.py`](#app-retrieval-indexer-py)：17 个函数/方法
 - [`app/retrieval/query_builder.py`](#app-retrieval-query-builder-py)：4 个函数/方法
-- [`app/retrieval/ranking.py`](#app-retrieval-ranking-py)：13 个函数/方法
+- [`app/retrieval/ranking.py`](#app-retrieval-ranking-py)：14 个函数/方法
 - [`app/retrieval/service.py`](#app-retrieval-service-py)：7 个函数/方法
 - [`app/storage/artifact_repository.py`](#app-storage-artifact-repository-py)：12 个函数/方法
 - [`app/storage/catalog.py`](#app-storage-catalog-py)：5 个函数/方法
@@ -142,7 +142,7 @@
 - [`tests/test_embedding_cache.py`](#tests-test-embedding-cache-py)：4 个函数/方法
 - [`tests/test_git_resource_fetcher.py`](#tests-test-git-resource-fetcher-py)：11 个函数/方法
 - [`tests/test_http_resource_downloader.py`](#tests-test-http-resource-downloader-py)：15 个函数/方法
-- [`tests/test_hybrid_retrieval.py`](#tests-test-hybrid-retrieval-py)：4 个函数/方法
+- [`tests/test_hybrid_retrieval.py`](#tests-test-hybrid-retrieval-py)：5 个函数/方法
 - [`tests/test_immutable_workspace_derivation.py`](#tests-test-immutable-workspace-derivation-py)：6 个函数/方法
 - [`tests/test_interaction_api.py`](#tests-test-interaction-api-py)：11 个函数/方法
 - [`tests/test_interaction_artifacts.py`](#tests-test-interaction-artifacts-py)：4 个函数/方法
@@ -161,7 +161,7 @@
 - [`tests/test_oci_runner.py`](#tests-test-oci-runner-py)：10 个函数/方法
 - [`tests/test_paper_chunking.py`](#tests-test-paper-chunking-py)：2 个函数/方法
 - [`tests/test_paper_eval.py`](#tests-test-paper-eval-py)：16 个函数/方法
-- [`tests/test_paper_evidence.py`](#tests-test-paper-evidence-py)：3 个函数/方法
+- [`tests/test_paper_evidence.py`](#tests-test-paper-evidence-py)：6 个函数/方法
 - [`tests/test_paper_evidence_confidence.py`](#tests-test-paper-evidence-confidence-py)：1 个函数/方法
 - [`tests/test_paper_extraction_cache.py`](#tests-test-paper-extraction-cache-py)：13 个函数/方法
 - [`tests/test_paper_normalization.py`](#tests-test-paper-normalization-py)：3 个函数/方法
@@ -619,11 +619,36 @@
 返回待审核的 MCP 能力候选的当前值。
 ```
 
-#### `load_case_file`
+#### `_validate_case_fixture`
 
 - **源码**：`app/evaluation/case_loader.py:46`
+- **签名**：`def _validate_case_fixture(case: EvalCase) -> None`
+- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测用例，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `case` | `EvalCase` | 测试夹具或评测用例对象；提供场景数据和受控依赖，不是生产业务输入。 |
+
+**输出**
+
+- **Python 类型**：`None`
+- **语义**：无业务返回值；函数通过注册、持久化、文件写入、状态更新或异常产生效果。
+
+**伪代码**
+
+```text
+如果运行调度器属于{'fixture', 'chat_scenario', 'chat_provider', 'conversation_decision', 'conversation_decision_provider'}：
+    调用 `resolve_evaluation_path` 解析、规范化或转换当前输入，并把结果记为 测试夹具的路径。
+    如果“检查测试夹具的路径的文件系统属性”后未得到肯定结果，就拒绝继续处理并抛出 `FileNotFoundError`，向调用方报告输入或运行失败。
+```
+
+#### `load_case_file`
+
+- **源码**：`app/evaluation/case_loader.py:64`
 - **签名**：`def load_case_file(path: Path) -> EvalCase`
-- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收文件或目录路径，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终标注为 `EvalCase` 的领域结果。
+- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，读取传统单 Case JSON；Bundle 请通过 load_case_entries 读取。该函数接收文件或目录路径，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终标注为 `EvalCase` 的领域结果。
 
 **输入**
 
@@ -639,18 +664,42 @@
 **伪代码**
 
 ```text
-将外部表示解析为结构化内容，并把结果记为 结构化请求载荷；复制、序列化或校验结构化领域对象，并把结果记为 评测用例。
-如果运行调度器属于{'fixture', 'chat_scenario', 'chat_provider', 'conversation_decision', 'conversation_decision_provider'}：
-    调用 `resolve_evaluation_path` 解析、规范化或转换当前输入，并把结果记为 测试夹具的路径。
-    如果“检查测试夹具的路径的文件系统属性”后未得到肯定结果，就拒绝继续处理并抛出 `FileNotFoundError`，向调用方报告输入或运行失败。
-返回评测用例的当前值。
+将外部表示解析为结构化内容，并把结果记为 结构化请求载荷。
+如果“计算数量、边界或类型判断结果”后得到肯定结果 且 当前输入内容属于结构化请求载荷，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+复制、序列化或校验结构化领域对象，并把结果记为 评测用例；调用 `_validate_case_fixture` 校验当前输入或状态；返回评测用例的当前值。
+```
+
+#### `load_case_entries`
+
+- **源码**：`app/evaluation/case_loader.py:78`
+- **签名**：`def load_case_entries(path: Path) -> list[EvalCase]`
+- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，同时兼容传统单 Case JSON 和同类 Case Bundle JSON。该函数接收文件或目录路径，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终有界、排序或带证据来源的结果集合。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `path` | `Path` | 待读取、写入或校验的文件系统路径；是否允许访问由函数内的路径边界检查决定。 |
+
+**输出**
+
+- **Python 类型**：`list[EvalCase]`
+- **语义**：返回从外部表示解析并校验后的领域值；格式非法时通过异常失败。
+
+**伪代码**
+
+```text
+将外部表示解析为结构化内容，并把结果记为 结构化请求载荷。
+如果“计算数量、边界或类型判断结果”后得到肯定结果 且 当前输入内容属于结构化请求载荷，就读取前一步操作返回对象的评测用例集合，并保存为 评测用例集合；否则计算初始化顺序集合，并保存为 评测用例集合。
+遍历由评测用例集合组成的集合或迭代器，每次把当前项记为评测用例，然后调用 `_validate_case_fixture` 校验当前输入或状态。
+返回评测用例集合的当前值。
 ```
 
 #### `load_cases`
 
-- **源码**：`app/evaluation/case_loader.py:69`
+- **源码**：`app/evaluation/case_loader.py:92`
 - **签名**：`def load_cases(case_dir: Path, suite: str, case_ids: set[str] | None) -> list[EvalCase]`
-- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，递归读取指定 suite 的 case。该函数接收评测用例的目录、评测套件、用例集合，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终有界、排序或带证据来源的结果集合。
+- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，递归读取指定 suite 的单 Case JSON 或 Case Bundle JSON。该函数接收评测用例的目录、评测套件、用例集合，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
@@ -673,11 +722,11 @@
 如果“检查评测套件的目录的文件系统属性”后未得到肯定结果，就拒绝继续处理并抛出 `FileNotFoundError`，向调用方报告输入或运行失败。
 将 已加载结果 初始化为空列表，用来收集后续结果；将 当前处理结果 初始化为空去重集合，用来收集后续结果。
 遍历辅助操作产生的可迭代结果（按稳定规则整理结果顺序），每次把当前项记为文件或目录路径：
-    调用 `load_case_file` 读取或查询当前阶段需要的数据，并把结果记为 评测用例。
-    如果评测套件不等于评测套件，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
-    如果评测用例的 ID属于当前处理结果，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
-    把评测用例的 ID追加或合并到当前处理结果。
-    如果用例集合为空 或 评测用例的 ID属于用例集合，就把评测用例追加或合并到已加载结果。
+    遍历辅助操作产生的可迭代结果（调用 `load_case_entries` 读取或查询当前阶段需要的数据），每次把当前项记为评测用例：
+        如果评测套件不等于评测套件，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+        如果评测用例的 ID属于当前处理结果，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+        把评测用例的 ID追加或合并到当前处理结果。
+        如果用例集合为空 或 评测用例的 ID属于用例集合，就把评测用例追加或合并到已加载结果。
 如果用例集合有值或为真：
     按稳定规则整理结果顺序，并把结果记为 该调用返回的结果。
     如果当前处理结果有值或为真，就拒绝继续处理并抛出 `KeyError`，向调用方报告输入或运行失败。
@@ -691,7 +740,7 @@
 
 #### `_StaticInteraction.__init__`
 
-- **源码**：`app/evaluation/chat_runner.py:51`
+- **源码**：`app/evaluation/chat_runner.py:52`
 - **签名**：`def __init__(self, job: JobView)`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收复现任务记录，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -715,7 +764,7 @@
 
 #### `_StaticInteraction.get_job`
 
-- **源码**：`app/evaluation/chat_runner.py:55`
+- **源码**：`app/evaluation/chat_runner.py:56`
 - **签名**：`def get_job(self, job_id: str) -> JobView`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收复现任务 ID，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终标注为 `JobView` 的领域结果。
 
@@ -740,7 +789,7 @@
 
 #### `_StaticInteraction._reject_mutation`
 
-- **源码**：`app/evaluation/chat_runner.py:60`
+- **源码**：`app/evaluation/chat_runner.py:61`
 - **签名**：`def _reject_mutation(self, name: str) -> None`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收对象名称，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -764,7 +813,7 @@
 
 #### `_StaticInteraction.submit_decision`
 
-- **源码**：`app/evaluation/chat_runner.py:66`
+- **源码**：`app/evaluation/chat_runner.py:67`
 - **签名**：`def submit_decision(self, **_kwargs: object) -> None`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收函数关键字参数映射，用于驱动或监督一次论文复现运行，记录命令、工作目录、资源使用、状态迁移和失败原因，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -788,7 +837,7 @@
 
 #### `_StaticInteraction.cancel_job`
 
-- **源码**：`app/evaluation/chat_runner.py:69`
+- **源码**：`app/evaluation/chat_runner.py:70`
 - **签名**：`def cancel_job(self, **_kwargs: object) -> None`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收函数关键字参数映射，用于驱动或监督一次论文复现运行，记录命令、工作目录、资源使用、状态迁移和失败原因，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -812,7 +861,7 @@
 
 #### `_StaticInteraction.create_rerun_proposal`
 
-- **源码**：`app/evaluation/chat_runner.py:72`
+- **源码**：`app/evaluation/chat_runner.py:73`
 - **签名**：`def create_rerun_proposal(self, **_kwargs: object) -> None`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收函数关键字参数映射，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -836,7 +885,7 @@
 
 #### `_StaticContextBuilder.__init__`
 
-- **源码**：`app/evaluation/chat_runner.py:79`
+- **源码**：`app/evaluation/chat_runner.py:80`
 - **签名**：`def __init__(self: 未显式标注, job: JobView, sources: list[GroundingSource]) -> None（隐式）`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收复现任务记录、证据来源集合，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -861,7 +910,7 @@
 
 #### `_StaticContextBuilder.build`
 
-- **源码**：`app/evaluation/chat_runner.py:88`
+- **源码**：`app/evaluation/chat_runner.py:89`
 - **签名**：`def build(self, *, job_id: str, question: str) -> GroundingBundle`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收复现任务 ID、论文复现问题或用户问题，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `GroundingBundle` 的领域结果。
 
@@ -887,7 +936,7 @@
 
 #### `_ScriptedChatInvoker.__init__`
 
-- **源码**：`app/evaluation/chat_runner.py:98`
+- **源码**：`app/evaluation/chat_runner.py:99`
 - **签名**：`def __init__(self, drafts: list[ChatDraft])`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -911,9 +960,9 @@
 
 #### `_ScriptedChatInvoker.__call__`
 
-- **源码**：`app/evaluation/chat_runner.py:104`
-- **签名**：`def __call__(self, prompt: str) -> ChatDraft`
-- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收发给模型的结构化提示，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ChatDraft` 的领域结果。
+- **源码**：`app/evaluation/chat_runner.py:105`
+- **签名**：`def __call__(self, prompt: str, job_id: str) -> ChatDraft`
+- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收发给模型的结构化提示、复现任务 ID，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ChatDraft` 的领域结果。
 
 **输入**
 
@@ -921,6 +970,7 @@
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
 | `prompt` | `str` | 用户目标、检索问题、反馈或待处理文本；会作为当前阶段的业务语境输入，并可能受到长度/脱敏约束。 |
+| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 
 **输出**
 
@@ -930,14 +980,14 @@
 **伪代码**
 
 ```text
-把发给模型的结构化提示追加或合并到当前处理结果。
+移除复现任务 ID中的当前内容；把发给模型的结构化提示追加或合并到当前处理结果。
 如果工具或模型调用记录集合不小于当前处理结果 的长度，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
 读取当前处理结果中的对应字段，并保存为 草稿对象；将新的计算结果累加或合并到工具或模型调用记录集合；把草稿对象追加或合并到当前处理结果；返回草稿对象的当前值。
 ```
 
 #### `_ScriptedChatInvoker.assert_exhausted`
 
-- **源码**：`app/evaluation/chat_runner.py:113`
+- **源码**：`app/evaluation/chat_runner.py:115`
 - **签名**：`def assert_exhausted(self) -> None`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -960,7 +1010,7 @@
 
 #### `_ScriptedMemoryInvoker.__init__`
 
-- **源码**：`app/evaluation/chat_runner.py:122`
+- **源码**：`app/evaluation/chat_runner.py:124`
 - **签名**：`def __init__(self, scripts: list[ChatEvalMemoryScript])`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -984,9 +1034,9 @@
 
 #### `_ScriptedMemoryInvoker.__call__`
 
-- **源码**：`app/evaluation/chat_runner.py:127`
-- **签名**：`def __call__(self, prompt: str) -> MemoryDraft`
-- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收发给模型的结构化提示，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `MemoryDraft` 的领域结果。
+- **源码**：`app/evaluation/chat_runner.py:129`
+- **签名**：`def __call__(self, prompt: str, job_id: str) -> MemoryDraftResult`
+- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收发给模型的结构化提示、复现任务 ID，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
@@ -994,25 +1044,26 @@
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
 | `prompt` | `str` | 用户目标、检索问题、反馈或待处理文本；会作为当前阶段的业务语境输入，并可能受到长度/脱敏约束。 |
+| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 
 **输出**
 
-- **Python 类型**：`MemoryDraft`
-- **语义**：返回 `MemoryDraft` 类型的领域结果；必要时可能通过异常表示失败。
+- **Python 类型**：`MemoryDraftResult`
+- **语义**：返回结构化响应/结果对象，字段语义由对应 Pydantic Schema 定义。
 
 **伪代码**
 
 ```text
-把发给模型的结构化提示追加或合并到当前处理结果。
+移除复现任务 ID中的当前内容；把发给模型的结构化提示追加或合并到当前处理结果。
 如果工具或模型调用记录集合不小于当前处理结果 的长度，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
 读取当前处理结果中的对应字段，并保存为 当前处理项；将新的计算结果累加或合并到工具或模型调用记录集合。
 如果错误不为空，就拒绝继续处理并抛出 `RuntimeError`，向调用方报告输入或运行失败。
-断言草稿对象不为空；不满足就终止当前测试或流程；返回草稿对象的当前值。
+断言草稿对象不为空；不满足就终止当前测试或流程；构造并返回 `MemoryDraftResult` 结构化领域对象。
 ```
 
 #### `_ScriptedMemoryInvoker.assert_exhausted`
 
-- **源码**：`app/evaluation/chat_runner.py:139`
+- **源码**：`app/evaluation/chat_runner.py:146`
 - **签名**：`def assert_exhausted(self) -> None`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -1035,8 +1086,8 @@
 
 #### `_CapturingChatInvoker.__init__`
 
-- **源码**：`app/evaluation/chat_runner.py:150`
-- **签名**：`def __init__(self, delegate: Callable[[str], ChatDraft])`
+- **源码**：`app/evaluation/chat_runner.py:157`
+- **签名**：`def __init__(self, delegate: Callable[[str, str], ChatDraft])`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
@@ -1044,7 +1095,7 @@
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `delegate` | `Callable[[str], ChatDraft]` | 可调用依赖；其参数和返回契约由类型标注限定。 |
+| `delegate` | `Callable[[str, str], ChatDraft]` | 可调用依赖；其参数和返回契约由类型标注限定。 |
 
 **输出**
 
@@ -1059,9 +1110,9 @@
 
 #### `_CapturingChatInvoker.__call__`
 
-- **源码**：`app/evaluation/chat_runner.py:156`
-- **签名**：`def __call__(self, prompt: str) -> ChatDraft`
-- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收发给模型的结构化提示，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ChatDraft` 的领域结果。
+- **源码**：`app/evaluation/chat_runner.py:163`
+- **签名**：`def __call__(self, prompt: str, job_id: str) -> ChatDraft`
+- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收发给模型的结构化提示、复现任务 ID，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ChatDraft` 的领域结果。
 
 **输入**
 
@@ -1069,6 +1120,7 @@
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
 | `prompt` | `str` | 用户目标、检索问题、反馈或待处理文本；会作为当前阶段的业务语境输入，并可能受到长度/脱敏约束。 |
+| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 
 **输出**
 
@@ -1084,8 +1136,8 @@
 
 #### `_CapturingMemoryInvoker.__init__`
 
-- **源码**：`app/evaluation/chat_runner.py:165`
-- **签名**：`def __init__(self, delegate: Callable[[str], MemoryDraft])`
+- **源码**：`app/evaluation/chat_runner.py:172`
+- **签名**：`def __init__(self: 未显式标注, delegate: Callable[[str, str], MemoryDraftResult]) -> None（隐式）`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
 **输入**
@@ -1093,7 +1145,7 @@
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
-| `delegate` | `Callable[[str], MemoryDraft]` | 可调用依赖；其参数和返回契约由类型标注限定。 |
+| `delegate` | `Callable[[str, str], MemoryDraftResult]` | 可调用依赖；其参数和返回契约由类型标注限定。 |
 
 **输出**
 
@@ -1108,9 +1160,9 @@
 
 #### `_CapturingMemoryInvoker.__call__`
 
-- **源码**：`app/evaluation/chat_runner.py:170`
-- **签名**：`def __call__(self, prompt: str) -> MemoryDraft`
-- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收发给模型的结构化提示，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `MemoryDraft` 的领域结果。
+- **源码**：`app/evaluation/chat_runner.py:180`
+- **签名**：`def __call__(self, prompt: str, job_id: str) -> MemoryDraftResult`
+- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收发给模型的结构化提示、复现任务 ID，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
 **输入**
 
@@ -1118,11 +1170,12 @@
 |---|---|---|
 | `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
 | `prompt` | `str` | 用户目标、检索问题、反馈或待处理文本；会作为当前阶段的业务语境输入，并可能受到长度/脱敏约束。 |
+| `job_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
 
 **输出**
 
-- **Python 类型**：`MemoryDraft`
-- **语义**：返回 `MemoryDraft` 类型的领域结果；必要时可能通过异常表示失败。
+- **Python 类型**：`MemoryDraftResult`
+- **语义**：返回结构化响应/结果对象，字段语义由对应 Pydantic Schema 定义。
 
 **伪代码**
 
@@ -1132,7 +1185,7 @@
 
 #### `_load_scenario`
 
-- **源码**：`app/evaluation/chat_runner.py:176`
+- **源码**：`app/evaluation/chat_runner.py:186`
 - **签名**：`def _load_scenario(case: EvalCase) -> ChatEvalScenario`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测用例，用于从受控存储、运行目录或服务端口读取论文复现所需的记录、证据和状态，最终标注为 `ChatEvalScenario` 的领域结果。
 
@@ -1157,7 +1210,7 @@
 
 #### `_validate_mode`
 
-- **源码**：`app/evaluation/chat_runner.py:189`
+- **源码**：`app/evaluation/chat_runner.py:199`
 - **签名**：`def _validate_mode(case: EvalCase, scenario: ChatEvalScenario, provider: bool) -> None`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测用例、复现实验场景、模型服务商配置，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -1190,7 +1243,7 @@
 
 #### `_job`
 
-- **源码**：`app/evaluation/chat_runner.py:222`
+- **源码**：`app/evaluation/chat_runner.py:232`
 - **签名**：`def _job(scenario: ChatEvalScenario, repetition: int) -> JobView`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收复现实验场景、当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `JobView` 的领域结果。
 
@@ -1214,7 +1267,7 @@
 
 #### `_grounding_sources`
 
-- **源码**：`app/evaluation/chat_runner.py:248`
+- **源码**：`app/evaluation/chat_runner.py:258`
 - **签名**：`def _grounding_sources(scenario: ChatEvalScenario) -> list[GroundingSource]`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收复现实验场景，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
@@ -1237,7 +1290,7 @@
 
 #### `_operation_availability`
 
-- **源码**：`app/evaluation/chat_runner.py:261`
+- **源码**：`app/evaluation/chat_runner.py:271`
 - **签名**：`def _operation_availability(draft: ChatDraft, allowed_operations: list[AllowedOperation]) -> str`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，把模型请求投影到服务端 Capability，但不执行任何操作。该函数接收草稿对象、当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -1266,7 +1319,7 @@
 
 #### `_prompt_source_ids`
 
-- **源码**：`app/evaluation/chat_runner.py:288`
+- **源码**：`app/evaluation/chat_runner.py:298`
 - **签名**：`def _prompt_source_ids(prompt: str) -> list[str]`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，只解码 SOURCES_DATA JSON，不保存 Source content。该函数接收发给模型的结构化提示，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
@@ -1293,7 +1346,7 @@
 
 #### `_memory_observation`
 
-- **源码**：`app/evaluation/chat_runner.py:305`
+- **源码**：`app/evaluation/chat_runner.py:315`
 - **签名**：`def _memory_observation(repository: SqliteChatRepository, job_id: str) -> ChatMemoryObservation`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收持久化仓库、复现任务 ID，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ChatMemoryObservation` 的领域结果。
 
@@ -1323,12 +1376,13 @@
 遍历当前可迭代输入，每次把当前项记为当前源码语句，然后把新的处理结果追加或合并到校验项集合。
 遍历当前可迭代输入，每次把当前项记为当前源码语句，然后把新的处理结果追加或合并到校验项集合。
 遍历当前可迭代输入，每次把当前项记为当前源码语句，然后把新的处理结果追加或合并到校验项集合。
-计算根据条件从两个候选结果中选择一个，并保存为 来源；构造并返回 `ChatMemoryObservation` 结构化领域对象。
+计算根据条件从两个候选结果中选择一个，并保存为 来源；调用 `sum` 完成该函数的一项辅助处理，并把结果记为 来源字符数；计算组合或计算已有值，并保存为 记忆文本字符数；计算根据条件从两个候选结果中选择一个，并保存为 文本。
+构造并返回 `ChatMemoryObservation` 结构化领域对象。
 ```
 
 #### `_seed_history`
 
-- **源码**：`app/evaluation/chat_runner.py:363`
+- **源码**：`app/evaluation/chat_runner.py:394`
 - **签名**：`def _seed_history(repository: SqliteChatRepository, scenario: ChatEvalScenario, job_id: str) -> None`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收持久化仓库、复现实验场景、复现任务 ID，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -1354,7 +1408,7 @@
 
 #### `_run_once`
 
-- **源码**：`app/evaluation/chat_runner.py:389`
+- **源码**：`app/evaluation/chat_runner.py:420`
 - **签名**：`def _run_once(scenario: ChatEvalScenario, provider: bool, repetition: int, db_path: Path) -> ChatScenarioRunObservation`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收复现实验场景、模型服务商配置、当前处理结果、当前处理结果的路径，用于驱动或监督一次论文复现运行，记录命令、工作目录、资源使用、状态迁移和失败原因，最终标注为 `ChatScenarioRunObservation` 的领域结果。
 
@@ -1391,7 +1445,7 @@
 
 #### `run_chat_eval_case`
 
-- **源码**：`app/evaluation/chat_runner.py:529`
+- **源码**：`app/evaluation/chat_runner.py:560`
 - **签名**：`def run_chat_eval_case(case: EvalCase, work_dir: Path, provider: bool) -> EvalObservation`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，运行完整 Chat Scenario，并只返回有界 Observation。该函数接收评测用例、当前处理结果的目录、模型服务商配置，用于驱动或监督一次论文复现运行，记录命令、工作目录、资源使用、状态迁移和失败原因，最终标注为 `EvalObservation` 的领域结果。
 
@@ -1559,7 +1613,7 @@
 
 #### `ChatMemoryExpectation.validate_memory_oracle`
 
-- **源码**：`app/evaluation/chat_schemas.py:289`
+- **源码**：`app/evaluation/chat_schemas.py:292`
 - **签名**：`def validate_memory_oracle(self) -> "ChatMemoryExpectation"`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终标注为 `'ChatMemoryExpectation'` 的领域结果。
 
@@ -1581,6 +1635,7 @@
 如果由当前处理结果组成的集合或迭代器中存在满足““对当前处理项中的文本执行规范化或拆分”后未得到肯定结果”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
 构造临时集合、映射或轻量领域对象，并把结果记为 该调用返回的结果；构造临时集合、映射或轻量领域对象，并把结果记为 被策略禁止的内容或操作。
 如果当前条件（组合或计算已有值）成立，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+如果最小当前处理结果不为空 且 最大当前处理结果不为空 且 最小当前处理结果大于最大当前处理结果，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
 如果最小当前处理结果不为空 且 最大当前处理结果不为空 且 最小当前处理结果大于最大当前处理结果，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
 返回当前对象的当前值。
 ```
@@ -1846,6 +1901,9 @@
 将 待处理项集合 初始化为空列表，用来收集后续结果。
 如果期望不为空，就把新的处理结果追加或合并到待处理项集合。
 如果最小记录版本号不为空，就把新的处理结果追加或合并到待处理项集合。
+如果最小当前处理结果不为空，就把新的处理结果追加或合并到待处理项集合。
+如果最大当前处理结果不为空，就把新的处理结果追加或合并到待处理项集合。
+如果最大文本不为空，就把新的处理结果追加或合并到待处理项集合。
 如果Hash不为空，就把新的处理结果追加或合并到待处理项集合。
 如果最小来源不为空，就把新的处理结果追加或合并到待处理项集合。
 如果最小当前处理结果不为空，就把新的处理结果追加或合并到待处理项集合。
@@ -1855,7 +1913,7 @@
 
 #### `_efficiency_assertions`
 
-- **源码**：`app/evaluation/chat_scorers.py:479`
+- **源码**：`app/evaluation/chat_scorers.py:522`
 - **签名**：`def _efficiency_assertions(case: EvalCase, observation: EvalObservation) -> list[EvalAssertion]`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测用例、MCP Client 单次观测结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
@@ -1876,7 +1934,9 @@
 ```text
 读取对话，并保存为 对话。
 如果对话为空，就返回当前构造的顺序或去重集合。
-读取期望值，并保存为 期望值；将 待处理项集合 初始化为空列表，用来收集后续结果；计算初始化顺序集合，并保存为 校验项集合。
+读取期望值，并保存为 期望值；将 待处理项集合 初始化为空列表，用来收集后续结果；读取最小对话记忆运行，并保存为 记忆集合。
+如果记忆集合不为空，就把新的处理结果追加或合并到待处理项集合。
+计算初始化顺序集合，并保存为 校验项集合。
 遍历由校验项集合组成的集合或迭代器，每次把当前项记为多个解包结果：
     如果允许的最大数量为空，就跳过本轮剩余处理，直接进入下一轮。
     把新的处理结果追加或合并到待处理项集合。
@@ -1885,7 +1945,7 @@
 
 #### `_decision_assertions`
 
-- **源码**：`app/evaluation/chat_scorers.py:520`
+- **源码**：`app/evaluation/chat_scorers.py:579`
 - **签名**：`def _decision_assertions(case: EvalCase, observation: EvalObservation) -> list[EvalAssertion]`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测用例、MCP Client 单次观测结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
@@ -1919,7 +1979,7 @@
 
 #### `chat_assertions`
 
-- **源码**：`app/evaluation/chat_scorers.py:626`
+- **源码**：`app/evaluation/chat_scorers.py:685`
 - **签名**：`def chat_assertions(category: str, case: EvalCase, observation: EvalObservation) -> list[EvalAssertion]`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测类别、评测用例、MCP Client 单次观测结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
@@ -3041,9 +3101,41 @@
 返回当前对象的当前值。
 ```
 
+#### `EvalExpected.validate_chat_invocation_range`
+
+- **源码**：`app/evaluation/schemas.py:317`
+- **签名**：`def validate_chat_invocation_range(self) -> EvalExpected`
+- **作用**：在约束论文复现请求、运行状态、证据和结果结构的契约校验阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终标注为 `EvalExpected` 的领域结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
+
+**输出**
+
+- **Python 类型**：`EvalExpected`
+- **语义**：返回 `EvalExpected` 类型的领域结果；必要时可能通过异常表示失败。
+
+**伪代码**
+
+```text
+读取最小对话记忆运行，并保存为 后续步骤使用的结果；读取最大对话记忆运行，并保存为 允许的最大数量。
+如果当前处理结果不为空 且 允许的最大数量不为空 且 当前处理结果大于允许的最大数量，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+读取最小运行集合，并保存为 后续步骤使用的结果；读取最大运行集合，并保存为 后续步骤使用的结果。
+如果当前处理结果不为空 且 当前处理结果不为空 且 当前处理结果大于当前处理结果，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+如果辅助操作产生的可迭代结果（调用 `items` 完成该函数的一项辅助处理）中存在满足““对对象名称中的文本执行规范化或拆分”后未得到肯定结果 或 “当前输入内容不大于比例不大于1.0”不成立”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+计算初始化顺序集合，并保存为 当前处理结果。
+如果由当前处理结果组成的集合或迭代器中存在满足““对检索词或规范化术语中的文本执行规范化或拆分”后未得到肯定结果”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+遍历当前可迭代输入，每次把当前项记为论文-代码映射：
+    如果当前可迭代输入中存在满足““对对象别名中的文本执行规范化或拆分”后未得到肯定结果”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+返回当前对象的当前值。
+```
+
 #### `EvalThresholds.validate_weights`
 
-- **源码**：`app/evaluation/schemas.py:287`
+- **源码**：`app/evaluation/schemas.py:356`
 - **签名**：`def validate_weights(self) -> EvalThresholds`
 - **作用**：在约束论文复现请求、运行状态、证据和结果结构的契约校验阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终标注为 `EvalThresholds` 的领域结果。
 
@@ -3067,7 +3159,7 @@
 
 #### `EvalCase.validate_runner_input`
 
-- **源码**：`app/evaluation/schemas.py:307`
+- **源码**：`app/evaluation/schemas.py:376`
 - **签名**：`def validate_runner_input(self) -> EvalCase`
 - **作用**：在约束论文复现请求、运行状态、证据和结果结构的契约校验阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终标注为 `EvalCase` 的领域结果。
 
@@ -3118,6 +3210,36 @@
 如果运行调度器属于{'conversation_decision', 'conversation_decision_provider'}：
     如果当前输入内容不属于当前处理结果，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
     如果“检查当前可迭代输入中是否存在满足“期望不为空”的项”后未得到肯定结果，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+返回当前对象的当前值。
+```
+
+#### `EvalCaseBundle.validate_bundle`
+
+- **源码**：`app/evaluation/schemas.py:503`
+- **签名**：`def validate_bundle(self) -> EvalCaseBundle`
+- **作用**：在约束论文复现请求、运行状态、证据和结果结构的契约校验阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终标注为 `EvalCaseBundle` 的领域结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
+
+**输出**
+
+- **Python 类型**：`EvalCaseBundle`
+- **语义**：返回 `EvalCaseBundle` 类型的领域结果；必要时可能通过异常表示失败。
+
+**伪代码**
+
+```text
+如果“对当前处理结果的 ID中的文本执行规范化或拆分”后未得到肯定结果，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+遍历并筛选输入，将整理后的结果保存为 用例集合。
+如果用例集合 的长度不等于辅助操作“构造临时集合、映射或轻量领域对象”的结果 的长度，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+如果当前可迭代输入中存在满足“评测套件不等于评测套件”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
+如果当前处理结果不为空：
+    计算根据字段和固定文本生成格式化文本，并保存为 当前处理结果。
+    如果当前可迭代输入中存在满足“当前处理结果不属于当前处理结果”的项，就拒绝继续处理并抛出 `ValueError`，向调用方报告输入或运行失败。
 返回当前对象的当前值。
 ```
 
@@ -3202,9 +3324,38 @@
 返回比较判断结果。
 ```
 
-#### `_normalized_name_matches`
+#### `_token_level_matches`
 
 - **源码**：`app/evaluation/scorers.py:47`
+- **签名**：`def _token_level_matches(a_key: str, b_key: str) -> bool`
+- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，token 级兜底：共享 token，或一方 token 是另一方前缀。该函数接收键、键，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `a_key` | `str` | 名为 `a_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+| `b_key` | `str` | 名为 `b_key` 的业务文本或控制字符串；具体允许值由函数用途和校验分支确定。 |
+
+**输出**
+
+- **Python 类型**：`bool`
+- **语义**：返回条件判断结果：`True` 表示满足，`False` 表示不满足。
+
+**伪代码**
+
+```text
+对键中的文本执行规范化或拆分，并把结果记为 该调用返回的结果；对键中的文本执行规范化或拆分，并把结果记为 该调用返回的结果。
+遍历由当前处理结果组成的集合或迭代器，每次把当前项记为当前处理结果：
+    遍历由当前处理结果组成的集合或迭代器，每次把当前项记为当前处理结果：
+        如果当前处理结果等于当前处理结果，就返回固定值 `真`。
+        如果当前处理结果 的长度不小于3 且 当前处理结果 的长度不小于3 且 “检查当前处理结果是否满足文本匹配条件”后得到肯定结果 或 “检查当前处理结果是否满足文本匹配条件”后得到肯定结果，就返回固定值 `真`。
+返回固定值 `假`。
+```
+
+#### `_normalized_name_matches`
+
+- **源码**：`app/evaluation/scorers.py:70`
 - **签名**：`def _normalized_name_matches(required: str, actual_values: list[str]) -> bool`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收当前处理结果、实际集合，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -3226,13 +3377,13 @@
 调用 `normalize_key` 解析、规范化或转换当前输入，并把结果记为 键。
 遍历由实际集合组成的集合或迭代器，每次把当前项记为实际值：
     调用 `normalize_key` 解析、规范化或转换当前输入，并把结果记为 实际键。
-    如果键等于实际键 或 键属于实际键 或 实际键属于键，就返回固定值 `真`。
+    如果键等于实际键 或 键属于实际键 或 实际键属于键 或 “调用 `_token_level_matches` 完成该函数的一项辅助处理”后得到肯定结果，就返回固定值 `真`。
 返回固定值 `假`。
 ```
 
 #### `_normalized_exact_matches`
 
-- **源码**：`app/evaluation/scorers.py:62`
+- **源码**：`app/evaluation/scorers.py:86`
 - **签名**：`def _normalized_exact_matches(expected: str, actual: str) -> bool`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收期望值、实际值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -3256,7 +3407,7 @@
 
 #### `_normalized_term_in_title`
 
-- **源码**：`app/evaluation/scorers.py:69`
+- **源码**：`app/evaluation/scorers.py:93`
 - **签名**：`def _normalized_term_in_title(term: str, title: str) -> bool`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收检索词或规范化术语、文档或章节标题，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -3280,7 +3431,7 @@
 
 #### `score_schema`
 
-- **源码**：`app/evaluation/scorers.py:78`
+- **源码**：`app/evaluation/scorers.py:102`
 - **签名**：`def score_schema(case: EvalCase, actual: EvalObservation) -> ScorerResult`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测用例、实际值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -3302,6 +3453,7 @@
 计算组合多个值形成元组，并保存为 多个解包结果；遍历并筛选输入，将整理后的结果保存为 当前处理结果。
 遍历当前可迭代输入，每次把当前项记为对象名称，然后把新的处理结果追加或合并到待处理项集合。
 如果最小成功比例不为空，就计算组合或计算已有值，并保存为 比例；把新的处理结果追加或合并到待处理项集合。
+遍历辅助操作产生的可迭代结果（调用 `items` 完成该函数的一项辅助处理），每次把当前项记为多个解包结果，然后遍历并筛选输入，将整理后的结果保存为 当前处理结果；计算根据条件从两个候选结果中选择一个，并保存为 比例；把新的处理结果追加或合并到待处理项集合。
 如果最大当前处理结果不为空，就调用 `sum` 完成该函数的一项辅助处理，并把结果记为 对象数量；把新的处理结果追加或合并到待处理项集合。
 如果最大当前处理结果不为空，就调用 `sum` 完成该函数的一项辅助处理，并把结果记为 对象数量；把新的处理结果追加或合并到待处理项集合。
 调用 `_finish` 完成该函数的一项辅助处理，并返回处理结果。
@@ -3309,7 +3461,7 @@
 
 #### `score_route`
 
-- **源码**：`app/evaluation/scorers.py:105`
+- **源码**：`app/evaluation/scorers.py:148`
 - **签名**：`def score_route(case: EvalCase, actual: EvalObservation) -> ScorerResult`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测用例、实际值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -3338,7 +3490,7 @@
 
 #### `score_tool`
 
-- **源码**：`app/evaluation/scorers.py:126`
+- **源码**：`app/evaluation/scorers.py:169`
 - **签名**：`def score_tool(case: EvalCase, actual: EvalObservation) -> ScorerResult`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测用例、实际值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -3368,7 +3520,7 @@
 
 #### `_retrieval_path_key`
 
-- **源码**：`app/evaluation/scorers.py:147`
+- **源码**：`app/evaluation/scorers.py:190`
 - **签名**：`def _retrieval_path_key(value: str) -> str`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，统一 Windows 分隔符和无意义的 ./ 前缀。该函数接收当前字段值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -3389,9 +3541,42 @@
 调用 `lstrip` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
+#### `_module_mapping_matched`
+
+- **源码**：`app/evaluation/scorers.py:197`
+- **签名**：`def _module_mapping_matched(output_payloads: dict[str, Any], module_names: list[str], file_path: str) -> bool`
+- **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收当前处理结果、当前处理结果、目标文件路径，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `output_payloads` | `dict[str, Any]` | 名为 `output_payloads` 的键值映射；键和值分别承载的业务字段由读取/写入分支确定。 |
+| `module_names` | `list[str]` | `list[str]` 元素集合；元素代表的业务对象由参数名 `module_names` 和调用位置确定。 |
+| `file_path` | `str` | 待读取、写入或校验的文件系统路径；是否允许访问由函数内的路径边界检查决定。 |
+
+**输出**
+
+- **Python 类型**：`bool`
+- **语义**：返回条件判断结果：`True` 表示满足，`False` 表示不满足。
+
+**伪代码**
+
+```text
+从当前处理结果读取所需的状态或领域记录，并把结果记为 结构化请求载荷。
+如果“计算数量、边界或类型判断结果”后未得到肯定结果，就返回固定值 `假`。
+遍历由结构化请求载荷组成的集合或迭代器，每次把当前项记为条目：
+    如果“计算数量、边界或类型判断结果”后未得到肯定结果，就跳过本轮剩余处理，直接进入下一轮。
+    调用 `str` 完成该函数的一项辅助处理，并把结果记为 实际值的名称。
+    如果“检查由当前处理结果组成的集合或迭代器中是否存在满足““调用 `_normalized_name_matches` 完成该函数的一项辅助处理”后得到肯定结果”的项”后未得到肯定结果，就跳过本轮剩余处理，直接进入下一轮。
+    计算计算当前表达式的结果，并保存为 候选结果集合。
+    如果由候选结果集合组成的集合或迭代器中存在满足““计算数量、边界或类型判断结果”后得到肯定结果 且 目标文件路径属于辅助操作“调用 `str` 完成该函数的一项辅助处理”的结果”的项，就返回固定值 `真`。
+返回固定值 `假`。
+```
+
 #### `score_evidence`
 
-- **源码**：`app/evaluation/scorers.py:154`
+- **源码**：`app/evaluation/scorers.py:224`
 - **签名**：`def score_evidence(case: EvalCase, actual: EvalObservation) -> ScorerResult`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测用例、实际值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -3412,6 +3597,7 @@
 ```text
 计算组合多个值形成元组，并保存为 多个解包结果；遍历并筛选输入，将整理后的结果保存为 文件或目录路径集合；调用 `join` 完成该函数的一项辅助处理，并把结果记为 待处理文本。
 遍历当前可迭代输入，每次把当前项记为文件或目录路径，然后把新的处理结果追加或合并到待处理项集合。
+遍历当前可迭代输入，每次把当前项记为论文-代码映射，然后调用 `_module_mapping_matched` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；把新的处理结果追加或合并到待处理项集合。
 遍历当前可迭代输入，每次把当前项记为检索词或规范化术语，然后把新的处理结果追加或合并到待处理项集合。
 如果证据不为空，就计算计算当前表达式的结果，并保存为 当前处理结果；把新的处理结果追加或合并到待处理项集合。
 如果证据的 Hash不为空，就计算计算当前表达式的结果，并保存为 当前处理结果；把新的处理结果追加或合并到待处理项集合。
@@ -3435,7 +3621,7 @@
 
 #### `score_safety`
 
-- **源码**：`app/evaluation/scorers.py:347`
+- **源码**：`app/evaluation/scorers.py:432`
 - **签名**：`def score_safety(case: EvalCase, actual: EvalObservation) -> ScorerResult`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测用例、实际值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -3464,7 +3650,7 @@
 
 #### `score_recovery`
 
-- **源码**：`app/evaluation/scorers.py:379`
+- **源码**：`app/evaluation/scorers.py:464`
 - **签名**：`def score_recovery(case: EvalCase, actual: EvalObservation) -> ScorerResult`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测用例、实际值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -3491,7 +3677,7 @@
 
 #### `score_quality`
 
-- **源码**：`app/evaluation/scorers.py:397`
+- **源码**：`app/evaluation/scorers.py:482`
 - **签名**：`def score_quality(case: EvalCase, actual: EvalObservation) -> ScorerResult`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测用例、实际值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -3514,6 +3700,14 @@
 遍历当前可迭代输入，每次把当前项记为当前字段值，然后把新的处理结果追加或合并到待处理项集合。
 遍历当前可迭代输入，每次把当前项记为当前字段值，然后把新的处理结果追加或合并到待处理项集合。
 遍历当前可迭代输入，每次把当前项记为当前字段值，然后把新的处理结果追加或合并到待处理项集合。
+从当前处理结果读取所需的状态或领域记录，并把结果记为 实验计划；计算根据条件从两个候选结果中选择一个，并保存为 当前处理结果；从当前处理结果读取所需的状态或领域记录，并把结果记为 候选运行命令集合；计算根据条件从两个候选结果中选择一个，并保存为 命令集合。
+遍历并筛选输入，将整理后的结果保存为 候选命令集合；调用 `join` 完成该函数的一项辅助处理，再对返回文本执行规范化或拆分，并把结果记为 命令文本；将结构化内容序列化或编码为可传输表示，再对返回文本执行规范化或拆分，并把结果记为 实验计划的文本。
+如果最小运行集合不为空，就把新的处理结果追加或合并到待处理项集合。
+如果最大运行集合不为空，就把新的处理结果追加或合并到待处理项集合。
+遍历当前可迭代输入，每次把当前项记为检索词或规范化术语，然后把新的处理结果追加或合并到待处理项集合。
+如果命令集合有值或为真，就遍历并筛选输入，将整理后的结果保存为 当前处理结果；遍历并筛选输入，将整理后的结果保存为 当前处理结果；把新的处理结果追加或合并到待处理项集合。
+遍历当前可迭代输入，每次把当前项记为检索词或规范化术语，然后把新的处理结果追加或合并到待处理项集合。
+遍历当前可迭代输入，每次把当前项记为检索词或规范化术语，然后把新的处理结果追加或合并到待处理项集合。
 如果最小页码不为空，就计算根据条件从两个候选结果中选择一个，并保存为 当前处理结果；把新的处理结果追加或合并到待处理项集合。
 构造临时集合、映射或轻量领域对象，并把结果记为 实际集合。
 遍历当前可迭代输入，每次把当前项记为当前处理结果，然后把新的处理结果追加或合并到待处理项集合。
@@ -3534,7 +3728,7 @@
 
 #### `score_efficiency`
 
-- **源码**：`app/evaluation/scorers.py:632`
+- **源码**：`app/evaluation/scorers.py:804`
 - **签名**：`def score_efficiency(case: EvalCase, actual: EvalObservation) -> ScorerResult`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测用例、实际值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -3562,7 +3756,7 @@
 
 #### `score_decision`
 
-- **源码**：`app/evaluation/scorers.py:731`
+- **源码**：`app/evaluation/scorers.py:903`
 - **签名**：`def score_decision(case: EvalCase, actual: EvalObservation) -> ScorerResult`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测用例、实际值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -3586,7 +3780,7 @@
 
 #### `score_case`
 
-- **源码**：`app/evaluation/scorers.py:754`
+- **源码**：`app/evaluation/scorers.py:926`
 - **签名**：`def score_case(case: EvalCase, observation: EvalObservation, observation_path: str | None) -> EvalCaseResult`
 - **作用**：在运行离线/Provider 评测、比较基线并形成质量报告的阶段中，该函数接收评测用例、MCP Client 单次观测结果、MCP Client 单次观测结果的路径，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -12391,7 +12585,7 @@
 
 #### `_sha256`
 
-- **源码**：`app/paper/evidence.py:22`
+- **源码**：`app/paper/evidence.py:29`
 - **签名**：`def _sha256(value: str) -> str`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，该函数接收当前字段值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -12412,9 +12606,69 @@
 计算输入内容的 SHA-256 身份摘要，并返回处理结果。
 ```
 
+#### `_block_locator`
+
+- **源码**：`app/paper/evidence.py:33`
+- **签名**：`def _block_locator(block_id: str) -> str | None`
+- **作用**：在论文解析、章节理解和方法证据提取阶段中，提取不含内容哈希的稳定页码/顺序定位符。该函数接收论文原文块的 ID，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `str | None` 的领域结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `block_id` | `str` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+
+**输出**
+
+- **Python 类型**：`str | None`
+- **语义**：返回 `str | None` 类型的领域结果；必要时可能通过异常表示失败。
+
+**伪代码**
+
+```text
+调用 `fullmatch` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；返回按条件选出的结果。
+```
+
+#### `_canonical_block_ids`
+
+- **源码**：`app/paper/evidence.py:40`
+- **签名**：`def _canonical_block_ids(requested_ids: list[str], chunk: SectionChunk, blocks_by_id: dict[str, PaperBlock]) -> list[str]`
+- **作用**：在论文解析、章节理解和方法证据提取阶段中，只在当前 chunk 内唯一匹配时补回 block 内容哈希。该函数接收当前处理结果、检索文本块、当前处理结果的 ID，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `requested_ids` | `list[str]` | 调用请求或结构化业务载荷；通常需要 Schema、身份 Hash 和权限校验。 |
+| `chunk` | `SectionChunk` | 检索文本块；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `blocks_by_id` | `dict[str, PaperBlock]` | 稳定业务标识符，用于查询、关联或幂等绑定；它不是文件路径或内容 Hash。 |
+
+**输出**
+
+- **Python 类型**：`list[str]`
+- **语义**：返回有界或排序后的对象集合；元素类型由返回标注给出。
+
+**伪代码**
+
+```text
+将 当前处理结果 初始化为空映射，用来收集后续结果。
+遍历当前可迭代输入，每次把当前项记为论文原文块的 ID：
+    如果论文原文块的 ID不属于当前处理结果的 ID，就跳过本轮剩余处理，直接进入下一轮。
+    调用 `_block_locator` 完成该函数的一项辅助处理，并把结果记为 源码或文档定位信息。
+    如果源码或文档定位信息不为空，就把论文原文块的 ID追加或合并到辅助操作“把源码或文档定位信息追加或合并到当前处理结果”的结果。
+将 规范化 初始化为空列表，用来收集后续结果。
+遍历由当前处理结果组成的集合或迭代器，每次把当前项记为当前处理结果的 ID：
+    读取当前处理结果的 ID，并保存为 解析后的值的 ID。
+    如果当前处理结果的 ID不属于当前处理结果的 ID：
+        调用 `_block_locator` 完成该函数的一项辅助处理，并把结果记为 源码或文档定位信息；计算根据条件从两个候选结果中选择一个，并保存为 当前处理结果。
+        如果当前处理结果 的长度等于1，就读取当前处理结果中的对应字段，并保存为 解析后的值的 ID。
+    如果解析后的值的 ID不属于规范化，就把解析后的值的 ID追加或合并到规范化。
+返回规范化的当前值。
+```
+
 #### `resolve_evidence`
 
-- **源码**：`app/paper/evidence.py:26`
+- **源码**：`app/paper/evidence.py:80`
 - **签名**：`def resolve_evidence(draft: EvidenceDraft, document: PaperDocument, section: PaperSection, chunk: SectionChunk, blocks_by_id: dict[str, PaperBlock]) -> PaperEvidence`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，验证 block 引用并补齐不可由 LLM 生成的来源字段。该函数接收草稿对象、论文解析文档、论文文档章节、检索文本块等输入，用于把论文中的方法、模块或实验意图与仓库中的可验证对象建立稳定关联，并保留匹配依据，最终标注为 `PaperEvidence` 的领域结果。
 
@@ -12436,7 +12690,7 @@
 **伪代码**
 
 ```text
-构造临时集合、映射或轻量领域对象，并把结果记为 该调用返回的结果；构造临时集合、映射或轻量领域对象，并把结果记为 该调用返回的结果；遍历并筛选输入，将整理后的结果保存为 当前处理结果；遍历并筛选输入，将整理后的结果保存为 当前处理结果。
+构造临时集合、映射或轻量领域对象，并把结果记为 该调用返回的结果；调用 `_canonical_block_ids` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；遍历并筛选输入，将整理后的结果保存为 当前处理结果；遍历并筛选输入，将整理后的结果保存为 当前处理结果。
 如果当前处理结果有值或为真，就拒绝继续处理并抛出 `InvalidEvidenceReference`，向调用方报告输入或运行失败。
 如果当前处理结果有值或为真，就拒绝继续处理并抛出 `InvalidEvidenceReference`，向调用方报告输入或运行失败。
 遍历并筛选输入，将整理后的结果保存为 解析后的集合。
@@ -12447,7 +12701,7 @@
 
 #### `_confidence_label`
 
-- **源码**：`app/paper/evidence.py:87`
+- **源码**：`app/paper/evidence.py:145`
 - **签名**：`def _confidence_label(value: float) -> Confidence`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，该函数接收当前字段值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `Confidence` 的领域结果。
 
@@ -12472,7 +12726,7 @@
 
 #### `to_legacy_evidence`
 
-- **源码**：`app/paper/evidence.py:95`
+- **源码**：`app/paper/evidence.py:153`
 - **签名**：`def to_legacy_evidence(paper_evidence: PaperEvidence, source_path: str, section_title: str) -> Evidence`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，转换为当前 PaperSummary 使用的兼容 Evidence。该函数接收论文证据、数据来源标记的路径、章节，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `Evidence` 的领域结果。
 
@@ -12498,7 +12752,7 @@
 
 #### `validate_extraction_identity`
 
-- **源码**：`app/paper/evidence.py:126`
+- **源码**：`app/paper/evidence.py:184`
 - **签名**：`def validate_extraction_identity(extraction: SectionExtractionDraft, chunk: SectionChunk) -> None`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，该函数接收当前处理结果、检索文本块，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -12523,7 +12777,7 @@
 
 #### `iter_extraction_evidence_drafts`
 
-- **源码**：`app/paper/evidence.py:141`
+- **源码**：`app/paper/evidence.py:199`
 - **签名**：`def iter_extraction_evidence_drafts(extraction: SectionExtractionDraft) -> Iterator[EvidenceDraft]`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，统一遍历 SectionExtractionDraft 中所有 EvidenceDraft。该函数接收当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `Iterator[EvidenceDraft]` 的领域结果。
 
@@ -12552,7 +12806,7 @@
 
 #### `validate_extraction_evidence_references`
 
-- **源码**：`app/paper/evidence.py:162`
+- **源码**：`app/paper/evidence.py:220`
 - **签名**：`def validate_extraction_evidence_references(extraction: SectionExtractionDraft, chunk: SectionChunk, blocks_by_id: dict[str, PaperBlock]) -> None`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，在写缓存前验证全部 block_id 存在且属于当前 chunk。该函数接收当前处理结果、检索文本块、当前处理结果的 ID，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -12574,7 +12828,7 @@
 ```text
 构造临时集合、映射或轻量领域对象，并把结果记为 该调用返回的结果。
 遍历辅助操作产生的可迭代结果（调用 `iter_extraction_evidence_drafts` 完成该函数的一项辅助处理），每次把当前项记为草稿对象：
-    构造临时集合、映射或轻量领域对象，并把结果记为 该调用返回的结果；遍历并筛选输入，将整理后的结果保存为 当前处理结果；遍历并筛选输入，将整理后的结果保存为 当前处理结果。
+    调用 `_canonical_block_ids` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；读取当前处理结果，并保存为 原文块集合；遍历并筛选输入，将整理后的结果保存为 当前处理结果；遍历并筛选输入，将整理后的结果保存为 当前处理结果。
     如果当前处理结果有值或为真，就拒绝继续处理并抛出 `InvalidEvidenceReference`，向调用方报告输入或运行失败。
     如果当前处理结果有值或为真，就拒绝继续处理并抛出 `InvalidEvidenceReference`，向调用方报告输入或运行失败。
 ```
@@ -13692,7 +13946,7 @@
 
 #### `SectionBuildResult.accepted_heading_count`
 
-- **源码**：`app/paper/sectioning.py:93`
+- **源码**：`app/paper/sectioning.py:114`
 - **签名**：`def accepted_heading_count(self) -> int`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终数量、序号、字节数或版本等整数结果。
 
@@ -13716,7 +13970,7 @@
 
 #### `SectionBuildResult.hierarchy_warning_count`
 
-- **源码**：`app/paper/sectioning.py:102`
+- **源码**：`app/paper/sectioning.py:123`
 - **签名**：`def hierarchy_warning_count(self) -> int`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终数量、序号、字节数或版本等整数结果。
 
@@ -13739,7 +13993,7 @@
 
 #### `_sha256`
 
-- **源码**：`app/paper/sectioning.py:113`
+- **源码**：`app/paper/sectioning.py:134`
 - **签名**：`def _sha256(value: str) -> str`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，该函数接收当前字段值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -13762,7 +14016,7 @@
 
 #### `_has_heading_style`
 
-- **源码**：`app/paper/sectioning.py:117`
+- **源码**：`app/paper/sectioning.py:138`
 - **签名**：`def _has_heading_style(block: PaperBlock) -> bool`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，正文句子不能仅凭正则成为标题。该函数接收论文原文块，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -13783,9 +14037,87 @@
 返回组合判断结果。
 ```
 
+#### `_estimate_body_font_size`
+
+- **源码**：`app/paper/sectioning.py:147`
+- **签名**：`def _estimate_body_font_size(blocks: list[PaperBlock]) -> float`
+- **作用**：在论文解析、章节理解和方法证据提取阶段中，正文最常出现的字号。该函数接收论文原文块集合，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终用于排序或质量评估的分数、比例或相似度。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `blocks` | `list[PaperBlock]` | 论文原文块集合；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+
+**输出**
+
+- **Python 类型**：`float`
+- **语义**：返回浮点分数、时间或比例值。
+
+**伪代码**
+
+```text
+将 当前处理结果 初始化为空映射，用来收集后续结果。
+遍历由论文原文块集合组成的集合或迭代器，每次把当前项记为论文原文块：
+    如果当前文本字号为空 或 “当前输入内容不大于当前文本字号不大于20.0”不成立，就跳过本轮剩余处理，直接进入下一轮。
+    计算组合或计算已有值，并保存为 当前处理结果；计算组合或计算已有值，并保存为 当前处理结果中的对应字段。
+如果当前处理结果为空或为假，就返回固定值 `10.0`。
+计算数量、边界或类型判断结果，并返回处理结果。
+```
+
+#### `_has_visual_scale`
+
+- **源码**：`app/paper/sectioning.py:171`
+- **签名**：`def _has_visual_scale(block: PaperBlock, body_font_size: float | None) -> bool`
+- **作用**：在论文解析、章节理解和方法证据提取阶段中，无编号标题必须有比正文更大的视觉字号。该函数接收论文原文块、正文基准字号，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `block` | `PaperBlock` | 论文原文块；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `body_font_size` | `float | None` | 正文基准字号；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+
+**输出**
+
+- **Python 类型**：`bool`
+- **语义**：返回条件判断结果：`True` 表示满足，`False` 表示不满足。
+
+**伪代码**
+
+```text
+如果原文块类型等于'title'，就返回固定值 `真`。
+如果当前文本字号有值或为真 且 正文基准字号有值或为真，就返回比较判断结果。
+返回文本是否加粗的当前值。
+```
+
+#### `_is_front_matter_text`
+
+- **源码**：`app/paper/sectioning.py:188`
+- **签名**：`def _is_front_matter_text(block: PaperBlock) -> bool`
+- **作用**：在论文解析、章节理解和方法证据提取阶段中，首页作者行/机构名之外的 front matter 硬特征。该函数接收论文原文块，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `block` | `PaperBlock` | 论文原文块；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+
+**输出**
+
+- **Python 类型**：`bool`
+- **语义**：返回条件判断结果：`True` 表示满足，`False` 表示不满足。
+
+**伪代码**
+
+```text
+如果当前输入内容属于待处理文本，就返回固定值 `真`。
+调用 `normalize_key` 解析、规范化或转换当前输入，并把结果记为 映射键或对象字段名；返回比较判断结果。
+```
+
 #### `_is_vertical_label`
 
-- **源码**：`app/paper/sectioning.py:126`
+- **源码**：`app/paper/sectioning.py:197`
 - **签名**：`def _is_vertical_label(block: PaperBlock) -> bool`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，利用 bbox 排除明显的竖排图像标签。该函数接收论文原文块，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -13809,7 +14141,7 @@
 
 #### `_looks_like_formula_text`
 
-- **源码**：`app/paper/sectioning.py:140`
+- **源码**：`app/paper/sectioning.py:211`
 - **签名**：`def _looks_like_formula_text(text: str) -> bool`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，拒绝公式变量、坐标表达式和明显数学行。该函数接收待处理文本，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -13835,7 +14167,7 @@
 
 #### `_valid_numeric_number`
 
-- **源码**：`app/paper/sectioning.py:160`
+- **源码**：`app/paper/sectioning.py:231`
 - **签名**：`def _valid_numeric_number(number: str) -> bool`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，接受常见章节编号，拒绝年份和表格小数。该函数接收编号，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -13864,7 +14196,7 @@
 
 #### `_valid_appendix_number`
 
-- **源码**：`app/paper/sectioning.py:184`
+- **源码**：`app/paper/sectioning.py:255`
 - **签名**：`def _valid_appendix_number(number: str) -> bool`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，接受 A、B.2 等附录编号。该函数接收编号，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -13889,7 +14221,7 @@
 
 #### `_valid_section_number`
 
-- **源码**：`app/paper/sectioning.py:200`
+- **源码**：`app/paper/sectioning.py:271`
 - **签名**：`def _valid_section_number(number: str) -> bool`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，该函数接收编号，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -13913,7 +14245,7 @@
 
 #### `_looks_like_title_phrase`
 
-- **源码**：`app/paper/sectioning.py:206`
+- **源码**：`app/paper/sectioning.py:277`
 - **签名**：`def _looks_like_title_phrase(text: str) -> bool`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，标题文本本身必须像短语，而不是正文或公式。该函数接收待处理文本，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -13933,14 +14265,67 @@
 ```text
 去除辅助操作“调用 `normalize_heading` 解析、规范化或转换当前输入”的结果的首尾空白，并把规范化后的文本记为 当前字段值。
 如果当前字段值为空或为假 或 当前字段值 的长度大于180，就返回固定值 `假`。
+如果“调用 `search` 完成该函数的一项辅助处理”后得到肯定结果，就返回固定值 `假`。
 如果“检查当前字段值是否满足文本匹配条件”后得到肯定结果，就返回固定值 `假`。
 如果当前输入内容属于当前字段值 或 “调用 `_looks_like_formula_text` 完成该函数的一项辅助处理”后得到肯定结果，就返回固定值 `假`。
 调用 `findall` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果；遍历并筛选输入，将整理后的结果保存为 当前处理结果；返回组合判断结果。
 ```
 
+#### `_is_truncated_sentence`
+
+- **源码**：`app/paper/sectioning.py:299`
+- **签名**：`def _is_truncated_sentence(text: str) -> bool`
+- **作用**：在论文解析、章节理解和方法证据提取阶段中，编号标题的 title 若是截断的正文行则拒绝。该函数接收待处理文本，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `text` | `str` | 用户目标、检索问题、反馈或待处理文本；会作为当前阶段的业务语境输入，并可能受到长度/脱敏约束。 |
+
+**输出**
+
+- **Python 类型**：`bool`
+- **语义**：返回条件判断结果：`True` 表示满足，`False` 表示不满足。
+
+**伪代码**
+
+```text
+去除辅助操作“调用 `normalize_heading` 解析、规范化或转换当前输入”的结果的首尾空白，并把规范化后的文本记为 当前字段值。
+如果当前字段值为空或为假，就返回固定值 `真`。
+如果当前输入内容属于当前字段值，就返回固定值 `真`。
+调用 `normalize_key` 解析、规范化或转换当前输入，并把结果记为 映射键或对象字段名；对映射键或对象字段名中的文本执行规范化或拆分，并把结果记为 该调用返回的结果；读取当前处理结果中的对应字段，并保存为 后续步骤使用的结果。
+如果“调用 `isdigit` 完成该函数的一项辅助处理”后得到肯定结果，就返回组合判断结果。
+如果当前处理结果属于当前处理结果，就返回固定值 `真`。
+返回固定值 `假`。
+```
+
+#### `_is_appendix_title_style`
+
+- **源码**：`app/paper/sectioning.py:325`
+- **签名**：`def _is_appendix_title_style(title: str) -> bool`
+- **作用**：在论文解析、章节理解和方法证据提取阶段中，单字母附录标题（如 "A. Accuracy"）的 title 以大写开头。该函数接收文档或章节标题，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `title` | `str` | 论文/文档章节标题；用于建立可检索的章节身份和展示文本。 |
+
+**输出**
+
+- **Python 类型**：`bool`
+- **语义**：返回条件判断结果：`True` 表示满足，`False` 表示不满足。
+
+**伪代码**
+
+```text
+去除文档或章节标题的首尾空白，并把规范化后的文本记为 当前处理结果；返回组合判断结果。
+```
+
 #### `_uppercase_ratio`
 
-- **源码**：`app/paper/sectioning.py:226`
+- **源码**：`app/paper/sectioning.py:336`
 - **签名**：`def _uppercase_ratio(text: str) -> float`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，该函数接收待处理文本，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终用于排序或质量评估的分数、比例或相似度。
 
@@ -13965,7 +14350,7 @@
 
 #### `_same_visual_line`
 
-- **源码**：`app/paper/sectioning.py:237`
+- **源码**：`app/paper/sectioning.py:347`
 - **签名**：`def _same_visual_line(left: PaperBlock, right: PaperBlock) -> bool`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，判断相邻 block 是否属于同一视觉行。该函数接收关系左侧实体或比较左值、关系右侧实体或比较右值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -13991,7 +14376,7 @@
 
 #### `_looks_like_split_title`
 
-- **源码**：`app/paper/sectioning.py:266`
+- **源码**：`app/paper/sectioning.py:376`
 - **签名**：`def _looks_like_split_title(block: PaperBlock) -> bool`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，识别编号右侧被单独抽取的标题文本。该函数接收论文原文块，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -14015,7 +14400,7 @@
 
 #### `_split_heading_parts`
 
-- **源码**：`app/paper/sectioning.py:284`
+- **源码**：`app/paper/sectioning.py:394`
 - **签名**：`def _split_heading_parts(number_block: PaperBlock, title_block: PaperBlock) -> tuple[str, str] | None`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，合并 PDF 拆开的“编号 block + 同行标题 block”。该函数接收编号原文块、原文块，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
@@ -14044,15 +14429,16 @@
 
 #### `_heading_parts`
 
-- **源码**：`app/paper/sectioning.py:313`
-- **签名**：`def _heading_parts(block: PaperBlock) -> tuple[str | None, str] | None`
-- **作用**：在论文解析、章节理解和方法证据提取阶段中，返回合法的 (section_number, title)。该函数接收论文原文块，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
+- **源码**：`app/paper/sectioning.py:423`
+- **签名**：`def _heading_parts(block: PaperBlock, body_font_size: float | None) -> tuple[str | None, str] | None`
+- **作用**：在论文解析、章节理解和方法证据提取阶段中，返回合法的 (section_number, title)。该函数接收论文原文块、正文基准字号，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `block` | `PaperBlock` | 论文原文块；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `body_font_size` | `float | None` | 正文基准字号；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。；默认 空值 |
 
 **输出**
 
@@ -14062,22 +14448,22 @@
 **伪代码**
 
 ```text
-如果当前处理结果有值或为真 或 原文块类型属于原文块集合 或 “调用 `looks_like_arxiv_overlay` 完成该函数的一项辅助处理”后得到肯定结果 或 “调用 `_is_vertical_label` 校验当前输入或状态”后得到肯定结果，就返回固定值 `空值`。
+如果当前处理结果有值或为真 或 原文块类型属于原文块集合 或 “调用 `looks_like_arxiv_overlay` 完成该函数的一项辅助处理”后得到肯定结果 或 “调用 `_is_vertical_label` 校验当前输入或状态”后得到肯定结果 或 “调用 `match` 完成该函数的一项辅助处理”后得到肯定结果，就返回固定值 `空值`。
 调用 `normalize_pdf_text` 解析、规范化或转换当前输入，并把结果记为 原始内容的文本；调用 `normalize_heading` 解析、规范化或转换当前输入，并把结果记为 待处理文本。
 如果待处理文本为空或为假 或 待处理文本 的长度大于180，就返回固定值 `空值`。
 调用 `match` 完成该函数的一项辅助处理，并把结果记为 带行号的源码片段集合。
 如果带行号的源码片段集合有值或为真：
     调用 `group` 完成该函数的一项辅助处理，并把结果记为 编号；去除辅助操作“调用 `normalize_heading` 解析、规范化或转换当前输入”的结果的首尾空白，并把规范化后的文本记为 文档或章节标题。
-    如果“调用 `_valid_numeric_number` 完成该函数的一项辅助处理”后得到肯定结果 且 “调用 `_has_heading_style` 校验当前输入或状态”后得到肯定结果 且 “调用 `_looks_like_title_phrase` 完成该函数的一项辅助处理”后得到肯定结果，就返回当前构造的顺序或去重集合。
+    如果“调用 `_valid_numeric_number` 完成该函数的一项辅助处理”后得到肯定结果 且 “调用 `_has_heading_style` 校验当前输入或状态”后得到肯定结果 且 “调用 `_looks_like_title_phrase` 完成该函数的一项辅助处理”后得到肯定结果 且 “调用 `_is_truncated_sentence` 校验当前输入或状态”后未得到肯定结果，就返回当前构造的顺序或去重集合。
     返回固定值 `空值`。
 调用 `match` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
 如果当前处理结果有值或为真：
     调用 `group` 完成该函数的一项辅助处理，并把结果记为 编号；去除辅助操作“调用 `normalize_heading` 解析、规范化或转换当前输入”的结果的首尾空白，并把规范化后的文本记为 文档或章节标题。
-    如果“调用 `_valid_appendix_number` 完成该函数的一项辅助处理”后得到肯定结果 且 “调用 `_has_heading_style` 校验当前输入或状态”后得到肯定结果 且 “调用 `_looks_like_title_phrase` 完成该函数的一项辅助处理”后得到肯定结果，就返回当前构造的顺序或去重集合。
+    如果“调用 `_valid_appendix_number` 完成该函数的一项辅助处理”后得到肯定结果 且 “调用 `_has_heading_style` 校验当前输入或状态”后得到肯定结果 且 “调用 `_looks_like_title_phrase` 完成该函数的一项辅助处理”后得到肯定结果 且 “调用 `_is_truncated_sentence` 校验当前输入或状态”后未得到肯定结果 且 “调用 `_is_appendix_title_style` 校验当前输入或状态”后得到肯定结果，就返回当前构造的顺序或去重集合。
     返回固定值 `空值`。
 调用 `normalize_key` 解析、规范化或转换当前输入，并把结果记为 映射键或对象字段名。
 如果映射键或对象字段名属于当前处理结果，就返回当前构造的顺序或去重集合。
-如果“调用 `_has_heading_style` 校验当前输入或状态”后未得到肯定结果 或 “调用 `_looks_like_title_phrase` 完成该函数的一项辅助处理”后未得到肯定结果，就返回固定值 `空值`。
+如果“调用 `_has_heading_style` 校验当前输入或状态”后未得到肯定结果 或 “调用 `_looks_like_title_phrase` 完成该函数的一项辅助处理”后未得到肯定结果 或 “调用 `_has_visual_scale` 校验当前输入或状态”后未得到肯定结果，就返回固定值 `空值`。
 调用 `findall` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
 如果当前处理结果 的长度等于1：
     遍历并筛选输入，将整理后的结果保存为 当前处理结果。
@@ -14087,7 +14473,7 @@
 
 #### `_looks_like_raw_heading_candidate`
 
-- **源码**：`app/paper/sectioning.py:385`
+- **源码**：`app/paper/sectioning.py:502`
 - **签名**：`def _looks_like_raw_heading_candidate(block: PaperBlock) -> bool`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，只用于统计，不代表最终接受。该函数接收论文原文块，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -14111,7 +14497,7 @@
 
 #### `_font_size_close`
 
-- **源码**：`app/paper/sectioning.py:401`
+- **源码**：`app/paper/sectioning.py:518`
 - **签名**：`def _font_size_close(left: PaperBlock, right: PaperBlock) -> bool`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，该函数接收关系左侧实体或比较左值、关系右侧实体或比较右值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -14136,7 +14522,7 @@
 
 #### `_can_merge_multiline`
 
-- **源码**：`app/paper/sectioning.py:411`
+- **源码**：`app/paper/sectioning.py:528`
 - **签名**：`def _can_merge_multiline(left: HeadingCandidate, right: HeadingCandidate) -> bool`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，严格判断 right 是否为 left 的下一视觉标题行。该函数接收关系左侧实体或比较左值、关系右侧实体或比较右值，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
 
@@ -14177,7 +14563,7 @@
 
 #### `_merge_multiline_candidates`
 
-- **源码**：`app/paper/sectioning.py:460`
+- **源码**：`app/paper/sectioning.py:577`
 - **签名**：`def _merge_multiline_candidates(candidates: list[HeadingCandidate]) -> tuple[list[HeadingCandidate], int]`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，该函数接收候选结果集合，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
@@ -14204,15 +14590,16 @@
 
 #### `_collect_heading_candidates`
 
-- **源码**：`app/paper/sectioning.py:491`
-- **签名**：`def _collect_heading_candidates(ordered: list[PaperBlock]) -> tuple[list[HeadingCandidate], int, int, int]`
-- **作用**：在论文解析、章节理解和方法证据提取阶段中，收集、过滤并合并标题候选。该函数接收当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
+- **源码**：`app/paper/sectioning.py:608`
+- **签名**：`def _collect_heading_candidates(ordered: list[PaperBlock], body_font_size: float | None) -> tuple[list[HeadingCandidate], int, int, int]`
+- **作用**：在论文解析、章节理解和方法证据提取阶段中，收集、过滤并合并标题候选。该函数接收当前处理结果、正文基准字号，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
 **输入**
 
 | 参数 | Python 类型 | 语义 |
 |---|---|---|
 | `ordered` | `list[PaperBlock]` | `list[PaperBlock]` 元素集合；元素代表的业务对象由参数名 `ordered` 和调用位置确定。 |
+| `body_font_size` | `float | None` | 正文基准字号；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。；默认 空值 |
 
 **输出**
 
@@ -14222,9 +14609,16 @@
 **伪代码**
 
 ```text
-将 候选结果集合 初始化为空列表，用来收集后续结果；计算使用固定配置或常量值，并保存为 候选项的数量；计算使用固定配置或常量值，并保存为 候选项的数量；计算使用固定配置或常量值，并保存为 当前候选项的索引。
+将 候选结果集合 初始化为空列表，用来收集后续结果；计算使用固定配置或常量值，并保存为 候选项的数量；计算使用固定配置或常量值，并保存为 候选项的数量；计算数量、边界或类型判断结果，并把结果记为 该调用返回的结果。
+计算使用固定配置或常量值，并保存为 当前处理结果；计算使用固定配置或常量值，并保存为 当前候选项的索引。
 只要当前候选项的索引小于当前处理结果 的长度，就重复以下处理：
-    读取当前处理结果中的对应字段，并保存为 论文原文块；调用 `_looks_like_raw_heading_candidate` 完成该函数的一项辅助处理，并把结果记为 候选项。
+    读取当前处理结果中的对应字段，并保存为 论文原文块。
+    如果“当前处理结果有值或为真”不成立 且 “调用 `_is_front_matter_text` 校验当前输入或状态”后得到肯定结果，就将新的计算结果累加或合并到当前候选项的索引；跳过本轮剩余处理，直接进入下一轮。
+    计算根据条件从两个候选结果中选择一个，并保存为 原始内容的文本；调用 `normalize_key` 解析、规范化或转换当前输入，并把结果记为 映射键或对象字段名。
+    如果映射键或对象字段名属于当前处理结果 或 “调用 `match` 完成该函数的一项辅助处理”后得到肯定结果 或 “调用 `match` 完成该函数的一项辅助处理”后得到肯定结果，就计算使用固定配置或常量值，并保存为 当前处理结果。
+    去除原始内容的文本的首尾空白，并把规范化后的文本记为 当前处理结果；计算数量、边界或类型判断结果，并把结果记为 是否编号。
+    如果论文页码等于1 且 当前处理结果为空或为假 且 “当前处理结果有值或为真”不成立 且 原文块类型不等于'title' 且 “调用 `_has_heading_style` 校验当前输入或状态”后得到肯定结果 且 是否编号为空或为假 且 当前处理结果为空 或 当前文本字号为空 或 当前文本字号小于当前处理结果，就将新的计算结果累加或合并到当前候选项的索引；跳过本轮剩余处理，直接进入下一轮。
+    调用 `_looks_like_raw_heading_candidate` 完成该函数的一项辅助处理，并把结果记为 候选项。
     如果当前输入内容小于当前处理结果 的长度：
         调用 `_split_heading_parts` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
         如果当前处理结果不为空：
@@ -14241,7 +14635,7 @@
 
 #### `_heading_level`
 
-- **源码**：`app/paper/sectioning.py:558`
+- **源码**：`app/paper/sectioning.py:739`
 - **签名**：`def _heading_level(number: str | None, title: str) -> int`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，该函数接收编号、文档或章节标题，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终数量、序号、字节数或版本等整数结果。
 
@@ -14267,7 +14661,7 @@
 
 #### `_parent_number`
 
-- **源码**：`app/paper/sectioning.py:566`
+- **源码**：`app/paper/sectioning.py:747`
 - **签名**：`def _parent_number(number: str) -> str | None`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，该函数接收编号，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `str | None` 的领域结果。
 
@@ -14291,7 +14685,7 @@
 
 #### `classify_section`
 
-- **源码**：`app/paper/sectioning.py:572`
+- **源码**：`app/paper/sectioning.py:753`
 - **签名**：`def classify_section(title: str) -> SectionKind`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，根据规范化标题给 section 分类。该函数接收文档或章节标题，用于把论文中的方法、模块或实验意图与仓库中的可验证对象建立稳定关联，并保留匹配依据，最终标注为 `SectionKind` 的领域结果。
 
@@ -14328,7 +14722,7 @@
 
 #### `_section_id`
 
-- **源码**：`app/paper/sectioning.py:636`
+- **源码**：`app/paper/sectioning.py:817`
 - **签名**：`def _section_id(number: str | None, title: str, heading_block_id: str) -> str`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，该函数接收编号、文档或章节标题、原文块的 ID，用于读取并整理论文、源码或运行产物，把原始输入转换成带位置和身份信息的结构化证据，最终文本、路径、状态标签或内容身份摘要。
 
@@ -14353,7 +14747,7 @@
 
 #### `_fallback_section`
 
-- **源码**：`app/paper/sectioning.py:650`
+- **源码**：`app/paper/sectioning.py:831`
 - **签名**：`def _fallback_section(ordered: list[PaperBlock]) -> list[PaperSection]`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，该函数接收当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
@@ -14378,7 +14772,7 @@
 
 #### `build_sections_with_diagnostics`
 
-- **源码**：`app/paper/sectioning.py:685`
+- **源码**：`app/paper/sectioning.py:866`
 - **签名**：`def build_sections_with_diagnostics(blocks: Iterable[PaperBlock]) -> SectionBuildResult`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，构建 section，同时返回结构质量诊断。该函数接收论文原文块集合，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -14396,7 +14790,7 @@
 **伪代码**
 
 ```text
-按稳定规则整理结果顺序，并把结果记为 该调用返回的结果；调用 `_collect_heading_candidates` 完成该函数的一项辅助处理，并把结果记为 多个解包结果。
+按稳定规则整理结果顺序，并把结果记为 该调用返回的结果；调用 `_estimate_body_font_size` 完成该函数的一项辅助处理，并把结果记为 正文基准字号；调用 `_collect_heading_candidates` 完成该函数的一项辅助处理，并把结果记为 多个解包结果。
 如果候选结果集合为空或为假，就构造并返回 `SectionBuildResult` 结构化领域对象。
 将 论文文档章节集合、警告集合 初始化为空列表，用来收集后续结果；将 章节标识编号 初始化为空映射，用来收集后续结果；将 当前处理结果 初始化为空列表，用来收集后续结果。
 遍历带顺序编号的输入集合，每次把当前项记为多个解包结果：
@@ -14421,7 +14815,7 @@
 
 #### `build_sections`
 
-- **源码**：`app/paper/sectioning.py:848`
+- **源码**：`app/paper/sectioning.py:1033`
 - **签名**：`def build_sections(blocks: Iterable[PaperBlock]) -> list[PaperSection]`
 - **作用**：在论文解析、章节理解和方法证据提取阶段中，保持 Phase 18 调用接口兼容。该函数接收论文原文块集合，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终有界、排序或带证据来源的结果集合。
 
@@ -19658,9 +20052,39 @@
 调用 `sub` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
-#### `_query_values`
+#### `_shares_family_prefix`
 
 - **源码**：`app/retrieval/ranking.py:54`
+- **签名**：`def _shares_family_prefix(left: str, right: str, minimum_prefix: int) -> bool`
+- **作用**：在根据论文方法描述检索代码证据、建立候选映射的阶段中，识别 PSTNet/PSTConv 这类同一方法族的代码标识符。该函数接收关系左侧实体或比较左值、关系右侧实体或比较右值、当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终一个可用于路由、校验或安全判断的布尔结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `left` | `str` | 关系左侧实体或比较左值；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `right` | `str` | 关系右侧实体或比较右值；用于当前函数的论文复现处理，具体约束由类型标注和校验分支确定。 |
+| `minimum_prefix` | `int` | 名为 `minimum_prefix` 的数量、序号、分数或时间参数；有效范围由函数用途和校验分支确定。；默认 3 |
+
+**输出**
+
+- **Python 类型**：`bool`
+- **语义**：返回条件判断结果：`True` 表示满足，`False` 表示不满足。
+
+**伪代码**
+
+```text
+如果关系左侧实体或比较左值 的长度小于6 或 关系右侧实体或比较右值 的长度小于6，就返回固定值 `假`。
+计算使用固定配置或常量值，并保存为 当前处理结果。
+遍历辅助操作产生的可迭代结果（调用 `zip` 完成该函数的一项辅助处理），每次把当前项记为多个解包结果：
+    如果当前处理结果不等于当前处理结果，就立即结束当前循环。
+    将新的计算结果累加或合并到当前处理结果。
+返回比较判断结果。
+```
+
+#### `_query_values`
+
+- **源码**：`app/retrieval/ranking.py:77`
 - **签名**：`def _query_values(query: str, keywords: list[str]) -> list[str]`
 - **作用**：在根据论文方法描述检索代码证据、建立候选映射的阶段中，该函数接收语义检索问题、检索关键词集合，用于围绕论文方法语义检索、切分和排序代码证据，为后续方法映射与实验规划提供候选结果，最终有界、排序或带证据来源的结果集合。
 
@@ -19689,7 +20113,7 @@
 
 #### `_best_per_file`
 
-- **源码**：`app/retrieval/ranking.py:73`
+- **源码**：`app/retrieval/ranking.py:96`
 - **签名**：`def _best_per_file(hits: list[ChannelHit]) -> list[ChannelHit]`
 - **作用**：在根据论文方法描述检索代码证据、建立候选映射的阶段中，该函数接收检索命中结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
@@ -19716,7 +20140,7 @@
 
 #### `rank_keyword`
 
-- **源码**：`app/retrieval/ranking.py:98`
+- **源码**：`app/retrieval/ranking.py:121`
 - **签名**：`def rank_keyword(index: RepositoryIndex, query: str, keywords: list[str]) -> list[ChannelHit]`
 - **作用**：在根据论文方法描述检索代码证据、建立候选映射的阶段中，该函数接收当前候选项的索引、语义检索问题、检索关键词集合，用于围绕论文方法语义检索、切分和排序代码证据，为后续方法映射与实验规划提供候选结果，最终有界、排序或带证据来源的结果集合。
 
@@ -19748,7 +20172,7 @@
 
 #### `rank_symbol`
 
-- **源码**：`app/retrieval/ranking.py:138`
+- **源码**：`app/retrieval/ranking.py:161`
 - **签名**：`def rank_symbol(index: RepositoryIndex, query: str, keywords: list[str]) -> list[ChannelHit]`
 - **作用**：在根据论文方法描述检索代码证据、建立候选映射的阶段中，该函数接收当前候选项的索引、语义检索问题、检索关键词集合，用于围绕论文方法语义检索、切分和排序代码证据，为后续方法映射与实验规划提供候选结果，最终有界、排序或带证据来源的结果集合。
 
@@ -19771,21 +20195,24 @@
 调用 `_query_values` 读取或查询当前阶段需要的数据，并把结果记为 状态字段集合；遍历并筛选输入，将整理后的结果保存为 值键集合集合；构造临时集合、映射或轻量领域对象，并把结果记为 查询集合；将 检索命中结果 初始化为空列表，用来收集后续结果。
 遍历当前可迭代输入，每次把当前项记为当前处理结果：
     调用 `_identifier_key` 完成该函数的一项辅助处理，并把结果记为 键；调用 `_identifier_key` 完成该函数的一项辅助处理，并把结果记为 键；构造临时集合、映射或轻量领域对象，并把结果记为 该调用返回的结果；检查由值键集合集合组成的集合或迭代器中是否存在满足“映射键或对象字段名属于{键, 键}”的项，并把结果记为 该调用返回的结果。
-    检查由值键集合集合组成的集合或迭代器中是否存在满足“映射键或对象字段名属于键 或 键属于映射键或对象字段名”的项，并把结果记为 该调用返回的结果；计算数量、边界或类型判断结果，并把结果记为 该调用返回的结果。
+    检查由值键集合集合组成的集合或迭代器中是否存在满足“映射键或对象字段名属于键 或 键属于映射键或对象字段名”的项，并把结果记为 该调用返回的结果；检查由值键集合集合组成的集合或迭代器中是否存在满足““调用 `_shares_family_prefix` 完成该函数的一项辅助处理”后得到肯定结果”的项，并把结果记为 该调用返回的结果；计算数量、边界或类型判断结果，并把结果记为 该调用返回的结果。
     如果当前处理结果有值或为真：
         计算使用固定配置或常量值，并保存为 评测或排序分数。
     否则：
         如果当前处理结果有值或为真 且 键有值或为真：
             计算使用固定配置或常量值，并保存为 评测或排序分数。
         否则：
-            如果当前处理结果有值或为真，就计算组合或计算已有值，并保存为 评测或排序分数；否则跳过本轮剩余处理，直接进入下一轮。
+            如果当前处理结果有值或为真：
+                计算组合或计算已有值，并保存为 评测或排序分数。
+            否则：
+                如果当前处理结果有值或为真，就计算使用固定配置或常量值，并保存为 评测或排序分数；否则跳过本轮剩余处理，直接进入下一轮。
     把新的处理结果追加或合并到检索命中结果。
 调用 `_best_per_file` 完成该函数的一项辅助处理，并返回处理结果。
 ```
 
 #### `_module_name_from_path`
 
-- **源码**：`app/retrieval/ranking.py:198`
+- **源码**：`app/retrieval/ranking.py:230`
 - **签名**：`def _module_name_from_path(file_path: str) -> str`
 - **作用**：在根据论文方法描述检索代码证据、建立候选映射的阶段中，该函数接收目标文件路径，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -19808,7 +20235,7 @@
 
 #### `rank_import_graph`
 
-- **源码**：`app/retrieval/ranking.py:203`
+- **源码**：`app/retrieval/ranking.py:235`
 - **签名**：`def rank_import_graph(index: RepositoryIndex, symbol_hits: list[ChannelHit], query: str, keywords: list[str]) -> list[ChannelHit]`
 - **作用**：在根据论文方法描述检索代码证据、建立候选映射的阶段中，该函数接收当前候选项的索引、当前处理结果、语义检索问题、检索关键词集合，用于围绕论文方法语义检索、切分和排序代码证据，为后续方法映射与实验规划提供候选结果，最终有界、排序或带证据来源的结果集合。
 
@@ -19840,7 +20267,7 @@
 
 #### `rank_path`
 
-- **源码**：`app/retrieval/ranking.py:268`
+- **源码**：`app/retrieval/ranking.py:300`
 - **签名**：`def rank_path(index: RepositoryIndex, query: str, keywords: list[str]) -> list[ChannelHit]`
 - **作用**：在根据论文方法描述检索代码证据、建立候选映射的阶段中，该函数接收当前候选项的索引、语义检索问题、检索关键词集合，用于围绕论文方法语义检索、切分和排序代码证据，为后续方法映射与实验规划提供候选结果，最终有界、排序或带证据来源的结果集合。
 
@@ -19870,7 +20297,7 @@
 
 #### `rank_cli_config`
 
-- **源码**：`app/retrieval/ranking.py:302`
+- **源码**：`app/retrieval/ranking.py:334`
 - **签名**：`def rank_cli_config(index: RepositoryIndex, query: str, keywords: list[str]) -> list[ChannelHit]`
 - **作用**：在根据论文方法描述检索代码证据、建立候选映射的阶段中，该函数接收当前候选项的索引、语义检索问题、检索关键词集合，用于围绕论文方法语义检索、切分和排序代码证据，为后续方法映射与实验规划提供候选结果，最终有界、排序或带证据来源的结果集合。
 
@@ -19900,7 +20327,7 @@
 
 #### `rank_bm25`
 
-- **源码**：`app/retrieval/ranking.py:344`
+- **源码**：`app/retrieval/ranking.py:376`
 - **签名**：`def rank_bm25(index: RepositoryIndex, query: str, keywords: list[str], k1: float, b: float) -> list[ChannelHit]`
 - **作用**：在根据论文方法描述检索代码证据、建立候选映射的阶段中，该函数接收当前候选项的索引、语义检索问题、检索关键词集合、当前处理结果等输入，用于围绕论文方法语义检索、切分和排序代码证据，为后续方法映射与实验规划提供候选结果，最终有界、排序或带证据来源的结果集合。
 
@@ -19938,7 +20365,7 @@
 
 #### `rank_traceback_paths`
 
-- **源码**：`app/retrieval/ranking.py:429`
+- **源码**：`app/retrieval/ranking.py:461`
 - **签名**：`def rank_traceback_paths(index: RepositoryIndex, preferred_paths: list[str]) -> list[ChannelHit]`
 - **作用**：在根据论文方法描述检索代码证据、建立候选映射的阶段中，该函数接收当前候选项的索引、优先使用的路径集合，用于围绕论文方法语义检索、切分和排序代码证据，为后续方法映射与实验规划提供候选结果，最终有界、排序或带证据来源的结果集合。
 
@@ -19966,7 +20393,7 @@
 
 #### `build_channel_rankings`
 
-- **源码**：`app/retrieval/ranking.py:460`
+- **源码**：`app/retrieval/ranking.py:492`
 - **签名**：`def build_channel_rankings(index: RepositoryIndex, query: str, keywords: list[str], preferred_paths: list[str] | None, dense_hits: list[ChannelHit] | None, enabled_channels: list[RetrievalChannel] | None) -> dict[RetrievalChannel, list[ChannelHit]]`
 - **作用**：在根据论文方法描述检索代码证据、建立候选映射的阶段中，只构造 profile 允许的通道。该函数接收当前候选项的索引、语义检索问题、检索关键词集合、优先使用的路径集合等输入，用于装配论文复现阶段需要的领域对象、执行动作、服务依赖或结构化请求，最终包含复现状态、索引或序列化字段的结构化映射。
 
@@ -20006,7 +20433,7 @@
 
 #### `fuse_rankings`
 
-- **源码**：`app/retrieval/ranking.py:560`
+- **源码**：`app/retrieval/ranking.py:592`
 - **签名**：`def fuse_rankings(rankings: dict[RetrievalChannel, list[ChannelHit]], rrf_k: int, weights: dict[RetrievalChannel, float] | None) -> list[FusedCandidate]`
 - **作用**：在根据论文方法描述检索代码证据、建立候选映射的阶段中，该函数接收当前处理结果、当前处理结果、当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终有界、排序或带证据来源的结果集合。
 
@@ -27079,7 +27506,7 @@
 
 #### `test_api_downloads_published_blob_after_source_deleted`
 
-- **源码**：`tests/test_artifact_storage_api.py:35`
+- **源码**：`tests/test_artifact_storage_api.py:36`
 - **签名**：`def test_api_downloads_published_blob_after_source_deleted(tmp_path: 未显式标注, monkeypatch: 未显式标注) -> None`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径、测试环境修改工具，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -27098,10 +27525,10 @@
 **伪代码**
 
 ```text
-调用 `setattr` 完成该函数的一项辅助处理；构造 `JobService` 结构化领域对象，并把结果记为 任务；调用 `submit` 完成该函数的一项辅助处理，并把结果记为 多个解包结果；计算组合或计算已有值，并保存为 实际来源。
-创建父级目录或父领域对象对应的目录；将处理结果写入实际来源指定的文件；调用 `build_artifact_record` 组装当前阶段需要的领域对象，并把结果记为 领域记录；构造 `SqliteArtifactRepository` 结构化领域对象，并把结果记为 持久化仓库。
-构造 `LocalBlobStore` 结构化领域对象，并把结果记为 Blob 内容存储；调用 `publish` 完成该函数的一项辅助处理；构造 `PublishedArtifactCatalog` 结构化领域对象，并把结果记为 模型、工具或 Artifact 目录；调用 `unlink` 完成该函数的一项辅助处理。
-调用 `create_api_app` 组装当前阶段需要的领域对象，并把结果记为 该调用返回的结果。
+调用 `setattr` 完成该函数的一项辅助处理；调用 `setup_local_execution_profile` 完成该函数的一项辅助处理；构造 `JobService` 结构化领域对象，并把结果记为 任务；调用 `submit` 完成该函数的一项辅助处理，并把结果记为 多个解包结果。
+计算组合或计算已有值，并保存为 实际来源；创建父级目录或父领域对象对应的目录；将处理结果写入实际来源指定的文件；调用 `build_artifact_record` 组装当前阶段需要的领域对象，并把结果记为 领域记录。
+构造 `SqliteArtifactRepository` 结构化领域对象，并把结果记为 持久化仓库；构造 `LocalBlobStore` 结构化领域对象，并把结果记为 Blob 内容存储；调用 `publish` 完成该函数的一项辅助处理；构造 `PublishedArtifactCatalog` 结构化领域对象，并把结果记为 模型、工具或 Artifact 目录。
+调用 `unlink` 完成该函数的一项辅助处理；调用 `create_api_app` 组装当前阶段需要的领域对象，并把结果记为 该调用返回的结果。
 在上下文“构造 `TestClient` 结构化领域对象，并把上下文资源交给外部服务客户端”中从外部服务客户端读取所需的状态或领域记录，并把结果记为 结构化响应，退出时自动清理资源。
 断言状态等于200；不满足就终止当前测试或流程；断言业务内容等于b'durable artifact'；不满足就终止当前测试或流程；断言“检查当前处理结果中的对应字段是否满足文本匹配条件”后得到肯定结果；不满足就终止当前测试或流程；断言当前输入内容属于辅助操作“从当前处理结果读取所需的状态或领域记录”的结果；不满足就终止当前测试或流程。
 断言辅助操作“从当前处理结果读取所需的状态或领域记录”的结果等于'nosniff'；不满足就终止当前测试或流程；断言当前输入内容不属于当前处理结果；不满足就终止当前测试或流程。
@@ -29559,9 +29986,33 @@
 断言当前处理结果等于'PSTConv'；不满足就终止当前测试或流程；断言“调用 `validate_code_evidence` 校验当前输入或状态”后得到肯定结果；不满足就终止当前测试或流程。
 ```
 
-#### `test_evidence_becomes_stale_after_source_change`
+#### `test_method_family_name_anchors_related_symbol_definition`
 
 - **源码**：`tests/test_hybrid_retrieval.py:89`
+- **签名**：`def test_method_family_name_anchors_related_symbol_definition(tmp_path: 未显式标注) -> None（隐式）`
+- **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `tmp_path` | `未显式标注` | 文件或目录路径；用于定位输入、输出或日志，访问范围由函数内的路径边界检查决定。 |
+
+**输出**
+
+- **Python 类型**：`None（隐式）`
+- **语义**：无业务返回值；函数通过注册、持久化、文件写入、状态更新或异常产生效果。
+
+**伪代码**
+
+```text
+调用 `_write_fixture_repo` 持久化或更新当前领域数据；调用 `build_repository_index` 组装当前阶段需要的领域对象，并把结果记为 当前候选项的索引；调用 `build_evidence_pack` 组装当前阶段需要的领域对象，并把结果记为 多个解包结果；调用 `next` 完成该函数的一项辅助处理，并把结果记为 该调用返回的结果。
+断言当前处理结果等于'PSTConv'；不满足就终止当前测试或流程；断言源码起始行号等于1；不满足就终止当前测试或流程；断言当前输入内容属于待处理文本；不满足就终止当前测试或流程；断言当前输入内容属于当前处理结果；不满足就终止当前测试或流程。
+```
+
+#### `test_evidence_becomes_stale_after_source_change`
+
+- **源码**：`tests/test_hybrid_retrieval.py:117`
 - **签名**：`def test_evidence_becomes_stale_after_source_change(tmp_path: 未显式标注) -> None（隐式）`
 - **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -29585,7 +30036,7 @@
 
 #### `test_traceback_path_receives_strong_channel`
 
-- **源码**：`tests/test_hybrid_retrieval.py:116`
+- **源码**：`tests/test_hybrid_retrieval.py:144`
 - **签名**：`def test_traceback_path_receives_strong_channel(tmp_path: 未显式标注) -> None（隐式）`
 - **作用**：在论文复现的离线评测与回归检查阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -30428,7 +30879,7 @@
 
 #### `test_sse_returns_backlog_after_cursor`
 
-- **源码**：`tests/test_interaction_sse.py:24`
+- **源码**：`tests/test_interaction_sse.py:25`
 - **签名**：`def test_sse_returns_backlog_after_cursor(tmp_path: 未显式标注, monkeypatch: 未显式标注) -> None（隐式）`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径、测试环境修改工具，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -30447,14 +30898,14 @@
 **伪代码**
 
 ```text
-调用 `setattr` 完成该函数的一项辅助处理；构造 `JobService` 结构化领域对象，并把结果记为 领域服务对象；调用 `submit` 完成该函数的一项辅助处理，并把结果记为 多个解包结果；调用 `create_api_app` 组装当前阶段需要的领域对象，并把结果记为 该调用返回的结果。
-构造 `TestClient` 结构化领域对象，并把结果记为 外部服务客户端；从外部服务客户端读取所需的状态或领域记录，并把结果记为 结构化响应；断言状态等于200；不满足就终止当前测试或流程；断言当前输入内容属于待处理文本；不满足就终止当前测试或流程。
-断言当前输入内容属于待处理文本；不满足就终止当前测试或流程。
+调用 `setattr` 完成该函数的一项辅助处理；调用 `setup_local_execution_profile` 完成该函数的一项辅助处理；构造 `JobService` 结构化领域对象，并把结果记为 领域服务对象；调用 `submit` 完成该函数的一项辅助处理，并把结果记为 多个解包结果。
+调用 `create_api_app` 组装当前阶段需要的领域对象，并把结果记为 该调用返回的结果；构造 `TestClient` 结构化领域对象，并把结果记为 外部服务客户端；从外部服务客户端读取所需的状态或领域记录，并把结果记为 结构化响应；断言状态等于200；不满足就终止当前测试或流程。
+断言当前输入内容属于待处理文本；不满足就终止当前测试或流程；断言当前输入内容属于待处理文本；不满足就终止当前测试或流程。
 ```
 
 #### `test_event_page_cursor_does_not_repeat`
 
-- **源码**：`tests/test_interaction_sse.py:81`
+- **源码**：`tests/test_interaction_sse.py:83`
 - **签名**：`def test_event_page_cursor_does_not_repeat(tmp_path: 未显式标注, monkeypatch: 未显式标注) -> None（隐式）`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径、测试环境修改工具，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -30473,9 +30924,9 @@
 **伪代码**
 
 ```text
-调用 `setattr` 完成该函数的一项辅助处理；构造 `JobService` 结构化领域对象，并把结果记为 领域服务对象；调用 `submit` 完成该函数的一项辅助处理，并把结果记为 多个解包结果；构造 `TestClient` 结构化领域对象，并把结果记为 外部服务客户端。
-计算按字段初始化键值映射，并保存为 当前处理结果；调用 `json` 完成该函数的一项辅助处理，并把结果记为 第一项；调用 `json` 完成该函数的一项辅助处理，并把结果记为 第二项；断言第一项中的对应字段有值或为真；不满足就终止当前测试或流程。
-断言第二项中的对应字段等于[]；不满足就终止当前测试或流程。
+调用 `setattr` 完成该函数的一项辅助处理；调用 `setup_local_execution_profile` 完成该函数的一项辅助处理；构造 `JobService` 结构化领域对象，并把结果记为 领域服务对象；调用 `submit` 完成该函数的一项辅助处理，并把结果记为 多个解包结果。
+构造 `TestClient` 结构化领域对象，并把结果记为 外部服务客户端；计算按字段初始化键值映射，并保存为 当前处理结果；调用 `json` 完成该函数的一项辅助处理，并把结果记为 第一项；调用 `json` 完成该函数的一项辅助处理，并把结果记为 第二项。
+断言第一项中的对应字段有值或为真；不满足就终止当前测试或流程；断言第二项中的对应字段等于[]；不满足就终止当前测试或流程。
 ```
 
 ### `tests/test_job_cli.py`
@@ -32833,7 +33284,7 @@
 
 #### `_fixture`
 
-- **源码**：`tests/test_paper_evidence.py:17`
+- **源码**：`tests/test_paper_evidence.py:23`
 - **签名**：`def _fixture()`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
@@ -32855,7 +33306,7 @@
 
 #### `test_resolver_computes_page_and_hash_from_block`
 
-- **源码**：`tests/test_paper_evidence.py:66`
+- **源码**：`tests/test_paper_evidence.py:72`
 - **签名**：`def test_resolver_computes_page_and_hash_from_block() -> None`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -32877,7 +33328,7 @@
 
 #### `test_resolver_rejects_unknown_block_id`
 
-- **源码**：`tests/test_paper_evidence.py:88`
+- **源码**：`tests/test_paper_evidence.py:94`
 - **签名**：`def test_resolver_rejects_unknown_block_id() -> None`
 - **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -32894,6 +33345,72 @@
 
 ```text
 调用 `_fixture` 完成该函数的一项辅助处理，并把结果记为 多个解包结果。
+在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `resolve_evidence` 解析、规范化或转换当前输入，退出时自动清理资源。
+```
+
+#### `test_resolver_restores_unique_block_hash_in_current_chunk`
+
+- **源码**：`tests/test_paper_evidence.py:110`
+- **签名**：`def test_resolver_restores_unique_block_hash_in_current_chunk() -> None`
+- **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
+
+**输入**
+
+无显式输入；函数从模块配置、闭包或已注入实例依赖读取所需状态。
+
+**输出**
+
+- **Python 类型**：`None`
+- **语义**：无业务返回值；函数通过注册、持久化、文件写入、状态更新或异常产生效果。
+
+**伪代码**
+
+```text
+调用 `_fixture` 完成该函数的一项辅助处理，并把结果记为 多个解包结果；复制、序列化或校验结构化领域对象，并把结果记为 论文原文块；复制、序列化或校验结构化领域对象，并把结果记为 论文文档章节；复制、序列化或校验结构化领域对象，并把结果记为 检索文本块。
+调用 `resolve_evidence` 解析、规范化或转换当前输入，并把结果记为 解析后的值；断言原文块集合等于[论文原文块的 ID]；不满足就终止当前测试或流程。
+```
+
+#### `test_extraction_validation_persists_canonical_block_id`
+
+- **源码**：`tests/test_paper_evidence.py:132`
+- **签名**：`def test_extraction_validation_persists_canonical_block_id() -> None`
+- **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
+
+**输入**
+
+无显式输入；函数从模块配置、闭包或已注入实例依赖读取所需状态。
+
+**输出**
+
+- **Python 类型**：`None`
+- **语义**：无业务返回值；函数通过注册、持久化、文件写入、状态更新或异常产生效果。
+
+**伪代码**
+
+```text
+调用 `_fixture` 完成该函数的一项辅助处理，并把结果记为 多个解包结果；复制、序列化或校验结构化领域对象，并把结果记为 论文原文块；复制、序列化或校验结构化领域对象，并把结果记为 检索文本块；构造 `SectionExtractionDraft` 结构化领域对象，并把结果记为 该调用返回的结果。
+调用 `validate_extraction_evidence_references` 校验当前输入或状态；断言原文块集合等于[论文原文块的 ID]；不满足就终止当前测试或流程。
+```
+
+#### `test_resolver_does_not_restore_block_from_outside_chunk`
+
+- **源码**：`tests/test_paper_evidence.py:165`
+- **签名**：`def test_resolver_does_not_restore_block_from_outside_chunk() -> None`
+- **作用**：在论文阅读、方法抽取和论文-代码映射阶段的自动化验证中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
+
+**输入**
+
+无显式输入；函数从模块配置、闭包或已注入实例依赖读取所需状态。
+
+**输出**
+
+- **Python 类型**：`None`
+- **语义**：无业务返回值；函数通过注册、持久化、文件写入、状态更新或异常产生效果。
+
+**伪代码**
+
+```text
+调用 `_fixture` 完成该函数的一项辅助处理，并把结果记为 多个解包结果；复制、序列化或校验结构化领域对象，并把结果记为 该调用返回的结果。
 在上下文“调用 `raises` 完成该函数的一项辅助处理”中调用 `resolve_evidence` 解析、规范化或转换当前输入，退出时自动清理资源。
 ```
 
@@ -40372,7 +40889,7 @@
 
 #### `worker_fixture`
 
-- **源码**：`tests/workspace_helpers.py:29`
+- **源码**：`tests/workspace_helpers.py:30`
 - **签名**：`def worker_fixture(worker_id: str, session_id: str, host_id: str, pool: str, labels: list[str] | None, gpu_count: int, cuda_major: int | None, workspace_root: str | None, profile_id: str, policy_hash: str | None) -> WorkerIdentity`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收后台复现工作器的 ID、当前处理结果的 ID、服务监听地址的 ID、当前处理结果等输入，用于驱动或监督一次论文复现运行，记录命令、工作目录、资源使用、状态迁移和失败原因，最终标注为 `WorkerIdentity` 的领域结果。
 
@@ -40404,7 +40921,7 @@
 
 #### `setup_local_execution_profile`
 
-- **源码**：`tests/workspace_helpers.py:68`
+- **源码**：`tests/workspace_helpers.py:69`
 - **签名**：`def setup_local_execution_profile(tmp_path: Path, monkeypatch: 未显式标注) -> str`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，Create a temporary 'local' execution profile compatible with worker_fixture。该函数接收临时工作目录路径、测试环境修改工具，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终文本、路径、状态标签或内容身份摘要。
 
@@ -40426,12 +40943,13 @@
 加载这一步需要的外部依赖；加载这一步需要的外部依赖；加载这一步需要的外部依赖；计算组合或计算已有值，并保存为 受控扫描根目录。
 计算组合或计算已有值，并保存为 Artifact；创建受控扫描根目录对应的目录；创建Artifact对应的目录；调用 `setattr` 完成该函数的一项辅助处理。
 调用 `setattr` 完成该函数的一项辅助处理；构造 `ExecutionProfile` 结构化领域对象，并把结果记为 MCP Client 配置档案；计算组合或计算已有值，并保存为 文件；将处理结果写入文件指定的文件。
-调用 `setattr` 完成该函数的一项辅助处理；调用 `setattr` 完成该函数的一项辅助处理；调用 `compute_execution_policy_hash` 计算内容身份、分数或派生结果，并返回处理结果。
+调用 `setattr` 完成该函数的一项辅助处理；调用 `setattr` 完成该函数的一项辅助处理；加载这一步需要的外部依赖；调用 `setattr` 完成该函数的一项辅助处理。
+调用 `compute_execution_policy_hash` 计算内容身份、分数或派生结果，并返回处理结果。
 ```
 
 #### `requirements_fixture`
 
-- **源码**：`tests/workspace_helpers.py:144`
+- **源码**：`tests/workspace_helpers.py:156`
 - **签名**：`def requirements_fixture(profile_id: str, pool: str) -> JobRequirements`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收MCP Client 配置档案 ID、当前处理结果，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `JobRequirements` 的领域结果。
 
@@ -40455,7 +40973,7 @@
 
 #### `manifest_fixture`
 
-- **源码**：`tests/workspace_helpers.py:157`
+- **源码**：`tests/workspace_helpers.py:169`
 - **签名**：`def manifest_fixture(suffix: str, host_id: str, portable: bool, job_id: str | None, run_id: str | None) -> WorkspaceManifest`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收文件扩展名或文本后缀、服务监听地址的 ID、当前处理结果、复现任务 ID等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -40482,7 +41000,7 @@
 
 #### `binding_fixture`
 
-- **源码**：`tests/workspace_helpers.py:206`
+- **源码**：`tests/workspace_helpers.py:218`
 - **签名**：`def binding_fixture(suffix: str, host_id: str, worker_session_id: str, job_id: str | None, run_id: str | None, manifest_id: str | None, manifest_hash: str | None, epoch: int, status: str, run_dir: str | None, repo_path: str, paper_path: str) -> WorkspaceBinding`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收文件扩展名或文本后缀、服务监听地址的 ID、当前处理结果的 ID、复现任务 ID等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `WorkspaceBinding` 的领域结果。
 
@@ -40517,7 +41035,7 @@
 
 #### `submit_to_store`
 
-- **源码**：`tests/workspace_helpers.py:250`
+- **源码**：`tests/workspace_helpers.py:262`
 - **签名**：`def submit_to_store(store: 未显式标注, suffix: str, max_attempts: int, now: float, host_id: str, portable: bool) -> 未显式标注（存在 return）`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，Shared helper: submit a Job with Phase 26 requirements + manifest。该函数接收数据存储端口、文件扩展名或文本后缀、尝试次数上限、当前时间等输入，用于驱动或监督一次论文复现运行，记录命令、工作目录、资源使用、状态迁移和失败原因，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
@@ -40545,7 +41063,7 @@
 
 #### `_default_request`
 
-- **源码**：`tests/workspace_helpers.py:278`
+- **源码**：`tests/workspace_helpers.py:290`
 - **签名**：`def _default_request()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
@@ -40566,7 +41084,7 @@
 
 #### `PassThroughWorkspaceManager.__init__`
 
-- **源码**：`tests/workspace_helpers.py:294`
+- **源码**：`tests/workspace_helpers.py:306`
 - **签名**：`def __init__(self, binding: WorkspaceBinding)`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收资源绑定记录，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -40590,7 +41108,7 @@
 
 #### `PassThroughWorkspaceManager.prepare`
 
-- **源码**：`tests/workspace_helpers.py:298`
+- **源码**：`tests/workspace_helpers.py:310`
 - **签名**：`def prepare(self, claim: JobClaim) -> JobClaim`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收论文主张，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `JobClaim` 的领域结果。
 
@@ -40614,7 +41132,7 @@
 
 #### `PassThroughWorkspaceManager.seal_waiting`
 
-- **源码**：`tests/workspace_helpers.py:303`
+- **源码**：`tests/workspace_helpers.py:315`
 - **签名**：`def seal_waiting(self: 未显式标注, claim: JobClaim, outcome: JobExecutionOutcome) -> WorkspaceBinding`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收论文主张、执行结论，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `WorkspaceBinding` 的领域结果。
 
@@ -40639,7 +41157,7 @@
 
 #### `FakeWorkspaceSnapshotter.__init__`
 
-- **源码**：`tests/workspace_helpers.py:321`
+- **源码**：`tests/workspace_helpers.py:333`
 - **签名**：`def __init__(self, host_id: str = "test-host")`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收服务监听地址的 ID，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -40663,7 +41181,7 @@
 
 #### `FakeWorkspaceSnapshotter.snapshot_initial`
 
-- **源码**：`tests/workspace_helpers.py:325`
+- **源码**：`tests/workspace_helpers.py:337`
 - **签名**：`def snapshot_initial(self: 未显式标注, job_id: str, run_id: str, paper_path: str, repo_path: str, log_path: str | None, source_host_id: str, external_data: list) -> WorkspaceManifest`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收复现任务 ID、本次复现运行 ID、论文 PDF 路径、代码仓库根目录等输入，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终经过 Schema 校验、可继续审计的领域结果对象。
 
@@ -40693,7 +41211,7 @@
 
 #### `FakeWorkspaceSnapshotter.seal`
 
-- **源码**：`tests/workspace_helpers.py:344`
+- **源码**：`tests/workspace_helpers.py:356`
 - **签名**：`def seal(self, **kwargs)`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收函数关键字参数映射，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 

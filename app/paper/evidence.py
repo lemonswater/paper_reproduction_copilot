@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from collections.abc import Iterator
 
 from app.paper.schemas import (
@@ -19,8 +20,61 @@ class InvalidEvidenceReference(ValueError):
     """LLM 引用了当前 chunk 之外或不存在的 block。"""
 
 
+_BLOCK_LOCATOR_RE = re.compile(
+    r"^(p\d+-b\d+)(?:-[0-9a-f]+)?$",
+    re.IGNORECASE,
+)
+
+
 def _sha256(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def _block_locator(block_id: str) -> str | None:
+    """提取不含内容哈希的稳定页码/顺序定位符。"""
+
+    match = _BLOCK_LOCATOR_RE.fullmatch(block_id.strip())
+    return match.group(1).casefold() if match is not None else None
+
+
+def _canonical_block_ids(
+    requested_ids: list[str],
+    *,
+    chunk: SectionChunk,
+    blocks_by_id: dict[str, PaperBlock],
+) -> list[str]:
+    """只在当前 chunk 内唯一匹配时补回 block 内容哈希。
+
+    某些 Provider 会把 ``p003-b0070-8011a28964`` 缩写成
+    ``p003-b0070``，或正确保留页码/顺序但改写哈希后缀。页码和
+    block 顺序在同一论文中是稳定且唯一的，因此可以从当前 chunk
+    的可信 block 列表恢复完整 ID。无法唯一定位、跨 chunk 或格式
+    不合法的引用保持原样，继续由后续严格校验拒绝。
+    """
+
+    allowed_by_locator: dict[str, list[str]] = {}
+    for block_id in chunk.block_ids:
+        if block_id not in blocks_by_id:
+            continue
+        locator = _block_locator(block_id)
+        if locator is not None:
+            allowed_by_locator.setdefault(locator, []).append(block_id)
+
+    canonical: list[str] = []
+    for requested_id in requested_ids:
+        resolved_id = requested_id
+        if requested_id not in blocks_by_id:
+            locator = _block_locator(requested_id)
+            matches = (
+                allowed_by_locator.get(locator, [])
+                if locator is not None
+                else []
+            )
+            if len(matches) == 1:
+                resolved_id = matches[0]
+        if resolved_id not in canonical:
+            canonical.append(resolved_id)
+    return canonical
 
 
 def resolve_evidence(
@@ -34,7 +88,11 @@ def resolve_evidence(
     """验证 block 引用并补齐不可由 LLM 生成的来源字段。"""
 
     allowed_ids = set(chunk.block_ids)
-    requested_ids = list(dict.fromkeys(draft.block_ids))
+    requested_ids = _canonical_block_ids(
+        list(dict.fromkeys(draft.block_ids)),
+        chunk=chunk,
+        blocks_by_id=blocks_by_id,
+    )
 
     unknown_ids = [
         block_id
@@ -170,7 +228,13 @@ def validate_extraction_evidence_references(
     allowed_ids = set(chunk.block_ids)
 
     for draft in iter_extraction_evidence_drafts(extraction):
-        requested_ids = list(dict.fromkeys(draft.block_ids))
+        requested_ids = _canonical_block_ids(
+            list(dict.fromkeys(draft.block_ids)),
+            chunk=chunk,
+            blocks_by_id=blocks_by_id,
+        )
+        # 缓存和后续 reducer 必须只看到规范化后的完整 block ID。
+        draft.block_ids = requested_ids
         unknown_ids = [
             block_id
             for block_id in requested_ids

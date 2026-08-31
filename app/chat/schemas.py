@@ -536,6 +536,10 @@ class ChatMemoryStatus(ChatModel):
     version: int | None = None
     covered_through_sequence: int = 0
     degraded: bool = False
+    # Only a sanitized exception type is exposed; provider response bodies and
+    # internal paths must never cross the Chat API boundary.
+    degraded_reason: str | None = None
+    provider_attempt_count: int = Field(default=0, ge=0)
 
 
 class ChatAskResponse(ChatModel):

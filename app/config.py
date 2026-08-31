@@ -110,19 +110,19 @@ class Settings:
         "OPENAI_API_KEY",
     )
     openai_base_url: str | None = os.getenv("OPENAI_BASE_URL")
-    openai_model: str = os.getenv("OPENAI_MODEL", "mimo-v2.5-pro")
+    openai_model: str = os.getenv("OPENAI_MODEL", "deepseek-v4-flash")
     # 未配置时仍回退到旧模型，使 off/shadow 不改变当前行为。
     openai_economy_model: str = os.getenv(
         "OPENAI_ECONOMY_MODEL",
-        os.getenv("OPENAI_MODEL", "mimo-v2.5-pro"),
+        os.getenv("OPENAI_MODEL", "deepseek-v4-flash"),
     )
     openai_strong_model: str = os.getenv(
         "OPENAI_STRONG_MODEL",
-        os.getenv("OPENAI_MODEL", "mimo-v2.5-pro"),
+        os.getenv("OPENAI_MODEL", "deepseek-v4-flash"),
     )
     # 显式给复杂结构化输出留出空间，避免兼容 Provider 使用过小默认值。
     openai_max_output_tokens: int = int(
-        os.getenv("OPENAI_MAX_OUTPUT_TOKENS", "4096")
+        os.getenv("OPENAI_MAX_OUTPUT_TOKENS", "32768")
     )
     # MiMo 默认开启深度思考；本项目默认关闭以保留结构化可见输出预算。
     # 其他 Provider 不注入该扩展参数。
@@ -330,12 +330,12 @@ class Settings:
     paper_parser_version: str = "phase19-v1"
 
     # section prompt 或 schema 变化时更新此版本。
-    paper_extraction_version: str = "phase18-v1"
+    paper_extraction_version: str = "phase18-v2"
 
     # RepositoryIndex 结构发生变化时更新。
     retrieval_index_version: str = os.getenv(
         "RETRIEVAL_INDEX_VERSION",
-        "phase20-v1",
+        "phase20-v3",
     )
 
     # 默认关闭：开启后会构造 semantic chunks。
@@ -391,7 +391,7 @@ class Settings:
 
     semantic_chunk_policy_version: str = os.getenv(
         "SEMANTIC_CHUNK_POLICY_VERSION",
-        "phase21-v1",
+        "phase21-v3",
     )
 
     semantic_chunk_max_lines: int = int(

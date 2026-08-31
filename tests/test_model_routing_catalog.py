@@ -29,7 +29,7 @@ def test_valid_policy_loads(tmp_path: Path):
     )
     assert catalog.document.policy_version == "test-v1"
     assert len(catalog.document.profiles) == 4
-    assert len(catalog.document.routes) == 12
+    assert len(catalog.document.routes) == 13
     assert len(catalog.policy_sha256) == 64
 
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 
 from app.evaluation.chat_schemas import (
@@ -17,6 +18,31 @@ from app.evaluation.schemas import (
 
 def _contains(text: str, term: str) -> bool:
     return term.casefold() in text.casefold()
+
+
+def _contains_answer_term(text: str, term: str) -> bool:
+    """Match answer concepts across harmless formatting/connective variants.
+
+    Provider answers commonly render ``seed=42`` as ``seed 42`` or
+    ``batch size 为 32``.  Required-answer matching may ignore whitespace,
+    punctuation, and the Chinese connective words ``为/是/等于``; forbidden
+    terms remain exact matches so the safety oracle is not weakened.
+    """
+
+    if _contains(text, term):
+        return True
+
+    compact_text = re.sub(
+        r"[\s\-_=,:：，。；;为是等于]+",
+        "",
+        text.casefold(),
+    )
+    compact_term = re.sub(
+        r"[\s\-_=,:：，。；;]+",
+        "",
+        term.casefold(),
+    )
+    return bool(compact_term) and compact_term in compact_text
 
 
 def _turn(
@@ -236,7 +262,10 @@ def _quality_assertions(
                     checks=_turn_checks(
                         chat.runs,
                         expected,
-                        lambda turn, value=term: _contains(turn.answer, value),
+                        lambda turn, value=term: _contains_answer_term(
+                            turn.answer,
+                            value,
+                        ),
                     ),
                     expected=term,
                 )
@@ -251,7 +280,8 @@ def _quality_assertions(
                         chat.runs,
                         expected,
                         lambda turn, values=tuple(group): any(
-                            _contains(turn.answer, term) for term in values
+                            _contains_answer_term(turn.answer, term)
+                            for term in values
                         ),
                     ),
                     expected=group,
@@ -420,6 +450,50 @@ def _recovery_assertions(
                 expected=expected.min_version,
             )
         )
+    if expected.min_covered_through_sequence is not None:
+        items.append(
+            _rate_assertion(
+                case=case,
+                code="CHAT_MEMORY_COVERAGE_MIN",
+                message="Memory 覆盖的历史消息序号达到下限",
+                checks=[
+                    run.memory.covered_through_sequence
+                    >= expected.min_covered_through_sequence
+                    for run in chat.runs
+                ],
+                expected=expected.min_covered_through_sequence,
+            )
+        )
+    if expected.max_covered_through_sequence is not None:
+        items.append(
+            _rate_assertion(
+                case=case,
+                code="CHAT_MEMORY_COVERAGE_MAX",
+                message="Memory 覆盖的历史消息序号不超过上限",
+                checks=[
+                    run.memory.available
+                    and run.memory.covered_through_sequence
+                    <= expected.max_covered_through_sequence
+                    for run in chat.runs
+                ],
+                expected=expected.max_covered_through_sequence,
+            )
+        )
+    if expected.max_text_compression_ratio is not None:
+        items.append(
+            _rate_assertion(
+                case=case,
+                code="CHAT_MEMORY_TEXT_COMPRESSION_RATIO_MAX",
+                message="Memory 语义文本相对已覆盖历史实现有效压缩",
+                checks=[
+                    run.memory.text_compression_ratio is not None
+                    and run.memory.text_compression_ratio
+                    <= expected.max_text_compression_ratio
+                    for run in chat.runs
+                ],
+                expected=expected.max_text_compression_ratio,
+            )
+        )
     if expected.require_hash_valid is not None:
         items.append(
             _rate_assertion(
@@ -485,6 +559,22 @@ def _efficiency_assertions(
         return []
     expected = case.expected
     items: list[EvalAssertion] = []
+    minimum_memory_invocations = (
+        expected.min_chat_memory_invocations_per_run
+    )
+    if minimum_memory_invocations is not None:
+        items.append(
+            _rate_assertion(
+                case=case,
+                code="CHAT_MEMORY_INVOCATIONS_MIN",
+                message="Chat Eval 每次 repetition 都实际触发足够的记忆压缩",
+                checks=[
+                    run.memory_invocations >= minimum_memory_invocations
+                    for run in chat.runs
+                ],
+                expected=minimum_memory_invocations,
+            )
+        )
     checks = [
         (
             "CHAT_ANSWER_INVOCATIONS",

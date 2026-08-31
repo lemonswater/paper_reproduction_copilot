@@ -1,0 +1,47 @@
+{
+  "schema_version": 2,
+  "scenario_id": "chat_provider_easy_intermediate_metric_qualification",
+  "job_status": "running",
+  "sources": [
+    {
+      "citation": {
+        "citation_id": "job:current",
+        "source_type": "job",
+        "label": "Current job state"
+      },
+      "content": "status=running; stage=training; no final report exists",
+      "score": 1000
+    },
+    {
+      "citation": {
+        "citation_id": "artifact:partial-log:natural",
+        "source_type": "artifact",
+        "label": "logs/train.log",
+        "artifact_id": "partial-log-natural",
+        "relative_path": "logs/train.log",
+        "artifact_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+        "locator": "epoch 3"
+      },
+      "content": "epoch=3/100; validation_accuracy=87.5%; training_status=running; best_checkpoint_so_far=epoch-3; final_accuracy is unavailable",
+      "score": 900
+    }
+  ],
+  "seed_exchanges": [],
+  "turns": [
+    {
+      "label": "training-progress",
+      "question": "现在跑得怎么样了？",
+      "idempotency_key": "difficulty-easy-intermediate-natural-1"
+    }
+  ],
+  "memory_scripts": [],
+  "repetitions": 1,
+  "compaction_enabled": false,
+  "recent_messages": 4,
+  "compaction_min_messages": 4,
+  "compaction_max_messages": 40,
+  "compaction_max_input_chars": 20000,
+  "memory_max_chars": 8000,
+  "history_max_chars": 8000,
+  "prompt_max_chars": 40000
+}

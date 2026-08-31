@@ -139,6 +139,7 @@ def test_reduce_builds_compatible_summary_and_provenance() -> None:
 
     assert "Recognize actions" in summary.research_problem
     assert summary.datasets == ["NTU RGB+D"]
+    assert summary.title is None
     assert summary.experiment_settings[0].value == "32"
     legacy = summary.experiment_settings[0].evidence[0]
     assert legacy.section_id == section.section_id
@@ -146,6 +147,45 @@ def test_reduce_builds_compatible_summary_and_provenance() -> None:
     assert legacy.confidence == "high"
     assert facts
     assert conflicts == []
+
+
+def test_reduce_recovers_title_from_first_page_root_section() -> None:
+    document, block, section, chunk = _paper_objects()
+    paper_title = (
+        "Point 4D Transformer Networks for Spatio-Temporal Modeling"
+    )
+    title_section = section.model_copy(
+        update={
+            "section_id": "sec-paper-title",
+            "number": None,
+            "title": paper_title,
+            "normalized_title": "point 4d transformer networks",
+            "kind": "method",
+        }
+    )
+    title_chunk = chunk.model_copy(
+        update={
+            "chunk_id": "chunk-paper-title-0",
+            "section_id": title_section.section_id,
+            "section_title": paper_title,
+            "section_kind": "method",
+        }
+    )
+    extraction = SectionExtractionDraft(
+        section_id=title_section.section_id,
+        chunk_id=title_chunk.chunk_id,
+        summary="Front matter.",
+    )
+
+    summary, _, _ = reduce_section_extractions(
+        document=document,
+        sections=[title_section],
+        chunks=[title_chunk],
+        blocks=[block],
+        extractions=[extraction],
+    )
+
+    assert summary.title == paper_title
 
 
 def test_conflicting_settings_are_preserved_and_reported() -> None:

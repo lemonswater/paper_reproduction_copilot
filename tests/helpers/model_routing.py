@@ -234,6 +234,18 @@ def build_test_document(
             provider_max_retries=2,
         ),
         ModelTaskRoute(
+            task_kind="mapping_alias_resolution",
+            workload_kind="chat",
+            required_capabilities=set(),
+            candidate_profile_ids=["legacy_chat", "strong_chat"],
+            legacy_profile_id="legacy_chat",
+            minimum_quality_rank=70,
+            max_input_tokens=24000,
+            max_output_tokens=4096,
+            validation_max_retries=0,
+            provider_max_retries=0,
+        ),
+        ModelTaskRoute(
             task_kind="paper_code_mapping",
             workload_kind="chat",
             required_capabilities=set(),

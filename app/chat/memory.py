@@ -14,7 +14,10 @@ from app.chat.errors import (
     ChatMemoryError,
     ChatMemoryUnavailable,
 )
-from app.chat.memory_prompt import build_memory_prompt
+from app.chat.memory_prompt import (
+    build_memory_prompt,
+    memory_message_payload,
+)
 from app.chat.schemas import (
     ChatCitation,
     ChatMessage,
@@ -31,6 +34,7 @@ class MemoryDraftResult:
     draft: MemoryDraft
     model_name: str
     model_invocation_id: str | None
+    provider_attempt_count: int = 1
 
 
 MemoryDraftInvoker = Callable[[str, str], MemoryDraftResult]
@@ -170,6 +174,7 @@ class MemoryCompactionOutcome:
     created: bool
     degraded: bool
     reason: str | None = None
+    provider_attempt_count: int = 0
 
 
 def _complete_exchange_prefix(
@@ -210,7 +215,7 @@ def _bounded_delta(
             break
         candidate = [*selected, *pair]
         encoded = _canonical(
-            [item.model_dump(mode="json") for item in candidate]
+            [memory_message_payload(item) for item in candidate]
         )
         if len(encoded) > max_chars:
             break
@@ -361,6 +366,58 @@ class ConversationMemoryCompactor:
         validate(draft.open_questions, user_only=True)
         validate(draft.decisions, user_only=False)
 
+    @staticmethod
+    def _repair_user_statement_sources(
+        *,
+        draft: MemoryDraft,
+        delta: list[ChatMessage],
+    ) -> MemoryDraft:
+        """Repair a common provider mistake without broadening provenance.
+
+        Some providers attach a constraint/open-question to the assistant's
+        acknowledgement instead of the user's message.  Every assistant
+        message in a valid exchange has an unambiguous ``reply_to`` user
+        message, so remapping only those local sequences is deterministic and
+        keeps the final Memory anchored to the original user statement.
+        Unknown sequences are left untouched and still fail closed in the
+        validator below.
+        """
+
+        message_by_id = {item.message_id: item for item in delta}
+        assistant_to_user_sequence = {
+            item.sequence: message_by_id[item.reply_to].sequence
+            for item in delta
+            if (
+                item.role == "assistant"
+                and item.reply_to is not None
+                and item.reply_to in message_by_id
+                and message_by_id[item.reply_to].role == "user"
+            )
+        }
+
+        def repair(items: list[MemoryStatement]) -> list[MemoryStatement]:
+            return [
+                item.model_copy(
+                    update={
+                        "source_sequences": [
+                            assistant_to_user_sequence.get(
+                                sequence,
+                                sequence,
+                            )
+                            for sequence in item.source_sequences
+                        ]
+                    }
+                )
+                for item in items
+            ]
+
+        return draft.model_copy(
+            update={
+                "user_constraints": repair(draft.user_constraints),
+                "open_questions": repair(draft.open_questions),
+            }
+        )
+
     def _project_body(
         self,
         *,
@@ -368,6 +425,10 @@ class ConversationMemoryCompactor:
         previous: ConversationMemory | None,
         delta: list[ChatMessage],
     ) -> ConversationMemoryBody:
+        draft = self._repair_user_statement_sources(
+            draft=draft,
+            delta=delta,
+        )
         self._validate_statement_sources(
             draft=draft,
             previous=previous,
@@ -515,13 +576,27 @@ class ConversationMemoryCompactor:
                 expected_parent_memory_id=parent_id,
             )
             validate_memory_hash(saved)
-            return MemoryCompactionOutcome(saved, created, False)
+            return MemoryCompactionOutcome(
+                memory=saved,
+                created=created,
+                degraded=False,
+                provider_attempt_count=invocation.provider_attempt_count,
+            )
         except ChatMemoryError as exc:
             return MemoryCompactionOutcome(
-                previous,
-                False,
-                True,
-                type(exc).__name__,
+                memory=previous,
+                created=False,
+                degraded=True,
+                reason=getattr(
+                    exc,
+                    "reason_code",
+                    type(exc).__name__,
+                ),
+                provider_attempt_count=getattr(
+                    exc,
+                    "attempt_count",
+                    0,
+                ),
             )
         except Exception as exc:
             # Provider/parse 的内部细节不能进入 API；记录 telemetry 时只记类型。
@@ -531,6 +606,29 @@ class ConversationMemoryCompactor:
                 True,
                 type(exc).__name__,
             )
+
+
+def _memory_failure_reason(result: object) -> str:
+    """把结构化调用明细归并为可公开、稳定的 Memory 错误码。"""
+
+    attempts = list(getattr(result, "attempts", []))
+    if any(getattr(item, "truncated", False) for item in attempts):
+        return "ChatMemoryOutputTruncated"
+
+    statuses = {
+        str(getattr(item, "status", ""))
+        for item in attempts
+        if getattr(item, "status", None)
+    }
+    if "configuration_error" in statuses:
+        return "ChatMemoryStructuredConfigurationFailed"
+    if statuses and statuses.issubset(
+        {"provider_retry", "invoke_error"}
+    ):
+        return "ChatMemoryProviderInvokeFailed"
+    if "validation_error" in statuses:
+        return "ChatMemorySchemaValidationFailed"
+    return "ChatMemoryStructuredOutputFailed"
 
 
 def build_memory_draft_invoker() -> MemoryDraftInvoker:
@@ -545,17 +643,19 @@ def build_memory_draft_invoker() -> MemoryDraftInvoker:
             prompt=prompt,
             node_name="chat_memory_compaction",
             job_id=job_id,
-            quality_tier="economy",
-            requested_max_output_tokens=2048,
+            quality_tier="balanced",
+            requested_max_output_tokens=4096,
         )
         if result.value is None:
             raise ChatMemoryUnavailable(
-                "Conversation Memory structured output failed"
+                _memory_failure_reason(result),
+                attempt_count=len(result.attempts),
             )
         return MemoryDraftResult(
             draft=result.value,
             model_name=result.decision.executed_model_name,
             model_invocation_id=result.invocation_id,
+            provider_attempt_count=len(result.attempts),
         )
 
     return invoke

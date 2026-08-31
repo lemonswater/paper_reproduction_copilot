@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "scenario_id": "chat_provider_easy_compaction_threshold",
+  "job_status": "running",
+  "sources": [
+    {
+      "citation": {
+        "citation_id": "job:current",
+        "source_type": "job",
+        "label": "Current job state"
+      },
+      "content": "status=running; stage=planning; execution_started=false",
+      "score": 1000
+    }
+  ],
+  "seed_exchanges": [
+    {
+      "question": "本次论文复现只能使用 CPU。",
+      "answer": "好的，后续按 CPU 环境继续。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "随机种子确定为 seed 42。",
+      "answer": "好的，后续使用 seed 42。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "也许可以先用小数据集试跑，但暂时不要确定。",
+      "answer": "可以先看看，暂时不调整方案。",
+      "citation_ids": ["job:current"]
+    },
+    {
+      "question": "dataset split 使用官方划分还是自定义划分？这个问题还没决定。",
+      "answer": "明白，划分方式之后再定。",
+      "citation_ids": ["job:current"]
+    }
+  ],
+  "turns": [
+    {
+      "label": "threshold-recall",
+      "question": "总结已经确认的环境和随机种子，并说明仍未决定的数据划分问题。",
+      "idempotency_key": "difficulty-easy-threshold-1"
+    }
+  ],
+  "memory_scripts": [],
+  "repetitions": 1,
+  "compaction_enabled": true,
+  "recent_messages": 4,
+  "compaction_min_messages": 4,
+  "compaction_max_messages": 40,
+  "compaction_max_input_chars": 20000,
+  "memory_max_chars": 8000,
+  "history_max_chars": 8000,
+  "prompt_max_chars": 40000
+}

@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from app.config import settings
 from app.model_routing.factory import build_model_gateway
+from app.model_routing.gateway import (
+    RoutedStructuredInvocation,
+)
 from app.paper.chunking import (
     build_section_chunks,
     select_extraction_chunks,
@@ -24,11 +27,16 @@ from app.paper.indexer import (
 from app.paper.reducer import reduce_section_extractions
 from app.paper.schemas import (
     PaperDocument,
+    SectionChunk,
     SectionExtractionDraft,
 )
 from app.prompts.paper_section_prompt import (
     PAPER_SECTION_EXTRACTION_PROMPT,
     PAPER_SECTION_EXTRACTION_PROMPT_VERSION,
+    PAPER_SECTION_EMPTY_RESULT_RETRY_PROMPT,
+    PAPER_SECTION_FAILURE_RETRY_PROMPT,
+    PAPER_SECTION_METHOD_EMPTY_RETRY_PROMPT,
+    PAPER_SECTION_TRUNCATION_RETRY_PROMPT,
 )
 from app.schemas import PaperSummary
 from app.tools.artifact_tools import (
@@ -73,6 +81,140 @@ def _build_method_extraction_fallback() -> PaperSummary:
         ],
     )
 
+def _invocation_is_truncation(
+    invocation: RoutedStructuredInvocation,
+) -> bool:
+    """判断调用失败是不是因为输出在 JSON 完成前被截断。"""
+
+    if invocation.result is None:
+        return False
+    for attempt in invocation.result.attempts:
+        if attempt.truncated:
+            return True
+        if attempt.error_type and "length" in attempt.error_type.lower():
+            return True
+        finish_reason = (
+            str(attempt.finish_reason).strip().lower()
+            if attempt.finish_reason
+            else ""
+        )
+        if finish_reason in {"length", "max_tokens", "max_output_tokens"}:
+            return True
+    return False
+
+
+def _requires_method_module_retry(
+    chunk: SectionChunk,
+    *,
+    document_root_section_id: str | None,
+) -> bool:
+    """论文根标题即使被分类为 method，也不要求产出可实现模块。"""
+
+    is_document_root_title = (
+        chunk.page_start == 1
+        and chunk.section_id
+        == document_root_section_id
+    )
+    return (
+        chunk.section_kind == "method"
+        and not is_document_root_title
+    )
+
+
+def _extraction_is_blank(
+    extraction: SectionExtractionDraft,
+) -> bool:
+    """拒绝用空 summary 和全部空事实列表伪装成成功抽取。"""
+
+    if extraction.summary.strip():
+        return False
+    return not any(
+        (
+            extraction.research_problem_candidates,
+            extraction.core_idea_candidates,
+            extraction.method_modules,
+            extraction.datasets,
+            extraction.metrics,
+            extraction.experiment_settings,
+            extraction.reproduction_risks,
+            extraction.unresolved_questions,
+            extraction.table_claims_unresolved,
+        )
+    )
+
+
+def _invoke_section_attempt(
+    model_gateway,
+    *,
+    chunk: SectionChunk,
+    prompt: str,
+    state: dict,
+    generated_records: list,
+    attempt_label: str = "",
+    route_preview=None,
+) -> tuple[RoutedStructuredInvocation, str]:
+    """对单个 chunk 执行一次 preview + invoke，并登记调用 trace。"""
+
+    if route_preview is None:
+        route_preview = model_gateway.preview_structured(
+            task_kind="paper_section_extraction",
+            schema=SectionExtractionDraft,
+            prompt=prompt,
+            node_name=f"method_extractor:{chunk.chunk_id}{attempt_label}",
+            job_id=state.get("job_id"),
+            run_id=state.get("run_id"),
+            quality_tier="high",
+        )
+    invocation = model_gateway.invoke_structured(
+        task_kind="paper_section_extraction",
+        schema=SectionExtractionDraft,
+        prompt=prompt,
+        node_name=f"method_extractor:{chunk.chunk_id}{attempt_label}",
+        job_id=state.get("job_id"),
+        run_id=state.get("run_id"),
+        quality_tier="high",
+        expected_decision_sha256=(
+            route_preview.decision_sha256
+        ),
+    )
+
+    trace_path = write_structured_output_trace(
+        result=invocation.result,
+        node_name=f"method_extractor_{chunk.chunk_id}{attempt_label}",
+        schema_name="SectionExtractionDraft",
+        output_dir=artifact_dir(
+            state,
+            "traces",
+            "structured",
+        ),
+        fallback_used=invocation.value is None,
+        model_invocation_id=invocation.invocation_id,
+        model_decision_sha256=(
+            invocation.decision.decision_sha256
+        ),
+        model_profile_id=(
+            invocation.decision.executed_profile_id
+        ),
+        model_name=(
+            invocation.decision.executed_model_name
+        ),
+        model_usage_quality=(
+            invocation.ledger_record.usage_quality
+            if invocation.ledger_record is not None
+            else None
+        ),
+    )
+    generated_records.append(
+        register_existing_artifact(
+            state=state,
+            path=trace_path,
+            producer_node="method_extractor",
+            media_type="application/json",
+        )
+    )
+    return invocation, route_preview.executed_model_name
+
+
 def method_extractor_node(state: dict) -> dict:
     document_payload = state.get("paper_document")
     blocks_path = state.get("paper_blocks_path")
@@ -100,6 +242,11 @@ def method_extractor_node(state: dict) -> dict:
         block.block_id: block
         for block in blocks
     }
+    document_root_section_id = (
+        sections[0].section_id
+        if sections
+        else None
+    )
 
     all_chunks = build_section_chunks(
         sections,
@@ -143,6 +290,14 @@ def method_extractor_node(state: dict) -> dict:
             page_start=chunk.page_start,
             page_end=chunk.page_end,
             section_text=chunk.text,
+        )
+        requires_method_modules = (
+            _requires_method_module_retry(
+                chunk,
+                document_root_section_id=(
+                    document_root_section_id
+                ),
+            )
         )
         route_preview = model_gateway.preview_structured(
             task_kind="paper_section_extraction",
@@ -201,6 +356,47 @@ def method_extractor_node(state: dict) -> dict:
                 )
                 cached = None
 
+        if (
+            cached is not None
+            and _extraction_is_blank(cached)
+        ):
+            section_errors.append(
+                build_stage_error(
+                    stage="method_extractor",
+                    code="PAPER_SECTION_EMPTY_EXTRACTION",
+                    category="agent",
+                    message="章节缓存为空抽取，已失效并重新请求。",
+                    terminal=False,
+                    context={
+                        "section_id": chunk.section_id,
+                        "chunk_id": chunk.chunk_id,
+                    },
+                )
+            )
+            cached = None
+
+        if (
+            cached is not None
+            and requires_method_modules
+            and not cached.method_modules
+        ):
+            # 方法章节缓存本身就是一次空抽取的产物，作废后重新请求，
+            # 避免空结果被无限期复用。
+            section_errors.append(
+                build_stage_error(
+                    stage="method_extractor",
+                    code="PAPER_SECTION_EMPTY_METHOD_MODULES",
+                    category="agent",
+                    message="方法章节缓存未识别出任何方法模块，已失效并重新请求。",
+                    terminal=False,
+                    context={
+                        "section_id": chunk.section_id,
+                        "chunk_id": chunk.chunk_id,
+                    },
+                )
+            )
+            cached = None
+
         if cached is not None:
             # 即使上次进程在“写缓存”和“提交节点 state”之间退出，
             # 恢复后也能把已存在的缓存重新登记进 manifest。
@@ -219,53 +415,36 @@ def method_extractor_node(state: dict) -> dict:
             extractions.append(cached)
             continue
 
-        invocation = model_gateway.invoke_structured(
-            task_kind="paper_section_extraction",
-            schema=SectionExtractionDraft,
+        invocation, _ = _invoke_section_attempt(
+            model_gateway,
+            chunk=chunk,
             prompt=prompt,
-            node_name=f"method_extractor:{chunk.chunk_id}",
-            job_id=state.get("job_id"),
-            run_id=state.get("run_id"),
-            quality_tier="high",
-            expected_decision_sha256=(
-                route_preview.decision_sha256
-            ),
+            state=state,
+            generated_records=generated_records,
+            route_preview=route_preview,
         )
 
-        trace_path = write_structured_output_trace(
-            result=invocation.result,
-            node_name=f"method_extractor_{chunk.chunk_id}",
-            schema_name="SectionExtractionDraft",
-            output_dir=artifact_dir(
-                state,
-                "traces",
-                "structured",
-            ),
-            fallback_used=invocation.value is None,
-            model_invocation_id=invocation.invocation_id,
-            model_decision_sha256=(
-                invocation.decision.decision_sha256
-            ),
-            model_profile_id=(
-                invocation.decision.executed_profile_id
-            ),
-            model_name=(
-                invocation.decision.executed_model_name
-            ),
-            model_usage_quality=(
-                invocation.ledger_record.usage_quality
-                if invocation.ledger_record is not None
-                else None
-            ),
-        )
-        generated_records.append(
-            register_existing_artifact(
-                state=state,
-                path=trace_path,
-                producer_node="method_extractor",
-                media_type="application/json",
+        if (
+            invocation.value is None
+            and (
+                requires_method_modules
+                or _invocation_is_truncation(invocation)
             )
-        )
+        ):
+            retry_prompt = prompt + "\n\n" + (
+                PAPER_SECTION_TRUNCATION_RETRY_PROMPT
+                if _invocation_is_truncation(invocation)
+                else PAPER_SECTION_FAILURE_RETRY_PROMPT
+            )
+            retry_invocation, _ = _invoke_section_attempt(
+                model_gateway,
+                chunk=chunk,
+                prompt=retry_prompt,
+                state=state,
+                generated_records=generated_records,
+                attempt_label="_retry1",
+                )
+            invocation = retry_invocation
 
         if invocation.value is None:
             section_errors.append(
@@ -286,6 +465,88 @@ def method_extractor_node(state: dict) -> dict:
             continue
 
         extraction = invocation.value
+        if _extraction_is_blank(extraction):
+            empty_retry_prompt = (
+                prompt
+                + "\n\n"
+                + PAPER_SECTION_EMPTY_RESULT_RETRY_PROMPT
+            )
+            empty_retry_invocation, _ = _invoke_section_attempt(
+                model_gateway,
+                chunk=chunk,
+                prompt=empty_retry_prompt,
+                state=state,
+                generated_records=generated_records,
+                attempt_label="_empty_retry1",
+            )
+            if (
+                empty_retry_invocation.value is not None
+                and not _extraction_is_blank(
+                    empty_retry_invocation.value
+                )
+            ):
+                extraction = empty_retry_invocation.value
+
+        if _extraction_is_blank(extraction):
+            section_errors.append(
+                build_stage_error(
+                    stage="method_extractor",
+                    code="PAPER_SECTION_EXTRACTION_EMPTY",
+                    category="agent",
+                    message=(
+                        "章节抽取在专门重试后仍为空，"
+                        "该结果不会写入缓存或参与论文规约。"
+                    ),
+                    terminal=False,
+                    context={
+                        "section_id": chunk.section_id,
+                        "chunk_id": chunk.chunk_id,
+                    },
+                )
+            )
+            continue
+
+        # 方法章节空抽取时用专门提示词重试一次，避免空结果被当作有效抽取。
+        if (
+            requires_method_modules
+            and not extraction.method_modules
+        ):
+            method_retry_prompt = prompt + "\n\n" + PAPER_SECTION_METHOD_EMPTY_RETRY_PROMPT
+            method_retry_invocation, _ = _invoke_section_attempt(
+                model_gateway,
+                chunk=chunk,
+                prompt=method_retry_prompt,
+                state=state,
+                generated_records=generated_records,
+                attempt_label="_method_retry1",
+                )
+            if (
+                method_retry_invocation.value is not None
+                and not _extraction_is_blank(
+                    method_retry_invocation.value
+                )
+            ):
+                extraction = method_retry_invocation.value
+
+        # 方法章节重试后仍未识别出任何方法模块，记录错误但不阻断流程。
+        if (
+            requires_method_modules
+            and not extraction.method_modules
+        ):
+            section_errors.append(
+                build_stage_error(
+                    stage="method_extractor",
+                    code="PAPER_SECTION_METHOD_MODULES_EMPTY",
+                    category="agent",
+                    message="方法章节重试后仍未识别出任何方法模块。",
+                    terminal=False,
+                    context={
+                        "section_id": chunk.section_id,
+                        "chunk_id": chunk.chunk_id,
+                    },
+                )
+            )
+
         try:
             validate_extraction_identity(extraction, chunk)
             validate_extraction_evidence_references(
@@ -405,6 +666,10 @@ def method_extractor_node(state: dict) -> dict:
         method_modules=[
             module.model_dump(mode="json")
             for module in summary.method_modules
+        ],
+        section_titles=[
+            section.title
+            for section in sections
         ],
         max_targets=settings.mapping_max_targets,
         category_limits={

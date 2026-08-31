@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "case_id": "provider_p4transformer_mapping",
+  "description": "真实 Provider 下的 P4Transformer 论文理解和映射质量",
+  "suite": "provider",
+  "runner": "live_graph",
+  "categories": ["schema", "evidence", "quality", "efficiency"],
+  "tags": ["provider", "mapping", "p4transformer"],
+  "problem_ids": [2, 7, 8],
+  "input": {
+    "paper_path": "pdf/Point 4D Transformer Networks for Spatio-Temporal Modeling.pdf",
+    "repo_path": "/data/tianshaoqi24/P4Transformer/",
+    "experiment_goal": "复现论文在 MSR-Action3D 上的 main result",
+    "execution_profile_id": "profile-P4Transformer",
+    "scripted_responses": []
+  },
+  "expected": {
+    "required_schemas": [
+      "SectionExtractionDraft",
+      "ModuleMapping",
+      "ExperimentPlan"
+    ],
+    "min_schema_success_rate": 0.9,
+    "min_schema_success_rates": {
+      "SectionExtractionDraft": 0.9,
+      "ModuleMapping": 0.8,
+      "ExperimentPlan": 1.0
+    },
+    "max_schema_fallbacks": 1,
+    "max_schema_retries": 3,
+    "required_evidence_paths": [
+      "modules/point_4d_convolution.py",
+      "models/sequence_classification.py"
+    ],
+    "required_module_file_mappings": [
+      {
+        "module_name": "Point 4D Convolution",
+        "module_aliases": ["P4DConv", "4D convolution"],
+        "file_path": "modules/point_4d_convolution.py"
+      },
+      {
+        "module_name": "P4Transformer",
+        "module_aliases": ["Point 4D Transformer", "sequence classification"],
+        "file_path": "models/sequence_classification.py"
+      }
+    ],
+    "min_experiment_plan_run_commands": 1,
+    "max_experiment_plan_run_commands": 4,
+    "required_experiment_plan_command_terms": [
+      "train-msr-small.py",
+      "--data-path"
+    ],
+    "forbidden_experiment_plan_command_terms": ["--root"],
+    "required_experiment_plan_terms": ["need_confirm"],
+    "max_llm_calls": 28,
+    "max_human_interventions": 1
+  },
+  "thresholds": {
+    "min_overall_score": 0.8,
+    "max_score_regression": 0.05
+  }
+}

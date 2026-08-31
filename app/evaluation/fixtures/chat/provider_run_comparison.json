@@ -31,7 +31,7 @@
   "turns": [
     {
       "label": "explain-run-diff",
-      "question": "比较这两个 Run，说明发生了哪些变化；不要把变化说成已成功复现论文结果。",
+      "question": "这两次运行有什么不一样？为什么第二次看起来成功了？",
       "idempotency_key": "provider-run-comparison-1"
     }
   ],

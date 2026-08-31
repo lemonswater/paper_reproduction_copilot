@@ -107,6 +107,107 @@ def _evidence_id(
     return f"code-{_sha256(payload)[:20]}"
 
 
+def _target_path_bonus(
+    file_path: str,
+    target_category: str | None,
+) -> float:
+    """按映射目标类型给实现文件一个小幅、可审计的目录先验。"""
+
+    if not target_category:
+        return 0.0
+    path = Path(file_path)
+    normalized = file_path.casefold()
+    name = path.name.casefold()
+
+    if target_category == "core_method":
+        bonus = 0.0
+        if path.parts and path.parts[0].casefold() in {
+            "model",
+            "models",
+            "module",
+            "modules",
+            "network",
+            "networks",
+        }:
+            bonus += 0.018
+        if any(
+            marker in name
+            for marker in (
+                "conv",
+                "transformer",
+                "encoder",
+                "decoder",
+                "model",
+                "network",
+                "mae",
+            )
+        ):
+            bonus += 0.012
+        if any(
+            marker in normalized
+            for marker in (
+                "train",
+                "eval",
+                "test",
+                "infer",
+                "demo",
+            )
+        ):
+            bonus -= 0.018
+        return bonus
+
+    if target_category == "training_config":
+        return 0.015 if any(
+            marker in normalized
+            for marker in ("train", "config")
+        ) else 0.0
+    if target_category == "data_pipeline":
+        return 0.015 if any(
+            marker in normalized
+            for marker in (
+                "data",
+                "dataset",
+                "loader",
+                "preprocess",
+            )
+        ) else 0.0
+    if target_category == "evaluation_metric":
+        return 0.015 if any(
+            marker in normalized
+            for marker in ("eval", "metric", "test")
+        ) else 0.0
+    return 0.0
+
+
+def _rerank_for_target(
+    candidates: list[FusedCandidate],
+    *,
+    target_category: str | None,
+) -> list[FusedCandidate]:
+    adjusted = [
+        candidate.model_copy(
+            update={
+                "fused_score": max(
+                    0.0,
+                    candidate.fused_score
+                    + _target_path_bonus(
+                        candidate.file_path,
+                        target_category,
+                    ),
+                )
+            }
+        )
+        for candidate in candidates
+    ]
+    return sorted(
+        adjusted,
+        key=lambda item: (
+            -item.fused_score,
+            item.file_path,
+        ),
+    )
+
+
 
 def build_evidence_pack(
     *,
@@ -114,7 +215,7 @@ def build_evidence_pack(
     query: str,
     keywords: list[str],
     index: RepositoryIndex | None = None,
-    index_version: str = "phase20-v1",
+    index_version: str = "phase20-v3",
     max_file_bytes: int = 1024 * 1024,
     top_k: int = 8,
     context_lines: int = 20,
@@ -124,6 +225,7 @@ def build_evidence_pack(
     dense_hits: list[ChannelHit] | None = None,
     enabled_channels: list[RetrievalChannel] | None = None,
     channel_weights: dict[RetrievalChannel, float] | None = None,
+    target_category: str | None = None,
 ) -> tuple[RepositoryIndex, EvidencePack]:
     root = Path(repo_path).expanduser().resolve()
     active_index = index or build_repository_index(
@@ -151,20 +253,30 @@ def build_evidence_pack(
         dense_hits=dense_hits,
         enabled_channels=enabled_channels,
     )
-    fused = fuse_rankings(
-        rankings,
-        rrf_k=rrf_k,
-        weights=channel_weights,
+    fused = _rerank_for_target(
+        fuse_rankings(
+            rankings,
+            rrf_k=rrf_k,
+            weights=channel_weights,
+        ),
+        target_category=target_category,
     )
     documents = {
         document.file_path: document
         for document in active_index.documents
     }
     evidence_items: list[CodeEvidence] = []
+    seen_file_hashes: set[str] = set()
 
-    for candidate in fused[: max(top_k, 0)]:
+    for candidate in fused:
+        if len(evidence_items) >= max(top_k, 0):
+            break
         document = documents.get(candidate.file_path)
         if document is None:
+            continue
+        # 日志快照之外仍可能存在完全相同的源码副本；同一内容只占一个
+        # Evidence Pack 名额，把有限 top-k 留给不同实现文件。
+        if document.file_sha256 in seen_file_hashes:
             continue
         path = _safe_file(root, candidate.file_path)
 
@@ -172,6 +284,7 @@ def build_evidence_pack(
         current_file_sha256 = sha256_path(path)
         if current_file_sha256 != document.file_sha256:
             continue
+        seen_file_hashes.add(document.file_sha256)
 
         start_line, end_line, symbol = _line_window(
             candidate=candidate,

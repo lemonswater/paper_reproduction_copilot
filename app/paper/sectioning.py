@@ -31,6 +31,15 @@ _TITLE_WORD_RE = re.compile(r"[A-Za-z][A-Za-z0-9+-]*")
 _COORDINATE_FORMULA_RE = re.compile(
     r"\([A-Za-z]\s*,\s*[A-Za-z](?:\s*,\s*[A-Za-z])+\)"
 )
+# PyMuPDF 会把公式里的特殊符号替换为 \x03-\x05 等控制字符。
+_CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f]")
+# PDF 截断的正文行常以这些介词/连词结尾，真实章节标题极少如此。
+_TRAILING_STOPWORDS = {
+    "a", "an", "the", "of", "and", "or", "with", "for", "to",
+    "in", "on", "at", "by", "from", "as", "is", "are", "was",
+    "were", "be", "that", "this", "these", "those", "it", "its",
+    "their", "our", "which", "while", "but", "not", "than", "into",
+}
 
 _NOISE_BLOCK_TYPES = {
     "table",
@@ -50,6 +59,18 @@ _UNNUMBERED_HEADINGS = {
     "appendix",
     "limitations",
     "limitation",
+}
+
+# 参考文献条目行，如 "[1] Author, Title, Venue."。真实章节标题不会以 [n] 开头。
+_REFERENCE_ENTRY_RE = re.compile(r"^\s*\[\d+\]")
+
+# 首页 front matter 区块标题，不是论文章节。
+_FRONT_MATTER_HEADINGS = {
+    "ccs concepts",
+    "key words",
+    "keywords",
+    "index terms",
+    "index",
 }
 
 _FORMULA_MARKERS = {
@@ -121,6 +142,56 @@ def _has_heading_style(block: PaperBlock) -> bool:
         block.block_type in {"heading", "title"}
         or block.is_bold
     )
+
+
+def _estimate_body_font_size(blocks: list[PaperBlock]) -> float:
+    """正文最常出现的字号。
+
+    用按文本长度加权的众数而非中位数：正文行通常更长，
+    次要小字（表格、图注、页眉）既短又少，不会把估计值拉低。
+    """
+
+    weights: dict[float, float] = {}
+    for block in blocks:
+        if (
+            block.font_size is None
+            or not (5.0 <= block.font_size <= 20.0)
+        ):
+            continue
+        rounded = round(block.font_size * 4) / 4.0
+        weights[rounded] = (
+            weights.get(rounded, 0.0)
+            + min(len(block.text), 200)
+        )
+    if not weights:
+        return 10.0
+    return max(weights, key=weights.get)
+
+
+def _has_visual_scale(
+    block: PaperBlock,
+    body_font_size: float | None,
+) -> bool:
+    """无编号标题必须有比正文更大的视觉字号。
+
+    仅靠 bold 或 block_type=heading 不够——同字号的粗体句子、
+    架构图内文字、被误标的正文行都会被这类弱信号放进来。
+    """
+
+    if block.block_type == "title":
+        return True
+    if block.font_size and body_font_size:
+        return block.font_size >= body_font_size * 1.15
+    return block.is_bold
+
+
+def _is_front_matter_text(block: PaperBlock) -> bool:
+    """首页作者行/机构名之外的 front matter 硬特征。"""
+
+    if "@" in block.text:
+        return True
+    key = normalize_key(normalize_heading(block.text))
+    return key in _FRONT_MATTER_HEADINGS
 
 
 def _is_vertical_label(block: PaperBlock) -> bool:
@@ -209,6 +280,8 @@ def _looks_like_title_phrase(text: str) -> bool:
     value = normalize_heading(text).strip()
     if not value or len(value) > 180:
         return False
+    if _CONTROL_CHARS_RE.search(value):
+        return False
     if value.endswith((".", "?", "!", ";")):
         return False
     if "#" in value or _looks_like_formula_text(value):
@@ -221,6 +294,43 @@ def _looks_like_title_phrase(text: str) -> bool:
         if character.isalpha()
     ]
     return 1 <= len(words) <= 18 and len(letters) >= 3
+
+
+def _is_truncated_sentence(text: str) -> bool:
+    """编号标题的 title 若是截断的正文行则拒绝。
+
+    不用于跨行标题（编号+同行标题被拆分的情况），那些由
+    _split_heading_parts 处理，不受此限制。
+    """
+
+    value = normalize_heading(text).strip()
+    if not value:
+        return True
+    # 正文句子/截断行含句点；真实章节标题的 title 不含。
+    if "." in value:
+        return True
+    key = normalize_key(value)
+    words = key.split()
+    last = words[-1]
+    # "a sequence of 3" 这类"介词+数字"结尾是截断行；
+    # "NTU RGB+D 120" 这类数据集名数字结尾是真实标题。
+    if last.isdigit():
+        return len(words) >= 2 and words[-2] in _TRAILING_STOPWORDS
+    # "…of"、"…in" 这类以介词/连词结尾的截断行。
+    if last in _TRAILING_STOPWORDS:
+        return True
+    return False
+
+
+def _is_appendix_title_style(title: str) -> bool:
+    """单字母附录标题（如 "A. Accuracy"）的 title 以大写开头。
+
+    正文句子被 `_APPENDIX_HEADING_RE` 误匹配时 title 通常小写
+    （如 "A point cloud video..." 的 "point cloud..."）。
+    """
+
+    stripped = title.strip()
+    return bool(stripped) and stripped[0].isupper()
 
 
 def _uppercase_ratio(text: str) -> float:
@@ -312,6 +422,8 @@ def _split_heading_parts(
 
 def _heading_parts(
     block: PaperBlock,
+    *,
+    body_font_size: float | None = None,
 ) -> tuple[str | None, str] | None:
     """返回合法的 (section_number, title)。"""
 
@@ -320,6 +432,7 @@ def _heading_parts(
         or block.block_type in _NOISE_BLOCK_TYPES
         or looks_like_arxiv_overlay(block.text)
         or _is_vertical_label(block)
+        or _REFERENCE_ENTRY_RE.match(block.text)
     ):
         return None
 
@@ -338,6 +451,7 @@ def _heading_parts(
             _valid_numeric_number(number)
             and _has_heading_style(block)
             and _looks_like_title_phrase(title)
+            and not _is_truncated_sentence(title)
         ):
             return number, title
         return None
@@ -352,6 +466,8 @@ def _heading_parts(
             _valid_appendix_number(number)
             and _has_heading_style(block)
             and _looks_like_title_phrase(title)
+            and not _is_truncated_sentence(title)
+            and _is_appendix_title_style(title)
         ):
             return number, title
         return None
@@ -363,6 +479,7 @@ def _heading_parts(
     if (
         not _has_heading_style(block)
         or not _looks_like_title_phrase(text)
+        or not _has_visual_scale(block, body_font_size)
     ):
         return None
 
@@ -490,6 +607,8 @@ def _merge_multiline_candidates(
 
 def _collect_heading_candidates(
     ordered: list[PaperBlock],
+    *,
+    body_font_size: float | None = None,
 ) -> tuple[list[HeadingCandidate], int, int, int]:
     """收集、过滤并合并标题候选。"""
 
@@ -497,9 +616,68 @@ def _collect_heading_candidates(
     raw_candidate_count = 0
     rejected_candidate_count = 0
 
+    # 首页最大字号通常是论文主标题。主标题保留，其余 front matter
+    # （作者行、机构名、单位）在正文起点之前不进入候选。
+    # arXiv 覆盖行（"arXiv:xxxx"）字号虽大但不是标题，需排除。
+    page1_max_font_size = max(
+        (
+            block.font_size
+            for block in ordered
+            if (
+                block.page == 1
+                and block.font_size
+                and not looks_like_arxiv_overlay(block.text)
+            )
+        ),
+        default=None,
+    )
+    seen_body_marker = False
+
     index = 0
     while index < len(ordered):
         block = ordered[index]
+
+        # 硬特征 front matter：邮箱行、KEYWORDS/CCS CONCEPTS/Index Terms。
+        if not block.excluded and _is_front_matter_text(block):
+            index += 1
+            continue
+
+        raw_text = (
+            normalize_pdf_text(block.text)
+            if not block.excluded
+            else ""
+        )
+        key = normalize_key(normalize_heading(raw_text))
+        if (
+            key in _UNNUMBERED_HEADINGS
+            or _NUMBERED_HEADING_RE.match(raw_text)
+            or _APPENDIX_HEADING_RE.match(raw_text)
+        ):
+            seen_body_marker = True
+
+        # 首页顶部的作者/机构区：正文起点之前、非主标题。
+        # 纯编号 block（如 "1"、"A"）可能是拆分的章节编号，不在此列。
+        raw_stripped = raw_text.strip()
+        is_number_only = bool(
+            raw_stripped
+            and _SPLIT_HEADING_NUMBER_RE.fullmatch(raw_stripped)
+        )
+        if (
+            block.page == 1
+            and not seen_body_marker
+            and not block.excluded
+            and block.block_type != "title"
+            and _has_heading_style(block)
+            and not is_number_only
+            and (
+                page1_max_font_size is None
+                or block.font_size is None
+                or block.font_size < page1_max_font_size
+            )
+        ):
+            index += 1
+            continue
+
         raw_candidate = _looks_like_raw_heading_candidate(block)
 
         if index + 1 < len(ordered):
@@ -525,7 +703,10 @@ def _collect_heading_candidates(
         if raw_candidate:
             raw_candidate_count += 1
 
-        parts = _heading_parts(block)
+        parts = _heading_parts(
+            block,
+            body_font_size=body_font_size,
+        )
         if parts is None:
             if raw_candidate:
                 rejected_candidate_count += 1
@@ -691,12 +872,16 @@ def build_sections_with_diagnostics(
         blocks,
         key=lambda item: (item.page, item.order),
     )
+    body_font_size = _estimate_body_font_size(ordered)
     (
         candidates,
         raw_candidate_count,
         rejected_candidate_count,
         merge_count,
-    ) = _collect_heading_candidates(ordered)
+    ) = _collect_heading_candidates(
+        ordered,
+        body_font_size=body_font_size,
+    )
 
     if not candidates:
         return SectionBuildResult(

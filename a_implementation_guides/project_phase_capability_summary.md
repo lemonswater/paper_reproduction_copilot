@@ -1,6 +1,6 @@
 # 论文复现 Agent 全阶段功能与技术总览
 
-> 最后同步日期：2026-08-17
+> 最后同步日期：2026-08-19
 >
 > 当前代码基线：基础 00、V0-V7 以及 Phase 1 至 Phase 56 的核心能力已有源码实现。Phase 46
 > 的 Identity、Repository、Evidence、Service 四组 44 个用例已通过执行进度点；API/Chat/Retention/
@@ -1989,14 +1989,14 @@ Expected Version。它们分别解决内容漂移、并发更新、重复请求�
 
 | 分册 | 主要阶段范围 | 当前函数/方法数 |
 |---|---|---:|
-| [`python_source_code_reference_phase_00_v7.md`](python_source_code_reference_phase_00_v7.md) | 基础 00、V0-V7 | 416 |
-| [`python_source_code_reference_phase_01_16.md`](python_source_code_reference_phase_01_16.md) | 端到端闭环、安全执行与修复 | 555 |
-| [`python_source_code_reference_phase_17_29.md`](python_source_code_reference_phase_17_29.md) | 理解检索、异步运行、持久化、Workspace、资源与 OCI | 1502 |
-| [`python_source_code_reference_phase_30_39.md`](python_source_code_reference_phase_30_39.md) | Web、Chat、Artifact、Retention、Comparison 与 Rerun | 680 |
-| [`python_source_code_reference_phase_40_46.md`](python_source_code_reference_phase_40_46.md) | Tool Contract、Secret、决策/职责、通知、Failure/Project Memory | 766 |
-| [`python_source_code_reference_phase_47_56.md`](python_source_code_reference_phase_47_56.md) | Adaptive Retrieval、Skill、Knowledge Base、Model Routing、Research Browser、Tool Calling 与 MCP | 1141 |
+| [`python_source_code_reference_phase_00_v7.md`](python_source_code_reference_phase_00_v7.md) | 基础 00、V0-V7 | 424 |
+| [`python_source_code_reference_phase_01_16.md`](python_source_code_reference_phase_01_16.md) | 端到端闭环、安全执行与修复 | 561 |
+| [`python_source_code_reference_phase_17_29.md`](python_source_code_reference_phase_17_29.md) | 理解检索、异步运行、持久化、Workspace、资源与 OCI | 1520 |
+| [`python_source_code_reference_phase_30_39.md`](python_source_code_reference_phase_30_39.md) | Web、Chat、Artifact、Retention、Comparison 与 Rerun | 684 |
+| [`python_source_code_reference_phase_40_46.md`](python_source_code_reference_phase_40_46.md) | Tool Contract、Secret、决策/职责、通知、Failure/Project Memory | 767 |
+| [`python_source_code_reference_phase_47_56.md`](python_source_code_reference_phase_47_56.md) | Adaptive Retrieval、Skill、Knowledge Base、Model Routing、Research Browser、Tool Calling 与 MCP | 1144 |
 
-六个现有分册按当前 Python AST 合计覆盖 5060 个函数/方法，其中 Phase 47-56 的新增模块统一收录在
+六个现有分册按当前 Python AST 合计覆盖 5100 个函数/方法，其中 Phase 47-56 的新增模块统一收录在
 新分册中。
 阶段归类以文件的主要职责为准；一个跨阶段持续修改的文件只进入一个主分册，函数条目中的真实源码路径
 和行号才是最终定位依据。

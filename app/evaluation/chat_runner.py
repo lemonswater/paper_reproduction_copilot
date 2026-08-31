@@ -354,10 +354,31 @@ def _memory_observation(
         if checks
         else 1.0
     )
+    compacted_source_chars = sum(
+        len(item.content)
+        for item in messages
+        if item.sequence <= memory.covered_through_sequence
+    )
+    memory_text_chars = len(memory.body.summary) + sum(
+        len(statement.text)
+        for statement in [
+            *memory.body.user_constraints,
+            *memory.body.decisions,
+            *memory.body.open_questions,
+        ]
+    )
+    text_compression_ratio = (
+        memory_text_chars / compacted_source_chars
+        if compacted_source_chars
+        else None
+    )
     return ChatMemoryObservation(
         available=True,
         version=memory.version,
         covered_through_sequence=memory.covered_through_sequence,
+        compacted_source_chars=compacted_source_chars,
+        memory_text_chars=memory_text_chars,
+        text_compression_ratio=text_compression_ratio,
         summary=memory.body.summary,
         user_constraints=memory.body.user_constraints,
         decisions=memory.body.decisions,
@@ -496,10 +517,19 @@ def _run_once(
                 prompt_source_ids=prompt_sources,
                 unknown_requested_citation_ids=unknown,
                 model_marked_insufficient=draft.insufficient_evidence,
-                refused=answer.startswith("现有可验证证据不足"),
+                # Provider 结构化结果是拒答状态的权威信号；固定文案只
+                # 作为未知 Citation/无 Citation 的 fail-closed 兜底。
+                refused=(
+                    draft.insufficient_evidence
+                    or answer.startswith("现有可验证证据不足")
+                ),
                 replayed=response.replayed,
                 memory_available=response.memory.available,
                 memory_degraded=response.memory.degraded,
+                memory_degraded_reason=response.memory.degraded_reason,
+                memory_provider_attempt_count=(
+                    response.memory.provider_attempt_count
+                ),
                 predicted_intent=draft.intent,
                 requested_operation_kind=(
                     requested_operation.kind

@@ -25,6 +25,9 @@ from app.nodes.human_review_node import human_review_node
 from app.nodes.input_validation_node import input_validation_node
 from app.nodes.log_debug_node import log_debug_node
 from app.nodes.mapping_node import mapping_node
+from app.nodes.mapping_alias_resolver_node import (
+    mapping_alias_resolver_node,
+)
 from app.nodes.method_extractor_node import method_extractor_node
 from app.nodes.paper_reader_node import paper_reader_node
 from app.nodes.patch_apply_node import patch_apply_node
@@ -354,6 +357,11 @@ def build_graph(*, checkpointer=None):
     add_guarded(builder, "paper_reader", paper_reader_node)
     add_guarded(builder, "method_extractor", method_extractor_node)
     add_guarded(builder, "repo_scan", repo_scan_node)
+    add_guarded(
+        builder,
+        "mapping_alias_resolver",
+        mapping_alias_resolver_node,
+    )
     add_guarded(builder, "code_search", code_search_node)
     add_guarded(builder, "mapping", mapping_node)
     add_guarded(builder, "rerun_seed", rerun_seed_node)
@@ -489,7 +497,8 @@ def build_graph(*, checkpointer=None):
     for source, target in [
         ("paper_reader", "method_extractor"),
         ("method_extractor", "repo_scan"),
-        ("repo_scan", "code_search"),
+        ("repo_scan", "mapping_alias_resolver"),
+        ("mapping_alias_resolver", "code_search"),
         ("code_search", "mapping"),
         ("mapping", "experiment_plan"),
         ("experiment_plan", "rerun_seed"),

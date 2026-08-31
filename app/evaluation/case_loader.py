@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from app.evaluation.schemas import EvalCase
+from app.evaluation.schemas import EvalCase, EvalCaseBundle
 
 EVALUATION_ROOT = Path(__file__).resolve().parent
 DEFAULT_CASE_DIR = EVALUATION_ROOT / "cases"
@@ -43,10 +43,7 @@ def resolve_evaluation_path(relative_path: str) -> Path:
     return candidate
 
 
-def load_case_file(path: Path) -> EvalCase:
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    case = EvalCase.model_validate(payload)
-
+def _validate_case_fixture(case: EvalCase) -> None:
     if case.runner in {
         "fixture",
         "chat_scenario",
@@ -63,7 +60,33 @@ def load_case_file(path: Path) -> EvalCase:
                 f"{fixture_path}"
             )
 
+
+def load_case_file(path: Path) -> EvalCase:
+    """读取传统单 Case JSON；Bundle 请通过 load_case_entries 读取。"""
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if isinstance(payload, dict) and "cases" in payload:
+        raise ValueError(
+            f"{path} 是 Case Bundle，不能通过 load_case_file 读取"
+        )
+    case = EvalCase.model_validate(payload)
+    _validate_case_fixture(case)
+
     return case
+
+
+def load_case_entries(path: Path) -> list[EvalCase]:
+    """同时兼容传统单 Case JSON 和同类 Case Bundle JSON。"""
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if isinstance(payload, dict) and "cases" in payload:
+        cases = EvalCaseBundle.model_validate(payload).cases
+    else:
+        cases = [EvalCase.model_validate(payload)]
+
+    for case in cases:
+        _validate_case_fixture(case)
+    return cases
 
 
 def load_cases(
@@ -73,7 +96,7 @@ def load_cases(
     case_ids: set[str] | None = None,
 ) -> list[EvalCase]:
     """
-    递归读取指定 suite 的 case。
+    递归读取指定 suite 的单 Case JSON 或 Case Bundle JSON。
 
     case_ids 用于本地只跑一个或几个 case；None 表示运行整个 suite。
     """
@@ -89,18 +112,18 @@ def load_cases(
     seen_ids: set[str] = set()
 
     for path in sorted(suite_dir.rglob("*.json")):
-        case = load_case_file(path)
-        if case.suite != suite:
-            raise ValueError(
-                f"{path} 声明 suite={case.suite}，"
-                f"但位于 suite={suite} 目录"
-            )
-        if case.case_id in seen_ids:
-            raise ValueError(f"重复 case_id：{case.case_id}")
-        seen_ids.add(case.case_id)
+        for case in load_case_entries(path):
+            if case.suite != suite:
+                raise ValueError(
+                    f"{path} 声明 suite={case.suite}，"
+                    f"但位于 suite={suite} 目录"
+                )
+            if case.case_id in seen_ids:
+                raise ValueError(f"重复 case_id：{case.case_id}")
+            seen_ids.add(case.case_id)
 
-        if case_ids is None or case.case_id in case_ids:
-            loaded.append(case)
+            if case_ids is None or case.case_id in case_ids:
+                loaded.append(case)
 
     if case_ids:
         missing = sorted(case_ids - {case.case_id for case in loaded})

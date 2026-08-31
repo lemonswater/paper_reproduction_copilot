@@ -11,6 +11,7 @@ import { ArtifactPreviewPanel } from "./ArtifactPreviewPanel";
 import { StatusBadge } from "./StatusBadge";
 
 type Tab = "overview" | "artifacts" | "logs";
+type CopyStatus = "idle" | "copied" | "failed";
 
 const ACTIVE_STATUSES = new Set<JobStatus>([
   "queued",
@@ -31,6 +32,7 @@ export function RunContextPanel({ job, onMutation }: Props) {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [log, setLog] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
   const currentJobId = useRef(job?.job_id);
 
   // 切换 Job 时不能继续显示上一个 Job 的预览或错误。
@@ -41,6 +43,7 @@ export function RunContextPanel({ job, onMutation }: Props) {
     setPreviewLoading(false);
     setLog("");
     setError(null);
+    setCopyStatus("idle");
   }, [job?.job_id]);
 
   useEffect(() => {
@@ -121,6 +124,24 @@ export function RunContextPanel({ job, onMutation }: Props) {
     }
   }
 
+  async function copyJobId() {
+    if (!job) return;
+    const requestedJobId = job.job_id;
+    try {
+      if (!navigator.clipboard?.writeText) {
+        throw new Error("Clipboard API unavailable");
+      }
+      await navigator.clipboard.writeText(requestedJobId);
+      if (currentJobId.current === requestedJobId) {
+        setCopyStatus("copied");
+      }
+    } catch {
+      if (currentJobId.current === requestedJobId) {
+        setCopyStatus("failed");
+      }
+    }
+  }
+
   if (!job) {
     return (
       <aside className="run-context">
@@ -159,11 +180,43 @@ export function RunContextPanel({ job, onMutation }: Props) {
       )}
 
       {tab === "overview" && (
-        <dl>
+        <dl className="run-overview">
           <dt>Paper</dt><dd>{job.input.paper_name}</dd>
           <dt>Repository</dt><dd>{job.input.repo_name}</dd>
           <dt>Profile</dt><dd>{job.input.execution_profile_id}</dd>
           <dt>Attempt</dt><dd>{job.attempt_count} / {job.max_attempts}</dd>
+          <dt>Job ID</dt>
+          <dd className="run-identity">
+            <code title={job.job_id}>{job.job_id}</code>
+            <button
+              type="button"
+              className="copy-identity-button"
+              aria-label={
+                copyStatus === "copied"
+                  ? "Job ID copied"
+                  : "Copy Job ID"
+              }
+              onClick={() => void copyJobId()}
+            >
+              {copyStatus === "copied" ? "Copied" : "Copy"}
+            </button>
+          </dd>
+          <dt>Thread ID</dt>
+          <dd className="run-identity">
+            <code title={job.thread_id}>{job.thread_id}</code>
+          </dd>
+          <dt>Run ID</dt>
+          <dd className="run-identity">
+            <code title={job.run_id}>{job.run_id}</code>
+          </dd>
+          {copyStatus === "failed" && (
+            <>
+              <dt className="identity-status-label">Copy status</dt>
+              <dd className="identity-copy-error" role="status">
+                Clipboard unavailable. Copy the Job ID manually.
+              </dd>
+            </>
+          )}
         </dl>
       )}
 

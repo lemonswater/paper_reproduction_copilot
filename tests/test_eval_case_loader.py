@@ -7,6 +7,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.evaluation.case_loader import (
+    DEFAULT_CASE_DIR,
     load_case_file,
     resolve_evaluation_path,
 )
@@ -144,3 +145,61 @@ def test_chat_fixture_must_exist_under_evaluation_root(tmp_path: Path) -> None:
 
     with pytest.raises(FileNotFoundError):
         load_case_file(case_path)
+
+
+def test_provider_mapping_cases_use_stage_aligned_oracles() -> None:
+    case_ids = [
+        "provider_maple_mapping",
+        "provider_p4transformer_mapping",
+        "provider_pstnet_mapping",
+        "provider_psttransformer_mapping",
+    ]
+    for case_id in case_ids:
+        case = load_case_file(
+            DEFAULT_CASE_DIR / "provider" / f"{case_id.removeprefix('provider_')}.json"
+        )
+        expected = case.expected
+
+        assert expected.required_schemas == [
+            "SectionExtractionDraft",
+            "ModuleMapping",
+            "ExperimentPlan",
+        ]
+        assert expected.min_schema_success_rates == {
+            "SectionExtractionDraft": 0.9,
+            "ModuleMapping": 0.8,
+            "ExperimentPlan": 1.0,
+        }
+        assert len(expected.required_evidence_paths) == 2
+        assert len(expected.required_module_file_mappings) == 2
+        assert expected.required_files == []
+        assert expected.min_experiment_plan_run_commands == 1
+        assert expected.max_experiment_plan_run_commands == 4
+        assert expected.max_llm_calls == 28
+        assert case.thresholds.min_category_scores == {
+            "schema": 0.9,
+            "quality": 0.8,
+            "efficiency": 0.8,
+        }
+
+    pstnet = load_case_file(
+        DEFAULT_CASE_DIR / "provider" / "pstnet_mapping.json"
+    )
+    mappings = pstnet.expected.required_module_file_mappings
+    assert [mapping.module_name for mapping in mappings] == [
+        "PST convolution",
+        "PSTNet architecture",
+    ]
+    assert "PSTNet" not in mappings[0].module_aliases
+    assert "PSTNet" in mappings[1].module_aliases
+    assert (
+        pstnet.expected.required_experiment_plan_command_terms
+        == [
+            "train-msr.py",
+            "--data-path",
+            "--batch-size",
+        ]
+    )
+    assert "--temporal-kernel-size" in (
+        pstnet.expected.forbidden_experiment_plan_command_terms
+    )

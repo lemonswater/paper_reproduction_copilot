@@ -1,10 +1,10 @@
 # Python 源码功能、流程与输入输出参考
 
-> 最后同步日期：2026-08-17
+> 最后同步日期：2026-08-19
 >
-> 当前基线：六个自动生成函数分册共覆盖 5060 个函数/方法；其中新增的 Phase 47-56 分册
+> 当前基线：六个自动生成函数分册共覆盖 5100 个函数/方法；其中新增的 Phase 47-56 分册
 > 收录 Adaptive Retrieval、Skill/Plugin、Knowledge Base、Model Routing、Research Browser、Bounded
-> Tool Calling 以及 MCP Gateway/Contract/Export/Runtime 的 1141 个函数/方法和专项测试辅助函数。
+> Tool Calling 以及 MCP Gateway/Contract/Export/Runtime 的 1144 个函数/方法和专项测试辅助函数。
 > 旧分册也已按当前源码重新归类，避免 Phase 47-56 新阶段函数继续混入基础或旧阶段文档。
 >
 > 本文是持续维护文档。后续新增、删除、移动或修改 Python 文件、类、函数及输入输出时，
@@ -23,12 +23,12 @@
 
 | 分册 | 阶段范围 | 函数/方法数 |
 |---|---|---:|
-| [`python_source_code_reference_phase_00_v7.md`](python_source_code_reference_phase_00_v7.md) | 基础 00、V0-V7 | 416 |
-| [`python_source_code_reference_phase_01_16.md`](python_source_code_reference_phase_01_16.md) | Phase 1-16 | 555 |
-| [`python_source_code_reference_phase_17_29.md`](python_source_code_reference_phase_17_29.md) | Phase 17-29 | 1502 |
-| [`python_source_code_reference_phase_30_39.md`](python_source_code_reference_phase_30_39.md) | Phase 30-39 | 680 |
-| [`python_source_code_reference_phase_40_46.md`](python_source_code_reference_phase_40_46.md) | Phase 40-46 | 766 |
-| [`python_source_code_reference_phase_47_56.md`](python_source_code_reference_phase_47_56.md) | Phase 47-56 | 1141 |
+| [`python_source_code_reference_phase_00_v7.md`](python_source_code_reference_phase_00_v7.md) | 基础 00、V0-V7 | 424 |
+| [`python_source_code_reference_phase_01_16.md`](python_source_code_reference_phase_01_16.md) | Phase 1-16 | 561 |
+| [`python_source_code_reference_phase_17_29.md`](python_source_code_reference_phase_17_29.md) | Phase 17-29 | 1520 |
+| [`python_source_code_reference_phase_30_39.md`](python_source_code_reference_phase_30_39.md) | Phase 30-39 | 684 |
+| [`python_source_code_reference_phase_40_46.md`](python_source_code_reference_phase_40_46.md) | Phase 40-46 | 767 |
+| [`python_source_code_reference_phase_47_56.md`](python_source_code_reference_phase_47_56.md) | Phase 47-56 | 1144 |
 
 重新生成命令：
 

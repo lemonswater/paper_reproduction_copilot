@@ -1,0 +1,47 @@
+{
+  "schema_version": 2,
+  "scenario_id": "chat_provider_easy_artifact_fact_lookup",
+  "job_status": "failed",
+  "sources": [
+    {
+      "citation": {
+        "citation_id": "job:current",
+        "source_type": "job",
+        "label": "Current job state"
+      },
+      "content": "status=failed; stage=preflight; execution_started=false",
+      "score": 1000
+    },
+    {
+      "citation": {
+        "citation_id": "artifact:failure-report:easy",
+        "source_type": "artifact",
+        "label": "reports/preflight_failure.md",
+        "artifact_id": "failure-report-easy",
+        "relative_path": "reports/preflight_failure.md",
+        "artifact_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+        "locator": "dependency check"
+      },
+      "content": "Preflight failed because the required Python package torch-scatter==2.1.2 is missing. No package installation was attempted.",
+      "score": 950
+    }
+  ],
+  "seed_exchanges": [],
+  "turns": [
+    {
+      "label": "missing-dependency",
+      "question": "预检为什么失败？缺少哪个依赖？",
+      "idempotency_key": "difficulty-easy-artifact-1"
+    }
+  ],
+  "memory_scripts": [],
+  "repetitions": 1,
+  "compaction_enabled": false,
+  "recent_messages": 4,
+  "compaction_min_messages": 4,
+  "compaction_max_messages": 40,
+  "compaction_max_input_chars": 20000,
+  "memory_max_chars": 8000,
+  "history_max_chars": 8000,
+  "prompt_max_chars": 40000
+}

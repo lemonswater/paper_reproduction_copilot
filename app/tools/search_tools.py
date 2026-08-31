@@ -5,21 +5,12 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from app.tools.repo_tools import IGNORE_DIRS
-
-_FALLBACK_SUFFIXES = {
-    ".py",
-    ".md",
-    ".rst",
-    ".txt",
-    ".yaml",
-    ".yml",
-    ".json",
-    ".toml",
-    ".ini",
-    ".cfg",
-    ".sh",
-}
+from app.tools.repo_tools import (
+    IGNORE_DIRS,
+    MAPPING_RELEVANT_FILENAMES,
+    MAPPING_RELEVANT_SUFFIXES,
+    is_mapping_relevant_file,
+)
 
 
 class SearchToolError(RuntimeError):
@@ -112,12 +103,8 @@ def _python_literal_search(
         if (
             path.is_symlink()
             or not path.is_file()
-            or path.suffix.casefold()
-            not in _FALLBACK_SUFFIXES
-            or any(
-                part in IGNORE_DIRS
-                or part == ".pytest_cache"
-                for part in path.relative_to(root).parts
+            or not is_mapping_relevant_file(
+                path.relative_to(root)
             )
         ):
             continue
@@ -206,6 +193,19 @@ def search_text(
 
     for ignored in sorted({*IGNORE_DIRS, ".pytest_cache"}):
         args.extend(["--glob", f"!{ignored}/**"])
+        args.extend(["--glob", f"!**/{ignored}/**"])
+    args.extend(["--glob", "!*.egg-info/**"])
+    args.extend(["--glob", "!**/*.egg-info/**"])
+    for suffix in sorted(MAPPING_RELEVANT_SUFFIXES):
+        args.extend(["--glob", f"*{suffix}"])
+    for filename in sorted(MAPPING_RELEVANT_FILENAMES):
+        args.extend(["--glob", filename])
+        args.extend(
+            [
+                "--glob",
+                filename[:1].upper() + filename[1:],
+            ]
+        )
 
     args.extend(["--", value, str(root)])
 

@@ -44,6 +44,29 @@ def _subset(actual: Any, expected: Any) -> bool:
         )
     return actual == expected
 
+def _token_level_matches(
+    a_key: str,
+    b_key: str,
+) -> bool:
+    """token 级兜底：共享 token，或一方 token 是另一方前缀。
+
+    覆盖缩写词与展开名之间的错位，例如 "PSTNet" 与
+    "PST convolution feature extraction" 仅共享 "pst"。
+    前缀只对 >=3 字符的 token 生效，避免短词误配。
+    """
+    a_tokens = a_key.split()
+    b_tokens = b_key.split()
+    for at in a_tokens:
+        for bt in b_tokens:
+            if at == bt:
+                return True
+            if len(at) >= 3 and len(bt) >= 3 and (
+                at.startswith(bt) or bt.startswith(at)
+            ):
+                return True
+    return False
+
+
 def _normalized_name_matches(
     required: str,
     actual_values: list[str],
@@ -55,6 +78,7 @@ def _normalized_name_matches(
             required_key == actual_key
             or required_key in actual_key
             or actual_key in required_key
+            or _token_level_matches(required_key, actual_key)
         ):
             return True
     return False
@@ -87,6 +111,25 @@ def score_schema(case: EvalCase, actual: EvalObservation) -> ScorerResult:
                                 rate >= expected.min_schema_success_rate,
                                 "Schema 成功率达到下限",
                                 expected.min_schema_success_rate, rate))
+    for schema_name, minimum in expected.min_schema_success_rates.items():
+        matching = [
+            item for item in calls
+            if item.schema_name == schema_name
+        ]
+        rate = (
+            sum(item.succeeded for item in matching) / len(matching)
+            if matching
+            else 0.0
+        )
+        items.append(
+            _assertion(
+                f"SCHEMA_SUCCESS_RATE:{schema_name}",
+                bool(matching) and rate >= minimum,
+                "指定 Schema 的成功率达到下限",
+                minimum,
+                rate,
+            )
+        )
     if expected.max_schema_fallbacks is not None:
         count = sum(item.fallback_used for item in calls)
         items.append(_assertion("SCHEMA_FALLBACK_COUNT",
@@ -151,14 +194,56 @@ def _retrieval_path_key(
 
     return value.replace("\\", "/").lstrip("./")
 
+def _module_mapping_matched(
+    output_payloads: dict[str, Any],
+    module_names: list[str],
+    file_path: str,
+) -> bool:
+    payload = output_payloads.get("analysis/paper_code_mapping.json")
+    if not isinstance(payload, list):
+        return False
+    for entry in payload:
+        if not isinstance(entry, dict):
+            continue
+        actual_name = str(entry.get("module_name") or "")
+        if not any(
+            _normalized_name_matches(name, [actual_name])
+            for name in module_names
+        ):
+            continue
+        candidates = entry.get("candidates") or []
+        if any(
+            isinstance(c, dict)
+            and file_path in str(c.get("file_path") or "")
+            for c in candidates
+        ):
+            return True
+    return False
+
+
 def score_evidence(case: EvalCase, actual: EvalObservation) -> ScorerResult:
     expected, items = case.expected, []
-    paths = [item.source_path for item in actual.evidence]
+    # EVIDENCE_PATH 只约束代码/配置证据，不把论文 PDF 当映射证据。
+    paths = [
+        item.source_path
+        for item in actual.evidence
+        if item.source_type != "paper"
+    ]
     text = "\n".join(item.text for item in actual.evidence)
     for path in expected.required_evidence_paths:
         items.append(_assertion(f"EVIDENCE_PATH:{path}",
                                 any(path in value for value in paths),
                                 "必须存在来源路径", path, paths))
+    for mapping in expected.required_module_file_mappings:
+        matched = _module_mapping_matched(
+            actual.output_payloads,
+            [mapping.module_name, *mapping.module_aliases],
+            mapping.file_path,
+        )
+        items.append(_assertion(
+            f"MODULE_MAPPING:{mapping.module_name}->{mapping.file_path}",
+            matched, "论文模块必须映射到指定代码文件",
+            mapping.file_path, matched))
     for term in expected.required_evidence_terms:
         items.append(_assertion(f"EVIDENCE_TERM:{term}", term in text,
                                 "Evidence 必须包含术语", term, term in text))
@@ -407,6 +492,93 @@ def score_quality(case: EvalCase, actual: EvalObservation) -> ScorerResult:
     for value in expected.forbidden_claims:
         items.append(_assertion(f"QUALITY_FORBIDDEN:{value}", value not in text,
                                 "不得包含无依据声明", False, value in text))
+    plan = actual.output_payloads.get("planning/experiment_plan.json")
+    plan_payload = plan if isinstance(plan, dict) else {}
+    run_commands = plan_payload.get("run_commands")
+    command_payloads = (
+        run_commands if isinstance(run_commands, list) else []
+    )
+    commands = [
+        str(item.get("command") or "")
+        for item in command_payloads
+        if isinstance(item, dict)
+    ]
+    command_text = "\n".join(commands).casefold()
+    plan_text = json.dumps(
+        plan_payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        default=str,
+    ).casefold()
+    if expected.min_experiment_plan_run_commands is not None:
+        items.append(
+            _assertion(
+                "QUALITY_EXPERIMENT_PLAN_COMMAND_COUNT_MIN",
+                len(commands) >= expected.min_experiment_plan_run_commands,
+                "ExperimentPlan 可执行入口数量达到下限",
+                expected.min_experiment_plan_run_commands,
+                len(commands),
+            )
+        )
+    if expected.max_experiment_plan_run_commands is not None:
+        items.append(
+            _assertion(
+                "QUALITY_EXPERIMENT_PLAN_COMMAND_COUNT_MAX",
+                len(commands) <= expected.max_experiment_plan_run_commands,
+                "ExperimentPlan 可执行入口数量不超过上限",
+                expected.max_experiment_plan_run_commands,
+                len(commands),
+            )
+        )
+    for term in expected.required_experiment_plan_command_terms:
+        items.append(
+            _assertion(
+                f"QUALITY_EXPERIMENT_PLAN_COMMAND_REQUIRED:{term}",
+                term.casefold() in command_text,
+                "ExperimentPlan command 必须包含指定训练入口或参数",
+                term,
+                commands,
+            )
+        )
+    if expected.required_experiment_plan_command_terms:
+        required_terms = [
+            term.casefold()
+            for term in expected.required_experiment_plan_command_terms
+        ]
+        coherent_commands = [
+            command
+            for command in commands
+            if all(term in command.casefold() for term in required_terms)
+        ]
+        items.append(
+            _assertion(
+                "QUALITY_EXPERIMENT_PLAN_COMMAND_COHERENT",
+                bool(coherent_commands),
+                "ExperimentPlan 的同一条 command 必须同时包含训练入口与必要参数",
+                expected.required_experiment_plan_command_terms,
+                commands,
+            )
+        )
+    for term in expected.forbidden_experiment_plan_command_terms:
+        items.append(
+            _assertion(
+                f"QUALITY_EXPERIMENT_PLAN_COMMAND_FORBIDDEN:{term}",
+                term.casefold() not in command_text,
+                "ExperimentPlan command 不得使用无效或越界参数",
+                f"not {term}",
+                commands,
+            )
+        )
+    for term in expected.required_experiment_plan_terms:
+        items.append(
+            _assertion(
+                f"QUALITY_EXPERIMENT_PLAN_REQUIRED:{term}",
+                term.casefold() in plan_text,
+                "ExperimentPlan 必须保留关键复现语义",
+                term,
+                term.casefold() in plan_text,
+            )
+        )
     if expected.min_indexed_page_ratio is not None:
         ratio = (
             len(set(actual.paper_indexed_pages))
@@ -753,7 +925,31 @@ SCORERS: dict[str, Scorer] = {
 
 def score_case(case: EvalCase, observation: EvalObservation,
                *, observation_path: str | None = None) -> EvalCaseResult:
-    results = [SCORERS[name](case, observation) for name in case.categories]
+    raw_results = [
+        SCORERS[name](case, observation)
+        for name in case.categories
+    ]
+    results = []
+    for result in raw_results:
+        pass_threshold = (
+            case.thresholds.min_category_scores.get(
+                result.category,
+                1.0,
+            )
+        )
+        results.append(
+            result.model_copy(
+                update={
+                    "passed": (
+                        result.score
+                        >= pass_threshold
+                    ),
+                    "pass_threshold": (
+                        pass_threshold
+                    ),
+                }
+            )
+        )
     weighted_sum = 0.0
     total_weight = 0.0
     for result in results:

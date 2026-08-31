@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "case_id": "provider_psttransformer_section_understanding",
+  "description": "真实 Provider 应从 PST-Transformer 论文抽取带 block provenance 的实现设置",
+  "suite": "provider",
+  "runner": "live_graph",
+  "categories": [
+    "schema",
+    "evidence",
+    "quality",
+    "efficiency"
+  ],
+  "tags": [
+    "provider",
+    "paper",
+    "structured_output",
+    "phase18",
+    "psttransformer"
+  ],
+  "problem_ids": [],
+  "input": {
+    "paper_path": "pdf/Point Spatio-Temporal Transformer Networks.pdf",
+    "repo_path": "/data/tianshaoqi24/PST-Transformer-main/",
+    "experiment_goal": "复现论文 main result",
+    "execution_profile_id": "psttransformer-local-supervised",
+    "scripted_responses": []
+  },
+  "expected": {
+    "required_schemas": [
+      "SectionExtractionDraft"
+    ],
+    "min_schema_success_rate": 0.9,
+    "max_schema_fallbacks": 0,
+    "max_schema_retries": 6,
+    "required_artifacts": [
+      {
+        "relative_path": "analysis/paper_document.json"
+      },
+      {
+        "relative_path": "analysis/paper_blocks.json"
+      },
+      {
+        "relative_path": "analysis/paper_sections.json"
+      },
+      {
+        "relative_path": "analysis/paper_parse_report.json"
+      },
+      {
+        "relative_path": "analysis/paper_fact_index.json"
+      },
+      {
+        "relative_path": "analysis/paper_conflicts.json"
+      }
+    ],
+    "required_experiment_setting_names": [
+      "training epochs",
+      "optimizer",
+      "initial learning rate",
+      "learning rate decay epochs",
+      "batch size",
+      "spatial subsampling rate"
+    ],
+    "min_paper_evidence_provenance_ratio": 0.95,
+    "max_paper_conflicts": 0,
+    "max_llm_calls": 30,
+    "max_human_interventions": 1
+  },
+  "thresholds": {
+    "min_overall_score": 0.85,
+    "max_score_regression": 0.05
+  }
+}

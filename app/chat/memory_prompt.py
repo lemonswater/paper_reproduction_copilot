@@ -22,11 +22,42 @@ MEMORY_SYSTEM_RULES = """
 4. decisions 只记录对话中已经明确作出的选择，不把建议写成决定。
 5. open_questions 只记录仍未解决的问题或待提供信息。
 6. 每条 statement 的 source_sequences 必须从 AVAILABLE_SEQUENCES 原样选择。
-7. citation_ids_to_preserve 只能从 AVAILABLE_CITATION_IDS 原样选择。
-8. 不输出 citation 路径、SHA-256、Artifact ID 等完整对象。
-9. 不输出 covered range、hash、version、memory_id 或 model 字段。
-10. 只返回符合 MemoryDraft schema 的结构化对象。
+   user_constraints 和 open_questions 只能引用 role=user 的消息；decisions
+   可以引用 user 或 assistant 消息，但应优先引用作出决定的 user 消息。
+7. 增量压缩时，上一版 Memory 中仍然有效的 statement 可以沿用其原有 source_sequences；
+   被用户更正或作废的旧 statement 必须从对应分区移除，不能与新值并列保留。
+8. citation_ids_to_preserve 只能从 AVAILABLE_CITATION_IDS 原样选择。
+9. 不输出 citation 路径、SHA-256、Artifact ID 等完整对象。
+10. 不输出 covered range、hash、version、memory_id 或 model 字段。
+11. 只返回符合 MemoryDraft schema 的结构化对象。
+12. summary 只描述当前仍然有效的会话状态，控制在 1000 个字符以内。
+13. user_constraints、decisions、open_questions 每个列表最多保留 8 条。
+14. 每条 statement 控制在 200 个字符以内；同一个事实不能拆分或重复为多条。
+15. 用户使用“改为”“更正”“不再使用”等表达覆盖旧值时，只保留新值，
+    必须删除被覆盖的旧值。
+16. summary、user_constraints、decisions、open_questions 和
+    citation_ids_to_preserve 五个顶层字段必须始终返回；没有内容时返回空数组。
+17. 只返回紧凑 JSON，不输出解释、Markdown、代码围栏或 schema 原文。
 """.strip()
+
+
+def memory_message_payload(item: ChatMessage) -> dict:
+    """Return the exact message projection included in the compaction prompt.
+
+    The database message contains persistence metadata such as message IDs,
+    hashes and timestamps.  Those fields are not sent to the Memory Provider
+    and therefore must not consume the provider input budget.
+    """
+
+    return {
+        "sequence": item.sequence,
+        "role": item.role,
+        "content": item.content,
+        "citation_ids": [
+            citation.citation_id
+            for citation in item.citations
+        ],
+    }
 
 
 def build_memory_prompt(
@@ -43,15 +74,7 @@ def build_memory_prompt(
         }
     )
     delta_payload = [
-        {
-            "sequence": item.sequence,
-            "role": item.role,
-            "content": item.content,
-            "citation_ids": [
-                citation.citation_id
-                for citation in item.citations
-            ],
-        }
+        memory_message_payload(item)
         for item in delta
     ]
     # 增量压缩会重写完整 Memory body，因此可以继续引用上一版已经

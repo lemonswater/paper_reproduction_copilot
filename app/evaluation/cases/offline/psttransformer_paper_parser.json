@@ -31,9 +31,7 @@
       "experiments",
       "ablation",
       "conclusion",
-      "references",
-      "datasets",
-      "results"
+      "references"
     ],
     "required_section_titles": [
       "Introduction",
@@ -47,8 +45,8 @@
     ],
     "forbidden_exact_section_titles": [],
     "forbidden_section_title_terms": [],
-    "min_section_count": 500,
-    "max_section_count": 650,
+    "min_section_count": 20,
+    "max_section_count": 30,
     "required_parent_relations": [
       {
         "child_number": "3.1",

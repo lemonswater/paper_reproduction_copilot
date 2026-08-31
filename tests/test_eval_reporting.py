@@ -97,4 +97,5 @@ def test_render_eval_report_contains_summary_and_case_details() -> None:
     assert "Cases：`1/2`" in text
     assert "### case_success" in text
     assert "### case_fail" in text
+    assert "Pass threshold" in text
     assert "`FAIL` `QUALITY_FIXTURE`" in text

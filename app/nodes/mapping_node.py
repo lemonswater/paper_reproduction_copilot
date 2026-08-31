@@ -4,6 +4,10 @@ import json
 import re
 
 from app.config import settings
+from app.model_routing.errors import (
+    ModelBudgetExceeded,
+    ModelRouteUnavailable,
+)
 from app.model_routing.factory import build_model_gateway
 from app.prompts.mapping_prompt import MAPPING_PROMPT
 from app.retrieval.schemas import (
@@ -25,6 +29,7 @@ from app.tools.artifact_tools import (
     write_text_artifact,
 )
 from app.tools.error_tools import (
+    build_stage_error,
     build_structured_stage_error,
     persist_stage_errors,
     stage_error_result,
@@ -32,9 +37,28 @@ from app.tools.error_tools import (
 from app.tools.mapping_target_tools import (
     mapping_targets_from_state,
 )
+from app.tools.mapping_alias_tools import alias_conflicts
 from app.tools.structured_output_tools import (
     write_structured_output_trace,
 )
+
+_MAPPING_EVIDENCE_ITEM_LIMIT = 6
+_MAPPING_EVIDENCE_TEXT_BUDGET_BYTES = 16_000
+_MAPPING_EVIDENCE_ITEM_MAX_BYTES = 3_200
+_STRONG_EVIDENCE_RELATIVE_SCORE = 0.95
+_STRONG_EVIDENCE_MAX_CANDIDATES = 2
+_GENERIC_IDENTITY_TOKENS = {
+    "architecture",
+    "block",
+    "component",
+    "framework",
+    "implementation",
+    "method",
+    "model",
+    "module",
+    "network",
+    "operator",
+}
 
 
 def _trace_slug(value: str) -> str:
@@ -44,6 +68,165 @@ def _trace_slug(value: str) -> str:
         value.lower(),
     ).strip("-")
     return (slug or "module")[:60]
+
+
+def _truncate_utf8(value: object, max_bytes: int) -> str:
+    """按路由器采用的 UTF-8 字节口径限制提示词字段。"""
+
+    if max_bytes <= 0:
+        return ""
+    text = str(value or "")
+    encoded = text.encode("utf-8")
+    if len(encoded) <= max_bytes:
+        return text
+    suffix = "\n...[truncated]"
+    suffix_bytes = suffix.encode("utf-8")
+    if max_bytes <= len(suffix_bytes):
+        return encoded[:max_bytes].decode(
+            "utf-8",
+            errors="ignore",
+        )
+    prefix = encoded[
+        : max(0, max_bytes - len(suffix_bytes))
+    ].decode("utf-8", errors="ignore")
+    return prefix.rstrip() + suffix
+
+
+def _compact_text_list(
+    values: object,
+    *,
+    max_items: int,
+    item_max_bytes: int,
+) -> list[str]:
+    if not isinstance(values, list):
+        return []
+    output: list[str] = []
+    for value in values[:max_items]:
+        compact = _truncate_utf8(
+            value,
+            item_max_bytes,
+        ).strip()
+        if compact:
+            output.append(compact)
+    return output
+
+
+def _compact_mapping_target(
+    target: CodeMappingTarget,
+) -> dict:
+    """只发送语义检索所需字段，完整论文 Evidence 仍保留在 Artifact。"""
+
+    return {
+        "target_id": target.target_id,
+        "category": target.category,
+        "name": target.name,
+        "description": _truncate_utf8(
+            target.description,
+            2_500,
+        ),
+        "aliases": _compact_text_list(
+            target.aliases,
+            max_items=8,
+            item_max_bytes=120,
+        ),
+        "possible_keywords": _compact_text_list(
+            target.possible_keywords,
+            max_items=16,
+            item_max_bytes=120,
+        ),
+    }
+
+
+def _compact_evidence_pack(
+    pack_payload: dict,
+) -> dict:
+    """删除绑定阶段才需要的哈希和检索诊断，保留可判读代码证据。"""
+
+    compact_items: list[dict] = []
+    remaining_text_bytes = (
+        _MAPPING_EVIDENCE_TEXT_BUDGET_BYTES
+    )
+    raw_items = pack_payload.get("items")
+    if not isinstance(raw_items, list):
+        raw_items = []
+
+    for item in raw_items[
+        :_MAPPING_EVIDENCE_ITEM_LIMIT
+    ]:
+        if not isinstance(item, dict):
+            continue
+        text_budget = min(
+            _MAPPING_EVIDENCE_ITEM_MAX_BYTES,
+            remaining_text_bytes,
+        )
+        evidence_text = _truncate_utf8(
+            item.get("text"),
+            text_budget,
+        )
+        remaining_text_bytes = max(
+            0,
+            remaining_text_bytes
+            - len(evidence_text.encode("utf-8")),
+        )
+        compact_items.append(
+            {
+                key: value
+                for key, value in {
+                    "evidence_id": item.get(
+                        "evidence_id"
+                    ),
+                    "file_path": item.get(
+                        "file_path"
+                    ),
+                    "symbol": item.get("symbol"),
+                    "start_line": item.get(
+                        "start_line"
+                    ),
+                    "end_line": item.get("end_line"),
+                    "retrieval_channels": item.get(
+                        "retrieval_channels"
+                    )
+                    or [],
+                    "fused_score": item.get(
+                        "fused_score"
+                    ),
+                    "text": evidence_text,
+                }.items()
+                if value is not None
+            }
+        )
+
+    return {
+        "query": _truncate_utf8(
+            pack_payload.get("query"),
+            1_500,
+        ),
+        "keywords": _compact_text_list(
+            pack_payload.get("keywords"),
+            max_items=16,
+            item_max_bytes=120,
+        ),
+        "items": compact_items,
+    }
+
+
+def _build_mapping_prompt(
+    *,
+    target: CodeMappingTarget,
+    pack_payload: dict,
+) -> str:
+    return MAPPING_PROMPT.format(
+        module=json.dumps(
+            _compact_mapping_target(target),
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ),
+        evidence_pack=json.dumps(
+            _compact_evidence_pack(pack_payload),
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ),
+    )
 
 
 def _build_mapping_fallback(
@@ -159,6 +342,184 @@ def _to_business_evidence(
             evidence.retrieval_channels
         ),
         retrieval_score=evidence.fused_score,
+    )
+
+
+def _identity_tokens(value: object) -> set[str]:
+    text = re.sub(
+        r"(?<=[a-z])(?=[A-Z])",
+        " ",
+        str(value or ""),
+    ).casefold()
+    raw_tokens = re.findall(
+        r"[a-z0-9]+|[\u4e00-\u9fff]+",
+        text,
+    )
+    tokens: set[str] = set()
+    for token in raw_tokens:
+        if (
+            len(token) < 3
+            or token in _GENERIC_IDENTITY_TOKENS
+        ):
+            continue
+        tokens.add(token)
+        if token.endswith("ed") and len(token) > 5:
+            tokens.add(token[:-2])
+        if token.endswith("ing") and len(token) > 6:
+            tokens.add(token[:-3])
+        if token.endswith("ing") and len(token) > 7:
+            tokens.add(token[:-3] + "e")
+        if token.endswith("s") and len(token) > 4:
+            tokens.add(token[:-1])
+        if token == "autoencoder":
+            tokens.add("mae")
+        if token == "convolution":
+            tokens.add("conv")
+    return tokens
+
+
+def _target_identity_tokens(
+    target: CodeMappingTarget,
+) -> set[str]:
+    return {
+        token
+        for value in [
+            target.name,
+            *target.aliases,
+            *target.possible_keywords,
+        ]
+        for token in _identity_tokens(value)
+    }
+
+
+def _evidence_identity_tokens(
+    evidence: CodeEvidence,
+) -> set[str]:
+    return _identity_tokens(
+        " ".join(
+            [
+                evidence.file_path,
+                evidence.symbol or "",
+                evidence.text,
+            ]
+        )
+    )
+
+
+def _recover_empty_mapping_from_strong_evidence(
+    *,
+    target: CodeMappingTarget,
+    mapping: ModuleMapping,
+    pack_payload: dict,
+    repo_path: str,
+) -> ModuleMapping:
+    """仅用多通道、身份一致且无硬冲突的有效 Evidence 补空候选。"""
+
+    if (
+        target.category != "core_method"
+        or mapping.candidates
+    ):
+        return mapping
+    try:
+        pack = EvidencePack.model_validate(pack_payload)
+    except (TypeError, ValueError):
+        return mapping
+
+    valid_items = [
+        item
+        for item in pack.items
+        if validate_code_evidence(
+            repo_path=repo_path,
+            evidence=item,
+        )
+    ]
+    if not valid_items:
+        return mapping
+
+    max_score = max(
+        item.fused_score
+        for item in valid_items
+    )
+    minimum_score = (
+        max_score * _STRONG_EVIDENCE_RELATIVE_SCORE
+    )
+    target_tokens = _target_identity_tokens(target)
+    if not target_tokens:
+        return mapping
+
+    selected: list[CodeEvidence] = []
+    seen_paths: set[str] = set()
+    for item in valid_items:
+        channels = set(item.retrieval_channels)
+        independent_channels = channels & {
+            "dense",
+            "bm25",
+            "keyword",
+            "path",
+            "import_graph",
+        }
+        if (
+            item.fused_score < minimum_score
+            or not item.symbol
+            or "symbol" not in channels
+            or len(independent_channels) < 2
+            or item.file_path in seen_paths
+            or alias_conflicts(
+                target.name,
+                item.symbol,
+            )
+            or not (
+                target_tokens
+                & _evidence_identity_tokens(item)
+            )
+        ):
+            continue
+        selected.append(item)
+        seen_paths.add(item.file_path)
+        if (
+            len(selected)
+            >= _STRONG_EVIDENCE_MAX_CANDIDATES
+        ):
+            break
+
+    if not selected:
+        return mapping
+
+    recovered = mapping.model_copy(
+        update={
+            "candidates": [
+                CodeCandidate(
+                    file_path=item.file_path,
+                    symbols=[item.symbol]
+                    if item.symbol
+                    else [],
+                    reason=(
+                        "映射模型未保留候选；程序仅依据当前 Evidence "
+                        "Pack 中符号命中、至少三种检索通道、相对高分"
+                        "和目标身份词一致性补回该候选。"
+                    ),
+                    evidence_ids=[item.evidence_id],
+                    confidence="medium",
+                )
+                for item in selected
+            ],
+            "unresolved_questions": list(
+                dict.fromkeys(
+                    [
+                        *mapping.unresolved_questions,
+                        (
+                            "映射模型返回空候选；已应用受约束的强 Evidence "
+                            "兜底，仍需结合完整模块调用关系复核。"
+                        ),
+                    ]
+                )
+            ),
+        }
+    )
+    return bind_mapping_to_evidence_pack(
+        mapping=recovered,
+        pack_payload=pack_payload,
+        repo_path=repo_path,
     )
 
 
@@ -320,9 +681,6 @@ def mapping_node(state: dict) -> dict:
     structured_errors = []
 
     for index, target in enumerate(targets):
-        target_payload = target.model_dump(
-            mode="json"
-        )
         target_name = target.name
         pack_payload = (
             evidence_packs.get(
@@ -340,28 +698,55 @@ def mapping_node(state: dict) -> dict:
             )
             continue
 
-        prompt = MAPPING_PROMPT.format(
-            module=json.dumps(
-                target_payload,
-                ensure_ascii=False,
-                indent=2,
-            ),
-            evidence_pack=json.dumps(
-                pack_payload,
-                ensure_ascii=False,
-                indent=2,
-            ),
+        prompt = _build_mapping_prompt(
+            target=target,
+            pack_payload=pack_payload,
         )
 
-        invocation = model_gateway.invoke_structured(
-            task_kind="paper_code_mapping",
-            schema=ModuleMapping,
-            prompt=prompt,
-            node_name=f"mapping:{target.target_id}",
-            job_id=state.get("job_id"),
-            run_id=state.get("run_id"),
-            quality_tier="high",
-        )
+        try:
+            invocation = model_gateway.invoke_structured(
+                task_kind="paper_code_mapping",
+                schema=ModuleMapping,
+                prompt=prompt,
+                node_name=(
+                    f"mapping:{target.target_id}"
+                ),
+                job_id=state.get("job_id"),
+                run_id=state.get("run_id"),
+                quality_tier="high",
+            )
+        except (
+            ModelRouteUnavailable,
+            ModelBudgetExceeded,
+        ) as exc:
+            mapping = _build_mapping_fallback(target)
+            error_code = (
+                "MAPPING_MODEL_BUDGET_EXCEEDED"
+                if isinstance(exc, ModelBudgetExceeded)
+                else "MAPPING_MODEL_ROUTE_UNAVAILABLE"
+            )
+            structured_errors.append(
+                build_stage_error(
+                    stage="mapping",
+                    code=error_code,
+                    category="agent",
+                    message=str(exc),
+                    retryable=False,
+                    terminal=False,
+                    exception_type=type(exc).__name__,
+                    context={
+                        "target_id": target.target_id,
+                        "target_category": (
+                            target.category
+                        ),
+                        "target_name": target_name,
+                    },
+                )
+            )
+            mappings.append(
+                mapping.model_dump(mode="json")
+            )
+            continue
 
         if invocation.value is not None:
             mapping = invocation.value
@@ -389,6 +774,12 @@ def mapping_node(state: dict) -> dict:
             # 结构校验成功不等于业务可信。
             # 此步骤执行文件、symbol、ID、hash 四重绑定。
             mapping = bind_mapping_to_evidence_pack(
+                mapping=mapping,
+                pack_payload=pack_payload,
+                repo_path=str(repo_path),
+            )
+            mapping = _recover_empty_mapping_from_strong_evidence(
+                target=target,
                 mapping=mapping,
                 pack_payload=pack_payload,
                 repo_path=str(repo_path),

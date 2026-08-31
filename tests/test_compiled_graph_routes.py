@@ -171,6 +171,28 @@ def test_compiled_graph_contains_input_and_prepare_nodes():
     }
 
 
+def test_compiled_graph_resolves_mapping_aliases_before_code_search():
+    graph = build_graph(checkpointer=MemorySaver())
+    drawable = graph.get_graph()
+
+    assert "mapping_alias_resolver" in drawable.nodes
+    repo_scan_targets = {
+        edge.target
+        for edge in drawable.edges
+        if edge.source == "repo_scan"
+    }
+    alias_targets = {
+        edge.target
+        for edge in drawable.edges
+        if edge.source == "mapping_alias_resolver"
+    }
+    assert repo_scan_targets == {
+        "mapping_alias_resolver",
+        "final_report",
+    }
+    assert alias_targets == {"code_search", "final_report"}
+
+
 def test_route_functions_are_not_defined_twice():
     graph_source = Path("app/graph.py").read_text(encoding="utf-8")
     module = ast.parse(graph_source)

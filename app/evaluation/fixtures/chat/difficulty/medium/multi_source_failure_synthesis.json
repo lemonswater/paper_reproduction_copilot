@@ -1,0 +1,60 @@
+{
+  "schema_version": 2,
+  "scenario_id": "chat_provider_medium_multi_source_failure_synthesis",
+  "job_status": "failed",
+  "sources": [
+    {
+      "citation": {
+        "citation_id": "job:current",
+        "source_type": "job",
+        "label": "Current job state"
+      },
+      "content": "status=failed; stage=execution; execution_started=true",
+      "score": 1000
+    },
+    {
+      "citation": {
+        "citation_id": "artifact:execution-log:medium",
+        "source_type": "artifact",
+        "label": "logs/execution.log",
+        "artifact_id": "execution-log-medium",
+        "relative_path": "logs/execution.log",
+        "artifact_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+        "locator": "last exception"
+      },
+      "content": "RuntimeError: CUDA out of memory while allocating the next training batch. The process exited before validation.",
+      "score": 980
+    },
+    {
+      "citation": {
+        "citation_id": "artifact:training-config:medium",
+        "source_type": "artifact",
+        "label": "configs/effective_training.json",
+        "artifact_id": "training-config-medium",
+        "relative_path": "configs/effective_training.json",
+        "artifact_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+        "locator": "effective configuration"
+      },
+      "content": "effective_batch_size=32; mixed_precision=false; gradient_accumulation_steps=1",
+      "score": 940
+    }
+  ],
+  "seed_exchanges": [],
+  "turns": [
+    {
+      "label": "failure-summary",
+      "question": "结合任务状态、日志和生效配置说明失败原因，并指出当时的 batch size。",
+      "idempotency_key": "difficulty-medium-synthesis-1"
+    }
+  ],
+  "memory_scripts": [],
+  "repetitions": 2,
+  "compaction_enabled": false,
+  "recent_messages": 4,
+  "compaction_min_messages": 4,
+  "compaction_max_messages": 40,
+  "compaction_max_input_chars": 20000,
+  "memory_max_chars": 8000,
+  "history_max_chars": 8000,
+  "prompt_max_chars": 40000
+}

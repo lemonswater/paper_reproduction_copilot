@@ -17,7 +17,7 @@
   "turns": [
     {
       "label": "unsupported-metric",
-      "question": "最终准确率是多少？请给出精确数值。",
+      "question": "这次训练结果怎么样？",
       "idempotency_key": "provider-unsupported-1"
     }
   ],

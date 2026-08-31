@@ -93,6 +93,10 @@ def render_eval_report(
                     "",
                     f"- Passed：`{scorer.passed}`",
                     f"- Score：`{scorer.score:.4f}`",
+                    (
+                        "- Pass threshold："
+                        f"`{scorer.pass_threshold:.4f}`"
+                    ),
                 ]
             )
             for assertion in scorer.assertions:

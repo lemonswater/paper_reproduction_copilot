@@ -26,6 +26,18 @@ class ChatMemoryConflict(ChatMemoryError):
 class ChatMemoryUnavailable(ChatMemoryError):
     """Memory Provider/structured output 暂时不可用。"""
 
+    def __init__(
+        self,
+        reason_code: str = "ChatMemoryStructuredOutputFailed",
+        *,
+        attempt_count: int = 0,
+    ) -> None:
+        # 这里只保留有限错误码和尝试次数，不能携带 Provider 原始响应、
+        # Prompt、路径或校验错误全文进入 Chat API。
+        super().__init__(reason_code)
+        self.reason_code = reason_code
+        self.attempt_count = attempt_count
+
 
 class ChatPromptBudgetExceeded(ChatUnavailableError):
     """固定规则、问题和最小 Job source 已无法放进总预算。"""

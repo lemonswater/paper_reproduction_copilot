@@ -61,6 +61,9 @@ from app.nodes.experiment_plan_node import experiment_plan_node
 from app.nodes.final_report_node import final_report_node
 from app.nodes.log_debug_node import log_debug_node
 from app.nodes.mapping_node import mapping_node
+from app.nodes.mapping_alias_resolver_node import (
+    mapping_alias_resolver_node,
+)
 from app.nodes.method_extractor_node import method_extractor_node
 from app.nodes.paper_reader_node import paper_reader_node
 from app.nodes.preflight_check_node import preflight_check_node
@@ -472,6 +475,10 @@ def map_code(paper_path: str, repo_path: str):
             ("paper_reader", paper_reader_node),
             ("method_extractor", method_extractor_node),
             ("repo_scan", repo_scan_node),
+            (
+                "mapping_alias_resolver",
+                mapping_alias_resolver_node,
+            ),
             ("code_search", code_search_node),
             ("mapping", mapping_node),
         ],
@@ -509,6 +516,10 @@ def plan_experiment(
             ("paper_reader", paper_reader_node),
             ("method_extractor", method_extractor_node),
             ("repo_scan", repo_scan_node),
+            (
+                "mapping_alias_resolver",
+                mapping_alias_resolver_node,
+            ),
             ("code_search", code_search_node),
             ("mapping", mapping_node),
             ("experiment_plan", experiment_plan_node),

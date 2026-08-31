@@ -1,7 +1,7 @@
 # Python 源码函数参考：Phase 40-46
 
-> 自动同步日期：2026-08-17
-> 覆盖文件：80；函数/方法：766。
+> 自动同步日期：2026-08-19
+> 覆盖文件：80；函数/方法：767。
 > 本文由当前 Python AST 生成；伪代码保留控制流和失败边界，但会把相邻语句合并为通俗的逻辑步骤。
 > 阶段归类按文件的主要职责完成；跨阶段持续修改的文件只进入一个主分册，源码行号是最终依据。
 
@@ -72,7 +72,7 @@
 - [`tests/test_failure_memory_evidence_reader.py`](#tests-test-failure-memory-evidence-reader-py)：12 个函数/方法
 - [`tests/test_failure_memory_identity.py`](#tests-test-failure-memory-identity-py)：3 个函数/方法
 - [`tests/test_failure_memory_repository.py`](#tests-test-failure-memory-repository-py)：5 个函数/方法
-- [`tests/test_failure_memory_retention.py`](#tests-test-failure-memory-retention-py)：8 个函数/方法
+- [`tests/test_failure_memory_retention.py`](#tests-test-failure-memory-retention-py)：9 个函数/方法
 - [`tests/test_failure_memory_retrieval.py`](#tests-test-failure-memory-retrieval-py)：4 个函数/方法
 - [`tests/test_notification_projector.py`](#tests-test-notification-projector-py)：7 个函数/方法
 - [`tests/test_notification_repository.py`](#tests-test-notification-repository-py)：7 个函数/方法
@@ -10990,7 +10990,7 @@
 
 #### `_validate_relative_path`
 
-- **源码**：`app/tool_contracts/models.py:12`
+- **源码**：`app/tool_contracts/models.py:18`
 - **签名**：`def _validate_relative_path(value: str) -> str`
 - **作用**：在论文复现系统的凭证保护、职责隔离和工具契约治理阶段中，该函数接收当前字段值，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终文本、路径、状态标签或内容身份摘要。
 
@@ -11015,7 +11015,7 @@
 
 #### `RepoListFilesInput.validate_suffixes`
 
-- **源码**：`app/tool_contracts/models.py:38`
+- **源码**：`app/tool_contracts/models.py:44`
 - **签名**：`def validate_suffixes(cls: 未显式标注, value: list[str] | None) -> list[str] | None`
 - **作用**：在论文复现系统的凭证保护、职责隔离和工具契约治理阶段中，该函数接收当前字段值，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终有界、排序或带证据来源的结果集合。
 
@@ -11045,7 +11045,7 @@
 
 #### `RelativeFilesOutput.validate_files`
 
-- **源码**：`app/tool_contracts/models.py:59`
+- **源码**：`app/tool_contracts/models.py:65`
 - **签名**：`def validate_files(cls, value: list[str]) -> list[str]`
 - **作用**：在论文复现系统的凭证保护、职责隔离和工具契约治理阶段中，该函数接收当前字段值，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终有界、排序或带证据来源的结果集合。
 
@@ -11069,7 +11069,7 @@
 
 #### `RepoClassificationOutput.validate_paths`
 
-- **源码**：`app/tool_contracts/models.py:74`
+- **源码**：`app/tool_contracts/models.py:80`
 - **签名**：`def validate_paths(cls, value: list[str]) -> list[str]`
 - **作用**：在论文复现系统的凭证保护、职责隔离和工具契约治理阶段中，该函数接收当前字段值，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终有界、排序或带证据来源的结果集合。
 
@@ -11093,7 +11093,7 @@
 
 #### `SearchKeywordsInput.normalize_keywords`
 
-- **源码**：`app/tool_contracts/models.py:96`
+- **源码**：`app/tool_contracts/models.py:102`
 - **签名**：`def normalize_keywords(cls, value: list[str]) -> list[str]`
 - **作用**：在论文复现系统的凭证保护、职责隔离和工具契约治理阶段中，该函数接收当前字段值，用于读取并整理论文、源码或运行产物，把原始输入转换成带位置和身份信息的结构化证据，最终有界、排序或带证据来源的结果集合。
 
@@ -11120,7 +11120,7 @@
 
 #### `SearchMatch.validate_file_path`
 
-- **源码**：`app/tool_contracts/models.py:112`
+- **源码**：`app/tool_contracts/models.py:118`
 - **签名**：`def validate_file_path(cls, value: str) -> str`
 - **作用**：在论文复现系统的凭证保护、职责隔离和工具契约治理阶段中，该函数接收当前字段值，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终文本、路径、状态标签或内容身份摘要。
 
@@ -11144,7 +11144,7 @@
 
 #### `CodeSliceInput.validate_window`
 
-- **源码**：`app/tool_contracts/models.py:134`
+- **源码**：`app/tool_contracts/models.py:140`
 - **签名**：`def validate_window(self) -> CodeSliceInput`
 - **作用**：在论文复现系统的凭证保护、职责隔离和工具契约治理阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终标注为 `CodeSliceInput` 的领域结果。
 
@@ -11169,7 +11169,7 @@
 
 #### `TracebackPathsOutput.validate_paths`
 
-- **源码**：`app/tool_contracts/models.py:194`
+- **源码**：`app/tool_contracts/models.py:200`
 - **签名**：`def validate_paths(cls, value: list[str]) -> list[str]`
 - **作用**：在论文复现系统的凭证保护、职责隔离和工具契约治理阶段中，该函数接收当前字段值，用于检查输入、运行状态、内容身份和策略约束，阻止不满足复现条件的数据继续流转，最终有界、排序或带证据来源的结果集合。
 
@@ -11193,7 +11193,7 @@
 
 #### `ActionRiskInput.limit_action_size`
 
-- **源码**：`app/tool_contracts/models.py:202`
+- **源码**：`app/tool_contracts/models.py:208`
 - **签名**：`def limit_action_size(self) -> ActionRiskInput`
 - **作用**：在论文复现系统的凭证保护、职责隔离和工具契约治理阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `ActionRiskInput` 的领域结果。
 
@@ -11218,7 +11218,7 @@
 
 #### `_resolve_research_schemas`
 
-- **源码**：`app/tool_contracts/models.py:230`
+- **源码**：`app/tool_contracts/models.py:236`
 - **签名**：`def _resolve_research_schemas() -> None`
 - **作用**：在论文复现系统的凭证保护、职责隔离和工具契约治理阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于把论文中的方法、模块或实验意图与仓库中的可验证对象建立稳定关联，并保留匹配依据，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -13687,9 +13687,32 @@
 构造临时集合、映射或轻量领域对象，并返回处理结果。
 ```
 
+#### `FakeEmptyReferences.active_referenced_job_ids`
+
+- **源码**：`tests/test_failure_memory_retention.py:23`
+- **签名**：`def active_referenced_job_ids(self)`
+- **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
+
+**输入**
+
+| 参数 | Python 类型 | 语义 |
+|---|---|---|
+| `self` | `未显式标注` | 当前类实例，保存该方法需要的 Repository、配置或运行依赖。 |
+
+**输出**
+
+- **Python 类型**：`未显式标注（存在 return）`
+- **语义**：源码未声明返回类型；按各个 `return` 分支返回运行时领域对象，失败通过异常表示。
+
+**伪代码**
+
+```text
+构造临时集合、映射或轻量领域对象，并返回处理结果。
+```
+
 #### `_retention_for_blocked_ids`
 
-- **源码**：`tests/test_failure_memory_retention.py:22`
+- **源码**：`tests/test_failure_memory_retention.py:27`
 - **签名**：`def _retention_for_blocked_ids(*, holds, memory)`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前处理结果、记忆，用于围绕论文复现链路完成一次受控的数据处理、状态更新或依赖协调，最终标注为 `未显式标注（存在 return）` 的领域结果。
 
@@ -13708,12 +13731,13 @@
 **伪代码**
 
 ```text
-调用 `__new__` 完成该函数的一项辅助处理，并把结果记为 领域服务对象；构造 `FakeRetentionHolds` 结构化领域对象，并把结果记为 持久化仓库；构造 `FakeFailureReferences` 结构化领域对象，并把结果记为 失败记忆；返回领域服务对象的当前值。
+调用 `__new__` 完成该函数的一项辅助处理，并把结果记为 领域服务对象；构造 `FakeRetentionHolds` 结构化领域对象，并把结果记为 持久化仓库；构造 `FakeFailureReferences` 结构化领域对象，并把结果记为 失败记忆；构造 `FakeEmptyReferences` 结构化领域对象，并把结果记为 项目记忆。
+构造 `FakeEmptyReferences` 结构化领域对象，并把结果记为 记忆；返回领域服务对象的当前值。
 ```
 
 #### `test_retention_unions_explicit_holds_and_failure_references`
 
-- **源码**：`tests/test_failure_memory_retention.py:31`
+- **源码**：`tests/test_failure_memory_retention.py:38`
 - **签名**：`def test_retention_unions_explicit_holds_and_failure_references()`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -13734,7 +13758,7 @@
 
 #### `test_verified_case_references_source_and_child`
 
-- **源码**：`tests/test_failure_memory_retention.py:43`
+- **源码**：`tests/test_failure_memory_retention.py:50`
 - **签名**：`def test_verified_case_references_source_and_child(tmp_path)`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -13757,7 +13781,7 @@
 
 #### `test_deprecated_case_releases_retention_edges`
 
-- **源码**：`tests/test_failure_memory_retention.py:57`
+- **源码**：`tests/test_failure_memory_retention.py:64`
 - **签名**：`def test_deprecated_case_releases_retention_edges(tmp_path)`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -19269,7 +19293,7 @@
 
 #### `test_catalog_contains_exact_first_wave_tools`
 
-- **源码**：`tests/test_tool_contract_catalog.py:45`
+- **源码**：`tests/test_tool_contract_catalog.py:50`
 - **签名**：`def test_catalog_contains_exact_first_wave_tools() -> None`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -19292,7 +19316,7 @@
 
 #### `test_agent_read_only_contracts_never_declare_write_effects`
 
-- **源码**：`tests/test_tool_contract_catalog.py:65`
+- **源码**：`tests/test_tool_contract_catalog.py:70`
 - **签名**：`def test_agent_read_only_contracts_never_declare_write_effects() -> None`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -19316,7 +19340,7 @@
 
 #### `test_repo_tool_returns_only_relative_files`
 
-- **源码**：`tests/test_tool_contract_catalog.py:81`
+- **源码**：`tests/test_tool_contract_catalog.py:86`
 - **签名**：`def test_repo_tool_returns_only_relative_files(tmp_path: Path) -> None`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -19340,7 +19364,7 @@
 
 #### `test_workspace_path_escape_is_policy_failure`
 
-- **源码**：`tests/test_tool_contract_catalog.py:98`
+- **源码**：`tests/test_tool_contract_catalog.py:103`
 - **签名**：`def test_workspace_path_escape_is_policy_failure(tmp_path: Path) -> None`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -19364,7 +19388,7 @@
 
 #### `test_repo_scan_does_not_follow_symlink`
 
-- **源码**：`tests/test_tool_contract_catalog.py:114`
+- **源码**：`tests/test_tool_contract_catalog.py:119`
 - **签名**：`def test_repo_scan_does_not_follow_symlink(tmp_path: Path) -> None`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -19389,7 +19413,7 @@
 
 #### `test_search_contract_uses_deterministic_fallback`
 
-- **源码**：`tests/test_tool_contract_catalog.py:133`
+- **源码**：`tests/test_tool_contract_catalog.py:138`
 - **签名**：`def test_search_contract_uses_deterministic_fallback(tmp_path: Path, monkeypatch: 未显式标注) -> None`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径、测试环境修改工具，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -19414,7 +19438,7 @@
 
 #### `test_code_and_log_tools_use_different_roots`
 
-- **源码**：`tests/test_tool_contract_catalog.py:161`
+- **源码**：`tests/test_tool_contract_catalog.py:166`
 - **签名**：`def test_code_and_log_tools_use_different_roots(tmp_path: Path) -> None`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收临时工作目录路径，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 
@@ -19438,7 +19462,7 @@
 
 #### `test_risk_tool_is_not_agent_exposed`
 
-- **源码**：`tests/test_tool_contract_catalog.py:185`
+- **源码**：`tests/test_tool_contract_catalog.py:190`
 - **签名**：`def test_risk_tool_is_not_agent_exposed() -> None`
 - **作用**：在论文复现系统的自动化测试和边界验证阶段中，该函数接收当前运行配置、模块状态和已注入依赖，用于构造受控输入、替身依赖或失败场景，并验证系统输出、状态变化、异常边界和安全约束，最终更新流程状态、写入运行产物或通过异常报告不可复现原因。
 

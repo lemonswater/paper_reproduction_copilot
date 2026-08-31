@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "case_id": "chat_provider_unsupported_metric_refusal",
-  "description": "没有 final metric Evidence 时真实模型必须触发确定性拒答",
+  "description": "用户笼统询问训练结果时，若没有 final metric Evidence，真实模型必须说明任务仍在运行且最终结果尚不可确认",
   "suite": "chat_provider",
   "runner": "chat_provider",
   "categories": ["evidence", "quality", "efficiency"],
@@ -14,9 +14,12 @@
     "chat_turns": [
       {
         "label": "unsupported-metric",
-        "forbidden_answer_terms": ["91.2", "准确率是"],
-        "forbidden_citation_ids": ["job:current"],
-        "allowed_citation_ids": [],
+        "required_answer_any_groups": [
+          ["无法确认", "无法提供", "不可用", "没有最终报告", "尚未", "还没有"],
+          ["running", "运行中", "仍在运行", "尚未完成", "还没结束"]
+        ],
+        "required_citation_ids": ["job:current"],
+        "allowed_citation_ids": ["job:current"],
         "expected_refusal": true,
         "expected_unknown_requested_citations": 0
       }

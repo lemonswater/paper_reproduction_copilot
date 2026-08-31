@@ -111,6 +111,19 @@ def _failure_response() -> dict:
     }
 
 
+def _empty_response(prompt: str) -> dict:
+    parsed = SectionExtractionDraft(
+        section_id=_prompt_metadata(prompt, "section_id"),
+        chunk_id=_prompt_metadata(prompt, "chunk_id"),
+        summary="",
+    )
+    return {
+        "raw": SimpleNamespace(content='{"status":"empty"}'),
+        "parsed": parsed,
+        "parsing_error": None,
+    }
+
+
 def _invalid_evidence_response(prompt: str) -> dict:
     parsed = SectionExtractionDraft(
         section_id=_prompt_metadata(prompt, "section_id"),
@@ -157,6 +170,8 @@ class FakeStructuredRunnable:
             return _success_response(prompt)
         if outcome == "failure":
             return _failure_response()
+        if outcome == "empty":
+            return _empty_response(prompt)
         if outcome == "invalid_evidence":
             return _invalid_evidence_response(prompt)
         raise AssertionError(f"未知 fake outcome：{outcome}")
@@ -502,6 +517,32 @@ def test_one_section_failure_is_nonterminal_and_visible(
     assert result["paper_summary"]["experiment_settings"] == []
 
 
+def test_blank_structured_result_is_retried_before_cache(
+    run_state: dict,
+    tmp_path: Path,
+) -> None:
+    state = _hierarchical_state(run_state, tmp_path)
+
+    result, runnable, _ = _run_extractor(
+        state,
+        ["empty", "success", "success", "success"],
+    )
+
+    assert len(runnable.prompts) == 4
+    assert "内容完全为空" in runnable.prompts[1]
+    settings_by_name = {
+        item["name"]: item["value"]
+        for item in result["paper_summary"][
+            "experiment_settings"
+        ]
+    }
+    assert settings_by_name["training epochs"] == "35"
+    assert not any(
+        item["code"] == "PAPER_SECTION_EXTRACTION_EMPTY"
+        for item in result.get("stage_errors", [])
+    )
+
+
 def test_all_sections_failed_returns_terminal_fallback(
     run_state: dict,
     tmp_path: Path,
@@ -599,9 +640,9 @@ def test_cache_hit_skips_llm_and_prompt_version_invalidates(
             ["success", "success", "success"]
         )
         with patch(
-            "app.nodes.method_extractor_node."
-            "PAPER_SECTION_EXTRACTION_PROMPT_VERSION",
-            "phase18-v2",
+                "app.nodes.method_extractor_node."
+                "PAPER_SECTION_EXTRACTION_PROMPT_VERSION",
+                "phase18-v3",
         ):
             third = method_extractor_node(
                 {**resumed_state, **second}
